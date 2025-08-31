@@ -33,10 +33,10 @@ const Page = () => {
           <div className="relative mx-auto text-center flex flex-col items-center gap-10">
             <div>
               <Heading>
-                <span>Real-Time SaaS Insights,</span>
+                <span>Secure Escrow Payments,</span>
                 <br />
                 <span className="relative bg-gradient-to-r from-brand-700 to-brand-800 text-transparent bg-clip-text">
-                  Delivered to Your Discord
+                   Protecting Every Transaction
                 </span>
               </Heading>
             </div>
@@ -52,9 +52,10 @@ const Page = () => {
 
             <ul className="space-y-2 text-base/7 text-gray-600 text-left flex flex-col items-start">
               {[
-                "Real-time Discord alerts for critical events",
-                "Buy once, use forever",
-                "Track sales, new users, or any other event",
+                 "One-click escrow button or simple API integration",
+    "Funds held securely until buyer confirms delivery",
+    "Automatic notifications & status updates for both parties",
+    "Dispute flow and conditional release built-in",
               ].map((item, index) => (
                 <li key={index} className="flex gap-1.5 items-center text-left">
                   <Check className="size-5 shrink-0 text-brand-700" />
