@@ -83,14 +83,10 @@ export const UpgradePageContent = ({ plan }: { plan: Plan }) => {
           <span className="animate-pulse w-8 h-4 bg-gray-200"></span>
         )}
         {plan !== "PRO" ? (
-          <span
-            onClick={() => createCheckoutSession()}
-            className="inline cursor-pointer underline text-brand-600"
-          >
-            {" "}
-            or upgrade now to increase your limit &rarr;
-          </span>
-        ) : null}
+  <div className="mt-4 p-4 rounded-md bg-yellow-100 text-yellow-800">
+    Upgrade plan (demo placeholder)
+  </div>
+) : null}
       </p>
     </div>
   )
