@@ -1,6 +1,5 @@
 import { db } from "@/db"
 import { j } from "./__internals/j"
-import { currentUser } from "@clerk/nextjs/server"
 import { HTTPException } from "hono/http-exception"
 
 const authMiddleware = j.middleware(async ({ c, next }) => {
@@ -15,7 +14,7 @@ const authMiddleware = j.middleware(async ({ c, next }) => {
 
     if (user) return next({ user })
   }
-
+const { currentUser } = await import("@clerk/nextjs/server")
   const auth = await currentUser()
 
   if (!auth) {

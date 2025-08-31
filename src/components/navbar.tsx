@@ -3,9 +3,9 @@ import { MaxWidthWrapper } from "./max-width-wrapper"
 import { SignOutButton } from "@clerk/nextjs"
 import { Button, buttonVariants } from "./ui/button"
 import { ArrowRight } from "lucide-react"
-import { currentUser } from "@clerk/nextjs/server"
 
 export const Navbar = async () => {
+  const { currentUser } = await import("@clerk/nextjs/server")
   const user = await currentUser()
 
   return (

@@ -1,6 +1,5 @@
 import { DashboardPage } from "@/components/dashboard-page"
 import { db } from "@/db"
-import { currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { DashboardPageContent } from "./dashboard-page-content"
 import { CreateEventCategoryModal } from "@/components/create-event-category-modal"
@@ -16,6 +15,7 @@ interface PageProps {
 }
 
 const Page = async ({ searchParams }: PageProps) => {
+  const { currentUser } = await import("@clerk/nextjs/server")
   const auth = await currentUser()
 
   if (!auth) {

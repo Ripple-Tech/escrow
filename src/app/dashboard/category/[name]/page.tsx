@@ -1,6 +1,5 @@
 import { DashboardPage } from "@/components/dashboard-page"
 import { db } from "@/db"
-import { currentUser } from "@clerk/nextjs/server"
 import { notFound } from "next/navigation"
 import { CategoryPageContent } from "./category-page-content"
 
@@ -12,7 +11,7 @@ interface PageProps {
 
 const Page = async ({ params }: PageProps) => {
   if (typeof params.name !== "string") return notFound()
-
+const { currentUser } = await import("@clerk/nextjs/server")
   const auth = await currentUser()
 
   if (!auth) {
