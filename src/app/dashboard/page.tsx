@@ -6,8 +6,8 @@ import { DashboardPageContent } from "./dashboard-page-content"
 import { CreateEventCategoryModal } from "@/components/create-event-category-modal"
 import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
-import { createCheckoutSession } from "@/lib/stripe"
-import { PaymentSuccessModal } from "@/components/payment-success-modal"
+// ❌ removed import { createCheckoutSession } from "@/lib/stripe"
+// ❌ removed import { PaymentSuccessModal } from "@/components/payment-success-modal"
 
 interface PageProps {
   searchParams: {
@@ -30,23 +30,14 @@ const Page = async ({ searchParams }: PageProps) => {
     return redirect("/welcome")
   }
 
-  const intent = searchParams.intent
+  // ⚠️ Previously handled "upgrade" -> Stripe checkout
+  // Now we just ignore it so nothing breaks.
+  // const intent = searchParams.intent
 
-  if (intent === "upgrade") {
-    const session = await createCheckoutSession({
-      userEmail: user.email,
-      userId: user.id,
-    })
-
-    if (session.url) redirect(session.url)
-  }
-
-  const success = searchParams.success
+  // const success = searchParams.success
 
   return (
     <>
-      {success ? <PaymentSuccessModal /> : null}
-
       <DashboardPage
         cta={
           <CreateEventCategoryModal>
