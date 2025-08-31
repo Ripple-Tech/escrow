@@ -5,6 +5,8 @@ import { CATEGORY_NAME_VALIDATOR } from "@/lib/validators/category-validator"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
+export const runtime = "nodejs";
+
 const REQUEST_VALIDATOR = z
   .object({
     category: CATEGORY_NAME_VALIDATOR,
