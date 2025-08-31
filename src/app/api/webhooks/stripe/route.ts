@@ -3,6 +3,9 @@ import { stripe } from "@/lib/stripe"
 import { headers } from "next/headers"
 import Stripe from "stripe"
 
+// 👇 Add this line to force Node runtime instead of Edge
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
   const body = await req.text()
   const signature = headers().get("stripe-signature")
