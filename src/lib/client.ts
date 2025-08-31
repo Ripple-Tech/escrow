@@ -20,8 +20,8 @@ export const baseClient = hc<AppType>(getBaseUrl(), {
   fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
     const response = await fetch(input, { ...init, cache: "no-store" })
 
-    if (!response.ok) {
-  throw new HTTPException(response.status as number, {
+  if (!response.ok) {
+  throw new HTTPException(response.status as any, {
     message: response.statusText,
     res: response,
   })
