@@ -3,6 +3,7 @@ import { db } from "@/db"
 import { redirect } from "next/navigation"
 import { DashboardPageContent } from "./dashboard-page-content"
 import { CreateEventCategoryModal } from "@/components/create-event-category-modal"
+import {CreateEscrowModal} from "@/components/create-escrow"
 import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
 import { createCheckoutSession } from "@/lib/stripe"
@@ -49,12 +50,12 @@ const Page = async ({ searchParams }: PageProps) => {
 
       <DashboardPage
         cta={
-          <CreateEventCategoryModal>
+          <CreateEscrowModal>
             <Button className="w-full sm:w-fit">
               <PlusIcon className="size-4 mr-2" />
-              Add Category
+              Create Escrow
             </Button>
-          </CreateEventCategoryModal>
+          </CreateEscrowModal>
         }
         title="Dashboard"
       >

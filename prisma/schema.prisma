@@ -22,16 +22,18 @@ model User {
 
   quotaLimit Int
   plan       Plan @default(FREE)
-
+  
   email     String   @unique
   apiKey    String   @unique @default(cuid())
   discordId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  escrows      Escrow[]
   EventCategories EventCategory[]
   events           Event[]
   Quota           Quota[]
+  sentEscrows     Escrow[] @relation("SentEscrows")
+  receivedEscrows Escrow[] @relation("ReceivedEscrows")
 
   @@index([email, apiKey])
 }
@@ -89,4 +91,44 @@ model Quota {
   count Int @default(0)
 
   updatedAt DateTime @updatedAt
+}
+
+enum EscrowStatus {
+  PENDING
+  RELEASED
+  CANCELLED
+}
+
+enum EscrowRole {
+  SELLER
+  BUYER
+}
+
+model Escrow {
+  id            String       @id @default(cuid())
+  productName   String
+  description   String?
+  amount        Decimal
+  currency      String       @default("USD")
+  status        EscrowStatus @default(PENDING)
+  role          EscrowRole
+
+  // Sender is required
+  sender        User         @relation("SentEscrows", fields: [senderId], references: [id])
+  senderId      String
+
+  // Receiver is optional until connected
+  receiver      User?        @relation("ReceivedEscrows", fields: [receiverId], references: [id])
+  receiverId    String?
+  receiverEmail String
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Owner of this escrow (who created it)
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
 }
