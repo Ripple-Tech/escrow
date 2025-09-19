@@ -3,6 +3,7 @@ import { router } from "../__internals/router"
 import { privateProcedure } from "../procedures"
 import { ESCROW_VALIDATOR } from "@/lib/validators/escrow-validator"
 import { HTTPException } from "hono/http-exception"
+import { z } from "zod"
 
 export const escrowRouter = router({
   createEscrow: privateProcedure
@@ -40,4 +41,57 @@ export const escrowRouter = router({
     })
     return c.superjson({ escrows })
   }),
+
+  deleteEscrow: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ c, input, ctx }) => {
+      const { id } = input
+
+      await db.escrow.delete({
+        where: { id: input.id, senderId: ctx.user.id },
+      })
+
+      return c.superjson({ success: true })
+    }),
+
+  getEscrowById: privateProcedure
+  .input(z.object({ id: z.string() }))
+  .query(async ({ ctx, input, c }) => {
+    const { id } = input
+
+    const escrow = await db.escrow.findFirst({
+      where: {
+        id,
+        OR: [
+          { senderId: ctx.user.id },
+          { receiverId: ctx.user.id },
+        ],
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            email: true,
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            email: true,
+          },
+        },
+      },
+    })
+
+    if (!escrow) {
+      throw new HTTPException(404, {
+        message: "Escrow not found or you do not have access.",
+      })
+    }
+
+    return c.superjson({ escrow })
+  }),
+
+
+
 })
