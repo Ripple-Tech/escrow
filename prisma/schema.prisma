@@ -93,6 +93,8 @@ model Quota {
   updatedAt DateTime @updatedAt
 }
 
+
+
 enum EscrowStatus {
   PENDING
   RELEASED
@@ -102,6 +104,24 @@ enum EscrowStatus {
 enum EscrowRole {
   SELLER
   BUYER
+}
+
+enum EscrowSource {
+  INTERNAL
+  API
+}
+
+enum EscrowInvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum LogisticsOption {
+  NO
+  PICKUP
+  DELIVERY
 }
 
 model Escrow {
@@ -120,7 +140,18 @@ model Escrow {
   // Receiver is optional until connected
   receiver      User?        @relation("ReceivedEscrows", fields: [receiverId], references: [id])
   receiverId    String?
-  receiverEmail String
+  receiverEmail String?
+
+  // New features from reference model
+  source            EscrowSource           @default(INTERNAL)
+  invitationStatus  EscrowInvitationStatus @default(PENDING)
+  invitedRole       EscrowRole?
+
+  logistics     LogisticsOption @default(NO)
+  photoUrl      String?
+  color         String?
+  category      String?
+  quantity      Int?
 
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
@@ -131,4 +162,5 @@ model Escrow {
 
   @@index([senderId])
   @@index([receiverId])
+  @@index([userId])
 }

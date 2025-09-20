@@ -1,18 +1,40 @@
 import { z } from "zod"
 
+// Existing enums
 export const ESCROW_ROLE = z.enum(["SELLER", "BUYER"])
 export const ESCROW_STATUS = z.enum(["PENDING", "RELEASED", "CANCELLED"])
 
+// New enums (match Prisma)
+export const ESCROW_SOURCE = z.enum(["INTERNAL", "API"]).default("INTERNAL")
+export const ESCROW_INVITATION_STATUS = z
+  .enum(["PENDING", "ACCEPTED", "DECLINED", "EXPIRED"])
+  .default("PENDING")
+export const LOGISTICS_OPTION = z.enum(["NO", "PICKUP", "DELIVERY"]).default("NO")
+
 export const ESCROW_VALIDATOR = z
   .object({
+    // Core fields (unchanged)
     productName: z.string().min(1, "Product name is required."),
     description: z.string().optional(),
     amount: z.coerce.number().positive("Amount must be greater than 0."),
     currency: z.string().min(2).max(5),
     status: ESCROW_STATUS.default("PENDING"),
     role: ESCROW_ROLE.default("SELLER"),
-    receiverEmail: z.string().email("Invalid receiver email."),
     receiverId: z.string().cuid("Invalid receiver ID.").optional(),
+
+    // New optional fields
+    source: ESCROW_SOURCE.optional(), // server defaults to INTERNAL if omitted
+    logistics: LOGISTICS_OPTION.optional(), // server defaults to NO if omitted
+    receiverEmail: z.string().email("Invalid receiver email.").optional(),
+    photoUrl: z.string().url().optional().or(z.literal("")),
+
+    color: z.string().optional(),
+    category: z.string().optional(),
+    quantity: z.coerce.number().int().positive().optional(),
+
+    // Invitation fields (server may compute invitedRole; keep optional for flexibility)
+    invitedRole: ESCROW_ROLE.optional(),
+    invitationStatus: ESCROW_INVITATION_STATUS.optional(),
   })
   .refine((data) => !data.receiverId || data.receiverId.length > 0, {
     message: "Invalid receiver ID.",
