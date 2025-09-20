@@ -1,6 +1,6 @@
 import { CreateEventCategoryModal } from "@/components/create-event-category-modal"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/components/card"
 import { client } from "@/lib/client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 

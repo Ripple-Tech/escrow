@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { client } from "@/lib/client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/components/card"
 import { ArrowUpDown, BarChart } from "lucide-react"
 import { isAfter, isToday, startOfMonth, startOfWeek } from "date-fns"
 

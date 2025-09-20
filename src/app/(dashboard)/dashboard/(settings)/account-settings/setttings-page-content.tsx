@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/components/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { client } from "@/lib/client"

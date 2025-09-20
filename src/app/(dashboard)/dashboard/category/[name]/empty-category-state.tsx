@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card"
+import { Card } from "@/components/card"
 import { client } from "@/lib/client"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"

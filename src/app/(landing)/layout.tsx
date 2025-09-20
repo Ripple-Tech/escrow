@@ -1,13 +1,10 @@
-import { ReactNode } from "react"
-import { Navbar } from "@/components/navbar"
+import { Navbar } from "@/components/shared/Navbar";
 
-const Layout = ({ children }: { children: ReactNode }) => {
+export default function HomeLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      {children}
-    </>
-  )
+      <div className="flex-1 bg-[#fcfce3]">{children}</div>
+    </div>
+  );
 }
-
-export default Layout
