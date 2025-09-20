@@ -1,6 +1,6 @@
 import { DashboardPage } from "@/components/dashboard/dashboard-page"
 import { db } from "@/db"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { EscrowDetailContent } from "./escrow-detail-content"
 
 interface PageProps {
@@ -16,14 +16,14 @@ const Page = async ({ params }: PageProps) => {
   const auth = await currentUser()
 
   if (!auth) {
-    return notFound()
+    redirect("/sign-in")
   }
 
   const user = await db.user.findUnique({
     where: { externalId: auth.id },
   })
 
-  if (!user) return notFound()
+  if (!user) redirect("/sign-in")
 
   const escrow = await db.escrow.findUnique({
     where: { id: params.id },
@@ -35,10 +35,12 @@ const Page = async ({ params }: PageProps) => {
 
   if (!escrow) return notFound()
 
-  // Only allow access if the escrow belongs to the user
+ // If escrow has been accepted (receiverId is set)
+if (escrow.receiverId) {
   if (escrow.senderId !== user.id && escrow.receiverId !== user.id) {
     return notFound()
   }
+}
 
   return (
     <DashboardPage  backHref="/dashboard/escrow" title={`Escrow: ${escrow.productName}`}
