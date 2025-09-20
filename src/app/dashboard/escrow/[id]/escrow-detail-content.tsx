@@ -13,6 +13,8 @@ import { ArrowUpDown, BarChart } from "lucide-react"
 import { Escrow } from "@prisma/client"
 import { IoCopyOutline } from "react-icons/io5"
 import { useUser } from "@clerk/nextjs"
+import { FaInfoCircle } from "react-icons/fa"
+import { MdHistory, MdChat } from "react-icons/md"
 
 interface EscrowDetailContentProps {
   escrow: Escrow
@@ -52,16 +54,29 @@ export const EscrowDetailContent = ({ escrow }: EscrowDetailContentProps) => {
   if (!data?.escrow) {
     return <p>Escrow not found.</p>
   }
-
   const e = data.escrow
+
+  const tabs = [
+  { value: "overview", label: "Overview", icon: <FaInfoCircle size={16} /> },
+  { value: "activity", label: "Activity", icon: <MdHistory size={16} /> },
+  { value: "chat", label: "Chat", icon: <MdChat size={16} /> },
+]
 
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-        <TabsList className="mb-2">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-        </TabsList>
+          
+    <TabsList className="mb-2 w-full flex">
+      {tabs.map(({ value, label, icon }) => (
+        <TabsTrigger
+          key={value}
+          value={value}
+          className="flex-1 flex items-center justify-center gap-2"
+        >
+          {icon} {label}
+        </TabsTrigger>
+      ))}
+    </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview">
