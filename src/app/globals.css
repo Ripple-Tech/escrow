@@ -27,7 +27,8 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --radius: 0.5rem;
+     --golden-dark: #5f3d05; /* dark brown */
   }
   .dark {
     --background: 224 71.4% 4.1%;
@@ -53,7 +54,8 @@
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --chart-5: 340 75% 55%;
+    --golden-dark: #5f3d05; /* dark brown */
   }
 }
 @layer base {
@@ -62,5 +64,19 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-kyve-hero {
+    background-image: url("/bg.png"); /* pulled from public/bg.png */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+   
+  /* Add this new utility class */
+  .text-golden-dark {
+    color: var(--golden-dark);
   }
 }

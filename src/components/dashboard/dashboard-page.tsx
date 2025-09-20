@@ -1,9 +1,9 @@
 "use client"
 
 import { ReactNode } from "react"
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
-import { Heading } from "./heading"
+import { Heading } from "@/components/heading"
 import { useRouter } from "next/navigation"
 
 interface DashboardPageProps {
@@ -11,6 +11,7 @@ interface DashboardPageProps {
   children?: ReactNode
   hideBackButton?: boolean
   cta?: ReactNode
+  onBackButtonClick?: () => void // New optional prop for custom back button behavior
 }
 
 export const DashboardPage = ({
@@ -18,8 +19,19 @@ export const DashboardPage = ({
   children,
   cta,
   hideBackButton,
+  onBackButtonClick,
 }: DashboardPageProps) => {
   const router = useRouter()
+
+  const handleBackClick = () => {
+    // If a custom function is provided, use it.
+    // Otherwise, fall back to the default navigation.
+    if (onBackButtonClick) {
+      onBackButtonClick()
+    } else {
+      router.push("/dashboard")
+    }
+  }
 
   return (
     <section className="flex-1 h-full w-full flex flex-col">
@@ -28,7 +40,7 @@ export const DashboardPage = ({
           <div className="flex items-center gap-8">
             {hideBackButton ? null : (
               <Button
-                onClick={() => router.push("/dashboard")}
+                onClick={handleBackClick} // Use the new handler
                 className="w-fit bg-white"
                 variant="outline"
               >

@@ -1,4 +1,4 @@
-import { DashboardPage } from "@/components/dashboard-page"
+import { DashboardPage } from "@/components/dashboard/dashboard-page"
 import { db } from "@/db"
 import { redirect } from "next/navigation"
 import { EscrowContent } from "./escrow-content"
