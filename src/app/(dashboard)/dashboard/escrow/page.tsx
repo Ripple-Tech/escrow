@@ -30,6 +30,7 @@ const Page = async ({ searchParams }: PageProps) => {
 
   return (
     <DashboardPage
+   
       cta={
         <CreateEscrowModal>
           <Button className="w-full sm:w-fit">

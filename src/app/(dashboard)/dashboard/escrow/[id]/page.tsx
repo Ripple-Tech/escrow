@@ -41,7 +41,8 @@ const Page = async ({ params }: PageProps) => {
   }
 
   return (
-    <DashboardPage title={`Escrow: ${escrow.productName}`}>
+    <DashboardPage  backHref="/dashboard/escrow" title={`Escrow: ${escrow.productName}`}
+    >
       <EscrowDetailContent escrow={escrow} />
     </DashboardPage>
   )
