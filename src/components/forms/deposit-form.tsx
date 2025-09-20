@@ -16,7 +16,7 @@ import {
 
 const schema = z.object({
   amount: z
-    .number({ error: "Enter a valid number" })
+    .number({ invalid_type_error: "Enter a valid number" })
     .min(100, "Minimum deposit is ₦100")
     .max(1_000_000, "Maximum deposit is ₦1,000,000"),
 })
