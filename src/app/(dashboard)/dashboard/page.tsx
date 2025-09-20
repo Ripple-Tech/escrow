@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
 import { createCheckoutSession } from "@/lib/stripe"
 import { PaymentSuccessModal } from "@/components/payment-success-modal"
+import Transaction from "@/components/dashboard/Transactions"
 
 interface PageProps {
   searchParams: {
@@ -59,7 +60,7 @@ const Page = async ({ searchParams }: PageProps) => {
         }
         title="Dashboard"
       >
-        <DashboardPageContent />
+        <Transaction />
       </DashboardPage>
     </>
   )
