@@ -11,12 +11,28 @@ import { Heading } from "@/components/heading"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ArrowUpDown, BarChart } from "lucide-react"
 import { Escrow } from "@prisma/client"
+import { IoCopyOutline } from "react-icons/io5"
+import { useUser } from "@clerk/nextjs"
 
 interface EscrowDetailContentProps {
   escrow: Escrow
 }
 
 export const EscrowDetailContent = ({ escrow }: EscrowDetailContentProps) => {
+    const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/escrow/${escrow.id}`
+    const { user } = useUser()
+    const isCreator = escrow.senderId === user?.id
+    const [copied, setCopied] = useState(false)
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error("Copy failed", err)
+      alert("Failed to copy link.")
+    }
+  }
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -57,8 +73,36 @@ export const EscrowDetailContent = ({ escrow }: EscrowDetailContentProps) => {
               <p><strong>Amount:</strong> {e.amount.toString()} {e.currency}</p>
               <p><strong>Status:</strong> {e.status}</p>
               <p><strong>Role:</strong> {e.role}</p>
-              {e.receiverEmail && <p><strong>Receiver Email:</strong> {e.receiverEmail}</p>}
+              {e.receiverEmail && (
+          <p><strong>Receiver Email:</strong> {e.receiverEmail}</p>
+        )}
+
+          {/* 🔒 Sharable link — show only if creator */}
+          {/* {isCreator && ( */}
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Sharable Link:</span>
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline text-sm truncate max-w-[60%]"
+              >
+                {shareUrl}
+              </a>
+              <button
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() => handleCopy(shareUrl)}
+              >
+                <IoCopyOutline size={18} />
+                {copied ? <span className="text-green-600">Copied!</span> : null}
+              </button>
             </div>
+          {/* )} */}
+      
+         </div>
+
+             
+
           </Card>
         </TabsContent>
 
@@ -85,6 +129,10 @@ export const EscrowDetailContent = ({ escrow }: EscrowDetailContentProps) => {
           </Card>
         </TabsContent>
       </Tabs>
+
+       
+
+        
 
       <div className="flex justify-end">
         <Button variant="destructive" onClick={() => router.push("/dashboard/escrow")}>
