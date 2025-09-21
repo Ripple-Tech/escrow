@@ -13,6 +13,10 @@ const config: Config = {
       fontFamily: {
         heading: ["var(--font-heading)", ...fontFamily.sans],
       },
+      boxShadow: {
+        // name becomes class `shadow-primary-glow`
+        "primary-glow": "0 10px 30px rgb(var(--primary-rgb) / 0.18), 0 0 40px rgb(var(--primary-rgb) / 0.10)"
+      },
       colors: {
         brand: {
           "25": "#F8F9FD",
