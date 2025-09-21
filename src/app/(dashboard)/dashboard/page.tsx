@@ -1,6 +1,9 @@
 import { DashboardPage } from "@/components/dashboard/dashboard-page"
 import { db } from "@/db"
 import { redirect } from "next/navigation"
+import {CreateEscrowModal} from "@/components/create-escrow"
+import { Button } from "@/components/ui/button"
+import { PlusIcon } from "lucide-react"
 import { PaymentSuccessModal } from "@/components/payment-success-modal"
 import Transaction from "@/components/dashboard/Transactions"
 import getCurrentUser from "@/actions/getCurrentUser"
@@ -31,8 +34,7 @@ const Page = async ({ searchParams }: PageProps) => {
     <>
       
 
-      <DashboardPage isDashboard={true}
-       
+      <DashboardPage isDashboard={true} showCreate={true}
         title="Dashboard"
       >
         <Transaction />
