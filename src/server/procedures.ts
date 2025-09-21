@@ -1,6 +1,7 @@
 import { db } from "@/db"
 import { j } from "./__internals/j"
 import { HTTPException } from "hono/http-exception"
+import getCurrentUser from "@/actions/getCurrentUser"
 
 const authMiddleware = j.middleware(async ({ c, next }) => {
   const authHeader = c.req.header("Authorization")
@@ -14,15 +15,15 @@ const authMiddleware = j.middleware(async ({ c, next }) => {
 
     if (user) return next({ user })
   }
-const { currentUser } = await import("@clerk/nextjs/server")
-  const auth = await currentUser()
+
+  const auth = await getCurrentUser()
 
   if (!auth) {
     throw new HTTPException(401, { message: "Unauthorized" })
   }
 
   const user = await db.user.findUnique({
-    where: { externalId: auth.id },
+    where: { id: auth.id },
   })
 
   if (!user) {

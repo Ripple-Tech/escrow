@@ -1,14 +1,13 @@
 import { DashboardPage } from "@/components/dashboard/dashboard-page"
 import { db } from "@/db"
 import { redirect } from "next/navigation"
-import { DashboardPageContent } from "./dashboard-page-content"
-import { CreateEventCategoryModal } from "@/components/create-event-category-modal"
 import {CreateEscrowModal} from "@/components/create-escrow"
 import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
 import { createCheckoutSession } from "@/lib/stripe"
 import { PaymentSuccessModal } from "@/components/payment-success-modal"
 import Transaction from "@/components/dashboard/Transactions"
+import getCurrentUser from "@/actions/getCurrentUser"
 
 interface PageProps {
   searchParams: {
@@ -17,37 +16,24 @@ interface PageProps {
 }
 
 const Page = async ({ searchParams }: PageProps) => {
-  const { currentUser } = await import("@clerk/nextjs/server")
-  const auth = await currentUser()
-
-  if (!auth) {
-    redirect("/sign-in")
-  }
-
-  const user = await db.user.findUnique({
-    where: { externalId: auth.id },
-  })
+ const auth = await getCurrentUser()
+   if (!auth) {
+     redirect("/auth/login")
+   }
+ 
+   const user = await db.user.findUnique({
+     where: { id: auth.id },
+   })
 
   if (!user) {
-    return redirect("/welcome")
+    return redirect("/auth/login")
   }
 
-  const intent = searchParams.intent
 
-  if (intent === "upgrade") {
-    const session = await createCheckoutSession({
-      userEmail: user.email,
-      userId: user.id,
-    })
-
-    if (session.url) redirect(session.url)
-  }
-
-  const success = searchParams.success
 
   return (
     <>
-      {success ? <PaymentSuccessModal /> : null}
+      
 
       <DashboardPage
         cta={

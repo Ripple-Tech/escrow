@@ -16,81 +16,105 @@ enum Plan {
   PRO
 }
 
+// Auth Models
+
+model Account {
+  id                 String   @id @default(uuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
 model User {
-  id         String  @id @default(cuid())
-  externalId String? @unique
+  id                 String               @id @default(uuid())
+  email              String?              @unique
+  emailVerified      DateTime?
+  verifiedUser       DateTime?
+  name               String?
+  image              String?
+  password           String?
+  role               UserRole             @default(USER)
+  apiKey             String               @unique @default(cuid())
+  isGuest            Boolean              @default(false)
+  isTwoFactorEnabled Boolean              @default(false)
+  balance            Int                  @default(0)
 
-  quotaLimit Int
-  plan       Plan @default(FREE)
+
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  // Auth and security relations
+  accounts           Account[]
+  twoFactorConfirmation TwoFactorConfirmation?
+  transactions       Transaction[]
+
+  // Escrow relations
+  createdEscrows     Escrow[]             @relation("CreatorEscrows")
+  buyerEscrows       Escrow[]             @relation("BuyerEscrows")
+  sellerEscrows      Escrow[]             @relation("SellerEscrows")
+  sentEscrows        Escrow[]             @relation("SentEscrows")
+
+  receivedEscrows    Escrow[]             @relation("ReceivedEscrows")
+
+  // Opposite relation for Escrow.user
+  escrows            Escrow[]             @relation("UserEscrows")
+
   
-  email     String   @unique
-  apiKey    String   @unique @default(cuid())
-  discordId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  escrows      Escrow[]
-  EventCategories EventCategory[]
-  events           Event[]
-  Quota           Quota[]
-  sentEscrows     Escrow[] @relation("SentEscrows")
-  receivedEscrows Escrow[] @relation("ReceivedEscrows")
-
+  // New index for improved query performance
   @@index([email, apiKey])
 }
 
-model EventCategory {
-  id    String  @id @default(cuid())
-  name  String
-  color Int
-  emoji String?
+// Security and password management models
+model VerificationToken {
+  id      String   @id @default(uuid())
+  email   String
+  token   String   @unique
+  expires DateTime
 
-  user   User   @relation(fields: [userId], references: [id])
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(uuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id      String   @id @default(uuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id     String @id @default(uuid())
   userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  events     Event[]
-
-  @@unique([name, userId])
-}
-
-enum DeliveryStatus {
-  PENDING
-  DELIVERED
-  FAILED
-}
-
-model Event {
-  id               String @id @default(cuid())
-  formattedMessage String
-
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
-
-  name   String
-  fields Json
-
-  deliveryStatus DeliveryStatus @default(PENDING)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  EventCategory   EventCategory? @relation(fields: [eventCategoryId], references: [id])
-  eventCategoryId String?
-
-  @@index([createdAt])
-}
-
-model Quota {
-  id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
-
-  year  Int
-  month Int
-  count Int @default(0)
-
-  updatedAt DateTime @updatedAt
+  @@unique([userId])
 }
 
 
@@ -124,23 +148,45 @@ enum LogisticsOption {
   DELIVERY
 }
 
+enum Currency {
+  NGN
+  USD
+  GHS
+}
+
 model Escrow {
   id            String       @id @default(cuid())
   productName   String
   description   String?
   amount        Decimal
-  currency      String       @default("USD")
+  currency      Currency
   status        EscrowStatus @default(PENDING)
   role          EscrowRole
 
   // Sender is required
   sender        User         @relation("SentEscrows", fields: [senderId], references: [id])
   senderId      String
-
+  senderEmail   String?
   // Receiver is optional until connected
   receiver      User?        @relation("ReceivedEscrows", fields: [receiverId], references: [id])
   receiverId    String?
   receiverEmail String?
+
+  // Buyer relation (opposite of buyerEscrows)
+  buyer         User?        @relation("BuyerEscrows", fields: [buyerId], references: [id])
+  buyerId       String?
+
+  // Seller relation (opposite of sellerEscrows)
+  seller        User?        @relation("SellerEscrows", fields: [sellerId], references: [id])
+  sellerId      String?
+
+  // Creator relation
+  creator       User         @relation("CreatorEscrows", fields: [creatorId], references: [id])
+  creatorId     String
+
+  // Opposite relation for User.escrows
+  user         User?        @relation("UserEscrows", fields: [userId], references: [id])
+  userId       String?
 
   // New features from reference model
   source            EscrowSource           @default(INTERNAL)
@@ -155,12 +201,32 @@ model Escrow {
 
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+}
 
-  // Owner of this escrow (who created it)
-  userId        String
-  user          User         @relation(fields: [userId], references: [id])
+// Transaction Models
+enum TransactionType {
+  DEPOSIT
+  WITHDRAW
+  TRANSFER
+}
 
-  @@index([senderId])
-  @@index([receiverId])
-  @@index([userId])
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  type      TransactionType
+  status    TransactionStatus @default(PENDING)
+  reference String            @unique
+  amount    Float
+  currency  Currency
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

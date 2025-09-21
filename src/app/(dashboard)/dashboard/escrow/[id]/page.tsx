@@ -2,6 +2,7 @@ import { DashboardPage } from "@/components/dashboard/dashboard-page"
 import { db } from "@/db"
 import { notFound, redirect } from "next/navigation"
 import { EscrowDetailContent } from "./escrow-detail-content"
+import getCurrentUser from "@/actions/getCurrentUser"
 
 interface PageProps {
   params: {
@@ -12,18 +13,19 @@ interface PageProps {
 const Page = async ({ params }: PageProps) => {
   if (typeof params.id !== "string") return notFound()
 
-  const { currentUser } = await import("@clerk/nextjs/server")
-  const auth = await currentUser()
-
-  if (!auth) {
-    redirect("/sign-in")
-  }
-
-  const user = await db.user.findUnique({
-    where: { externalId: auth.id },
-  })
-
-  if (!user) redirect("/sign-in")
+   const auth = await getCurrentUser()
+   if (!auth) {
+     redirect("/auth/login")
+   }
+ 
+   const user = await db.user.findUnique({
+     where: { id: auth.id },
+   })
+ 
+   if (!user) {
+     return redirect("/auth/login")
+   }
+ 
 
   const escrow = await db.escrow.findUnique({
     where: { id: params.id },
@@ -42,10 +44,13 @@ if (escrow.receiverId) {
   }
 }
 
+// Compute creator on the server using your app's internal IDs
+const isCreator = escrow.senderId === user.id
+
   return (
     <DashboardPage  backHref="/dashboard/escrow" title={`Escrow: ${escrow.productName}`}
     >
-      <EscrowDetailContent escrow={escrow} />
+      <EscrowDetailContent escrow={escrow} isCreator={isCreator}   />
     </DashboardPage>
   )
 }

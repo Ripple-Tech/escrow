@@ -25,11 +25,12 @@ export const escrowRouter = router({
         data: {
           userId: ctx.user.id,
           senderId: ctx.user.id,
-
+          senderEmail: input.senderEmail ?? ctx.user.email,
+          
           // Product core
           productName: input.productName,
           description: input.description,
-
+          creatorId: ctx.user.id,
           // Money
           amount: input.amount,
           currency: input.currency,
@@ -40,6 +41,7 @@ export const escrowRouter = router({
 
           // Receiver (optional until accepted)
           receiverId: input.receiverId ?? undefined,
+          receiverEmail: input.receiverEmail,
 
           // New fields (optional fallbacks)
           source: (input.source as any) ?? "INTERNAL",
@@ -100,61 +102,100 @@ export const escrowRouter = router({
     }),
 
   // acceptEscrow procedure
-  acceptEscrow: privateProcedure
+acceptEscrow: privateProcedure
+.input(z.object({ escrowId: z.string().min(1) }))
+.mutation(async ({ ctx, input, c }) => {
+const escrow = await db.escrow.findUnique({
+where: { id: input.escrowId },
+include: {
+sender: { select: { id: true, email: true } },
+receiver: { select: { id: true, email: true } },
+},
+})
+
+if (!escrow) {
+  throw new HTTPException(404, { message: "Escrow not found" })
+}
+
+if (escrow.senderId === ctx.user.id) {
+  throw new HTTPException(403, { message: "Sender cannot accept own escrow." })
+}
+
+// If already accepted by same user, ensure idempotency fields are correct
+if (escrow.receiverId && escrow.receiverId === ctx.user.id) {
+  if (escrow.invitationStatus !== "ACCEPTED" || !escrow.invitedRole) {
+    const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
+    await db.escrow.update({
+      where: { id: input.escrowId },
+      data: {
+        invitationStatus: "ACCEPTED",
+        invitedRole: oppositeRole,
+      },
+    })
+  }
+  return c.superjson({ success: true, escrowId: escrow.id })
+}
+
+if (escrow.receiverId && escrow.receiverId !== ctx.user.id) {
+  throw new HTTPException(409, { message: "Escrow already accepted by another user." })
+}
+
+const user = await db.user.findUnique({
+  where: { id: ctx.user.id },
+  select: { id: true, email: true },
+})
+if (!user) {
+  throw new HTTPException(404, { message: "User not found" })
+}
+
+const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
+
+await db.escrow.update({
+  where: { id: input.escrowId },
+  data: {
+    receiverId: ctx.user.id,
+    receiverEmail: escrow.receiverEmail ?? user.email ?? "",
+    invitationStatus: "ACCEPTED",
+    invitedRole: oppositeRole,
+    // keep status as PENDING (your schema has no ACCEPTED in EscrowStatus)
+  },
+})
+
+return c.superjson({ success: true, escrowId: escrow.id })
+}),
+
+
+declineEscrow: privateProcedure
     .input(z.object({ escrowId: z.string().min(1) }))
     .mutation(async ({ ctx, input, c }) => {
       const escrow = await db.escrow.findUnique({
         where: { id: input.escrowId },
-        include: {
-          sender: { select: { id: true, email: true } },
-          receiver: { select: { id: true, email: true } },
-        },
+        select: { id: true, senderId: true, receiverId: true, invitationStatus: true },
       })
 
       if (!escrow) {
         throw new HTTPException(404, { message: "Escrow not found" })
       }
 
-      // Sender cannot accept own escrow
       if (escrow.senderId === ctx.user.id) {
-        throw new HTTPException(403, { message: "Sender cannot accept own escrow." })
+        throw new HTTPException(403, { message: "Sender cannot decline own escrow." })
       }
 
-      // If already accepted by same user, idempotent success
-      if (escrow.receiverId && escrow.receiverId === ctx.user.id) {
-        // Ensure invitationStatus is ACCEPTED for idempotency
-        if (escrow.invitationStatus !== "ACCEPTED") {
-          await db.escrow.update({
-            where: { id: input.escrowId },
-            data: { invitationStatus: "ACCEPTED" },
-          })
-        }
-        return c.superjson({ success: true, escrowId: escrow.id })
-      }
-
-      // If already accepted by another user, block
+      // If already accepted by someone, cannot decline
       if (escrow.receiverId && escrow.receiverId !== ctx.user.id) {
         throw new HTTPException(409, { message: "Escrow already accepted by another user." })
       }
 
-      // Attach current user as receiver and mark invitation accepted
-      const user = await db.user.findUnique({
-        where: { id: ctx.user.id },
-        select: { id: true, email: true },
-      })
-      if (!user) {
-        throw new HTTPException(404, { message: "User not found" })
-      }
-
+      // Mark as declined. Do not set receiverId.
       await db.escrow.update({
         where: { id: input.escrowId },
         data: {
-          receiverId: ctx.user.id,
-          receiverEmail: escrow.receiverEmail ?? user.email ?? "",
-          invitationStatus: "ACCEPTED",
+          invitationStatus: "DECLINED",
         },
       })
 
       return c.superjson({ success: true, escrowId: escrow.id })
     }),
+
+
 })

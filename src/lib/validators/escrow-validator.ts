@@ -10,15 +10,18 @@ export const ESCROW_INVITATION_STATUS = z
   .enum(["PENDING", "ACCEPTED", "DECLINED", "EXPIRED"])
   .default("PENDING")
 export const LOGISTICS_OPTION = z.enum(["NO", "PICKUP", "DELIVERY"]).default("NO")
+export const CURRENCY_ENUM = z.enum(["NGN", "USD", "GHS"]);
+
 
 export const ESCROW_VALIDATOR = z
   .object({
     // Core fields (unchanged)
+    currency: CURRENCY_ENUM,
     productName: z.string().min(1, "Product name is required."),
     description: z.string().optional(),
     amount: z.coerce.number().positive("Amount must be greater than 0."),
-    currency: z.string().min(2).max(5),
     status: ESCROW_STATUS.default("PENDING"),
+    senderEmail: z.string().email("Invalid sender email.").optional(),
     role: ESCROW_ROLE.default("SELLER"),
     receiverId: z.string().cuid("Invalid receiver ID.").optional(),
 
@@ -26,6 +29,7 @@ export const ESCROW_VALIDATOR = z
     source: ESCROW_SOURCE.optional(), // server defaults to INTERNAL if omitted
     logistics: LOGISTICS_OPTION.optional(), // server defaults to NO if omitted
     receiverEmail: z.string().email("Invalid receiver email.").optional(),
+   
     photoUrl: z.string().url().optional().or(z.literal("")),
 
     color: z.string().optional(),

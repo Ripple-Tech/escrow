@@ -8,7 +8,7 @@ import { LucidePanelLeftClose } from "lucide-react";
 import { Poppins } from "next/font/google";
 import { Modal } from "../ui/modal";
 import { Separator } from "../ui/separator";
-//import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
 const poppins = Poppins({
   weight: ["700"],
@@ -31,13 +31,13 @@ interface Props {
 
 export const NavbarSidebar = ({ items, open, onOpenChange }: Props) => {
   const pathname = usePathname();
- // const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
 
-  //const handleLogout = async () => {
-    //onOpenChange(false);
+  const handleLogout = async () => {
+    onOpenChange(false);
     // Trigger client-side sign out and redirect to home (adjust if needed
-   // await signOut({ callbackUrl: "/" });
-   // };
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
     <Modal showModal={open} setShowModal={onOpenChange}>
@@ -71,7 +71,7 @@ export const NavbarSidebar = ({ items, open, onOpenChange }: Props) => {
 
       <Separator className="mx-auto w-24 bg-black/10" />
 
-      {/* Auth buttons 
+      {/* Auth buttons */}
       {status === "loading" ? null : session?.user ? (
         <button
           type="button"
@@ -100,7 +100,6 @@ export const NavbarSidebar = ({ items, open, onOpenChange }: Props) => {
         </div>
       )}
 
-      */}
     </Modal>
   );
 };

@@ -7,9 +7,9 @@ import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { MenuIcon } from "lucide-react"
 import Image from "next/image"
-//import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { NavbarSidebar } from "@/components/shared/Navbar-Sidebar"
-//import { UserAvatar } from "@/components/UserAvatar"
+import { UserAvatar } from "@/components/UserAvatar"
 
 const poppins = Poppins({
   weight: ["700"],
@@ -51,7 +51,7 @@ const NavbarItem = ({ href, children, isActive }: NavbarItemProps) => {
 
 export const Navbar = () => {
   const pathname = usePathname()
-  //const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   
   return (
@@ -102,7 +102,7 @@ export const Navbar = () => {
           </NavbarItem>
         ))}
       </div>
-{/* 
+
       <div className="hidden lg:flex">
        {status === "loading" ? null : session?.user ? (
           <UserAvatar user={session.user} />
@@ -123,7 +123,7 @@ export const Navbar = () => {
         </Button>
         </>
         )}
-      </div> */}
+      </div> 
 
       <div className="flex lg:hidden items-center justify-center">
         <button

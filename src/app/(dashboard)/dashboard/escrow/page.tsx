@@ -5,6 +5,7 @@ import { EscrowContent } from "./escrow-content"
 import { CreateEscrowModal } from "@/components/create-escrow"
 import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
+import getCurrentUser from "@/actions/getCurrentUser" 
 
 interface PageProps {
   searchParams: {
@@ -13,19 +14,18 @@ interface PageProps {
 }
 
 const Page = async ({ searchParams }: PageProps) => {
-  const { currentUser } = await import("@clerk/nextjs/server")
-  const auth = await currentUser()
 
+  const auth = await getCurrentUser()
   if (!auth) {
-    redirect("/sign-in")
+    redirect("/auth/login")
   }
 
   const user = await db.user.findUnique({
-    where: { externalId: auth.id },
+    where: { id: auth.id },
   })
 
   if (!user) {
-    return redirect("/welcome")
+    return redirect("/auth/login")
   }
 
   return (

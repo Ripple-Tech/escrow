@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { bottomNavItems } from "@/components/shared/BottomNav" 
-//import { LogoutButton } from "@/components/auth/logout-button"
+import { LogoutButton } from "@/components/auth/logout-button"
 import { LucidePanelLeftClose } from "lucide-react"
 
 const LeftSidebar = () => {
@@ -34,10 +34,10 @@ const LeftSidebar = () => {
       </div>
 
       <div className="mt-10 px-6">
-      {/* <LogoutButton>
+       <LogoutButton>
           <LucidePanelLeftClose className="h-6 w-6 mr-2" />
         </LogoutButton>
-         */}
+         
       </div>
     </section>
   )
