@@ -162,7 +162,7 @@ const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
               </p>
               {isCreator &&e.receiverEmail && <p><strong>Receiver Email:</strong> {e.receiverEmail}</p>}
               {!isCreator && e.senderEmail && <p><strong>Sender Email:</strong> {e.senderEmail}</p>}
-              {isCreator && <p><strong>Invitation Status:</strong> {e.invitationStatus}</p>}
+              <p><strong>Invitation Status:</strong> {e.invitationStatus}</p>
               <p><strong>Created At:</strong> {createdStr}</p>
               {isCreator && e.invitationStatus === "PENDING" && (
               <div className="flex items-center gap-2">

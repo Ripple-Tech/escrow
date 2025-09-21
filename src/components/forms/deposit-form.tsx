@@ -23,7 +23,7 @@ const schema = z.object({
 
 type Values = z.infer<typeof schema>
 
-export function DepositForm({ onSuccess, paymentMethod }: { onSuccess: () => void; paymentMethod: string | null }) {
+export function DepositForm({ onSuccess, }: { onSuccess: () => void; }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const form = useForm<Values>({
@@ -35,7 +35,7 @@ export function DepositForm({ onSuccess, paymentMethod }: { onSuccess: () => voi
     setError(null)
     startTransition(async () => {
       try {
-        const endpoint = paymentMethod === "paystack" ? "/api/paystack/initialize" : "/api/flutterwave/initialize";
+        const endpoint =  "/api/paystack/initialize";
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
