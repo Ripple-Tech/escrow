@@ -30,7 +30,7 @@ export const DashboardPage = ({
   const shouldShowBackButton = !!backHref
 
   return (
-    <section className="flex-1 h-full w-full flex flex-col">
+    <section className="flex-1 h-full w-full flex flex-col mb-20">
       <div className="w-full p-6 sm:p-8 flex justify-between border-b border-gray-200">
         <div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <div className="flex items-center gap-4">

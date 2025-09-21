@@ -16,6 +16,18 @@ import { MdHistory, MdChat } from "react-icons/md"
 import { parseISO } from "date-fns"
 import { format } from "date-fns"
 import { getEscrowActivity } from "@/actions/escrow-activities"
+import { FaNairaSign } from "react-icons/fa6";
+/* icon imports */
+import {
+  BadgeCheck,
+  UserCheck2,
+  Mail,
+  MailOpen,
+  Link2,
+  CalendarClock,
+  User2,
+} from "lucide-react"
+import { RiUserStarFill } from "react-icons/ri"
 
 interface EscrowDetailContentProps {
   escrow: Escrow
@@ -42,8 +54,6 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
       alert("Failed to copy link.")
     }
   }
-
-
 
   // fetch escrow details (no polling/window focus; keeps your current behavior)
   const { data } = useQuery({
@@ -73,7 +83,6 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
-      // Optional: navigate away after decline
       router.push("/dashboard/escrow")
     },
   })
@@ -89,10 +98,9 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
 
   if (!activities.length) return <p className="text-muted-foreground">No activity yet.</p>
 
-
-  const created = typeof e.createdAt === "string" ? parseISO(e.createdAt) : new Date(e.createdAt)
-// Force a stable, unambiguous format (ISO-like). Avoid toLocaleString().
-const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
+  const created =
+    typeof e.createdAt === "string" ? parseISO(e.createdAt) : new Date(e.createdAt)
+  const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
 
   const tabs = [
     { value: "overview", label: "Overview", icon: <FaInfoCircle size={16} /> },
@@ -107,8 +115,16 @@ const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
     return (
       <div className="space-y-6">
         <Card className="p-6">
-          <h2 className="text-2xl font-bold mb-2">{e.productName}</h2>
-          <p className="mb-4">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+              <RiUserStarFill className="w-5 h-5" />
+            </span>
+            {e.productName}
+          </h2>
+          <p className="mb-4 flex items-center gap-2">
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+              <FaNairaSign className="w-4 h-4" />
+            </span>
             <strong>Amount:</strong> {e.amount.toString()} {e.currency}
           </p>
 
@@ -116,6 +132,7 @@ const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
             <Button
               onClick={() => acceptMutation.mutate()}
               disabled={acceptMutation.isPending}
+              className="shadow-primary-glow"
             >
               {acceptMutation.isPending ? "Accepting…" : "Accept"}
             </Button>
@@ -149,45 +166,127 @@ const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
         </TabsList>
 
         <TabsContent value="overview">
-          <Card className="p-6">
-            <h2 className="text-2xl font-bold mb-4">{e.productName}</h2>
-            <p className="text-muted-foreground mb-2">{e.description}</p>
+  <Card className="p-6">
+    <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
+      <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+        <FaInfoCircle className="w-5 h-5" />
+      </span>
+      {e.productName}
+    </h2>
 
-            <div className="space-y-2">
-              <p><strong>Amount:</strong> {e.amount.toString()} {e.currency}</p>
-              <p><strong>Status:</strong> {e.status}</p>
-              <p>
-              <strong>Role:</strong>{" "}
-              {isCreator ? e.role : (e.invitedRole ?? (e.role === "SELLER" ? "BUYER" : "SELLER"))}
-              </p>
-              {isCreator &&e.receiverEmail && <p><strong>Receiver Email:</strong> {e.receiverEmail}</p>}
-              {!isCreator && e.senderEmail && <p><strong>Sender Email:</strong> {e.senderEmail}</p>}
-              <p><strong>Invitation Status:</strong> {e.invitationStatus}</p>
-              <p><strong>Created At:</strong> {createdStr}</p>
-              {isCreator && e.invitationStatus === "PENDING" && (
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Sharable Link:</span>
-                <a
-                  href={shareUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline text-sm truncate max-w-[60%]"
-                >
-                  {shareUrl}
-                </a>
-                <button
-                  className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
-                  onClick={() => handleCopy(shareUrl)}
-                >
-                  <IoCopyOutline size={18} />
-                  {copied ? <span className="text-green-600">Copied!</span> : null}
-                </button>
-              </div>
-              )}
+    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+      {e.description}
+    </p>
 
+    <div className="space-y-3">
+      <p className="flex items-start gap-3">
+        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+          <FaNairaSign className="w-4 h-4" />
+        </span>
+        <span className="flex-1">
+          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Amount</span>
+          <span className="text-base font-semibold text-foreground">{e.amount.toString()} {e.currency}</span>
+        </span>
+      </p>
+
+      <p className="flex items-start gap-3">
+        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+          <BadgeCheck className="w-4 h-4" />
+        </span>
+        <span className="flex-1">
+          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Status</span>
+          <span className="text-base font-semibold text-foreground">{e.status}</span>
+        </span>
+      </p>
+
+      <p className="flex items-start gap-3">
+        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+          <User2 className="w-4 h-4" />
+        </span>
+        <span className="flex-1">
+          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Role</span>
+          <span className="text-base font-semibold text-foreground">
+            {isCreator
+              ? e.role
+              : e.invitedRole ?? (e.role === "SELLER" ? "BUYER" : "SELLER")}
+          </span>
+        </span>
+      </p>
+
+      {isCreator && e.receiverEmail && (
+        <p className="flex items-start gap-3">
+          <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+            <MailOpen className="w-4 h-4" />
+          </span>
+          <span className="flex-1">
+            <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Receiver Email</span>
+            <span className="text-base font-semibold text-foreground">{e.receiverEmail}</span>
+          </span>
+        </p>
+      )}
+
+      {!isCreator && e.senderEmail && (
+        <p className="flex items-start gap-3">
+          <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+            <Mail className="w-4 h-4" />
+          </span>
+          <span className="flex-1">
+            <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Sender Email</span>
+            <span className="text-base font-semibold text-foreground">{e.senderEmail}</span>
+          </span>
+        </p>
+      )}
+
+      <p className="flex items-start gap-3">
+        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+          <UserCheck2 className="w-4 h-4" />
+        </span>
+        <span className="flex-1">
+          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Invitation Status</span>
+          <span className="text-base font-semibold text-foreground">{e.invitationStatus}</span>
+        </span>
+      </p>
+
+      <p className="flex items-start gap-3">
+        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+          <CalendarClock className="w-4 h-4" />
+        </span>
+        <span className="flex-1">
+          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Created At</span>
+          <span className="text-base font-semibold text-foreground">{createdStr}</span>
+        </span>
+      </p>
+
+      {isCreator && e.invitationStatus === "PENDING" && (
+        <div className="flex items-start gap-3 flex-wrap">
+          <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+            <Link2 className="w-4 h-4" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Sharable Link</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline text-sm truncate max-w-[60%]"
+              >
+                {shareUrl}
+              </a>
+              <button
+                className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors shadow-primary-glow"
+                onClick={() => handleCopy(shareUrl)}
+              >
+                <IoCopyOutline size={16} />
+                {copied ? <span className="text-green-600">Copied!</span> : <span>Copy</span>}
+              </button>
             </div>
-          </Card>
-        </TabsContent>
+          </div>
+        </div>
+      )}
+    </div>
+  </Card>
+</TabsContent>
 
         <TabsContent value="activity">
           <Card className="p-6">
@@ -202,12 +301,12 @@ const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
               </TableHeader>
               <TableBody>
                 {activities.map((act) => (
-          <TableRow key={act.id}>
-            <TableCell>{new Date(act.createdAt).toLocaleString()}</TableCell>
-            <TableCell>{act.action}</TableCell>
-            <TableCell>{act.user?.email ?? act.userId}</TableCell>
-          </TableRow>
-        ))}
+                  <TableRow key={act.id}>
+                    <TableCell>{new Date(act.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>{act.action}</TableCell>
+                    <TableCell>{act.user?.email ?? act.userId}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </Card>
