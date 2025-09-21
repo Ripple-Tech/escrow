@@ -142,17 +142,7 @@ if (escrow.receiverId && escrow.receiverId === ctx.user.id) {
       },
     })
   }
-  
-// 🔥 Add the activity right after escrow is Accepted
-  await db.escrowActivity.create({
-  data: {
-    escrowId: escrow.id,
-    userId: ctx.user.id,
-    action: "ACCEPTED",
-  },
-})
-
-  return c.superjson({ success: true, escrowId: escrow.id })
+ return c.superjson({ success: true, escrowId: escrow.id })
 }
 
 if (escrow.receiverId && escrow.receiverId !== ctx.user.id) {
@@ -169,7 +159,7 @@ if (!user) {
 
 const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
 
-await db.escrow.update({
+const updated =await db.escrow.update({
   where: { id: input.escrowId },
   data: {
     receiverId: ctx.user.id,
@@ -177,6 +167,15 @@ await db.escrow.update({
     invitationStatus: "ACCEPTED",
     invitedRole: oppositeRole,
     // keep status as PENDING (your schema has no ACCEPTED in EscrowStatus)
+  },
+})
+
+// 🔥 Add the activity right after escrow is Accepted
+  await db.escrowActivity.create({
+  data: {
+    escrowId: updated.id,
+    userId: ctx.user.id,
+    action: "ACCEPTED",
   },
 })
 
