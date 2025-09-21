@@ -31,28 +31,36 @@ export const DashboardPage = ({
 
   return (
     <section className="flex-1 h-full w-full flex flex-col mb-20">
-      <div className="w-full p-6 sm:p-8 flex justify-between border-b border-gray-200">
+      <div className="w-full p-6 sm:p-8 flex justify-between border-b border-border/60 bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/50">
         <div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <div className="flex items-center gap-4">
             {shouldShowBackButton ? (
               <Button
                 onClick={() => router.push(backHref!)}
-                className="w-fit bg-white"
+                className="w-fit bg-background text-foreground hover:bg-muted/60 ring-1 ring-border shadow-none"
                 variant="outline"
               >
                 <ArrowLeft className="size-4" />
               </Button>
             ) : null}
 
-            {!isDashboard && <Heading>{title}</Heading>}
+            {!isDashboard && (
+              <Heading className="text-foreground">
+                {title}
+              </Heading>
+            )}
 
             {isDashboard && (
               <div>
-                <h1 className="text-3xl font-heading font-semibold tracking-tight text-gray-900 mb-2">
-                  Welcome <span className="text-primary">{user?.name ?? "..."}</span>
+                <h1 className="text-3xl font-heading font-semibold tracking-tight text-foreground mb-2">
+                  Welcome{" "}
+                  <span className="text-primary shadow-primary-glow inline-block">
+                    {user?.name ?? "..."}
+                  </span>
                 </h1>
-                <p className="text-2xl font-heading font-semibold tracking-tight text-gray-700">
-                  Account balance: <span className="text-golden-dark">{user?.balance / 100}</span>
+                <p className="text-2xl font-heading font-semibold tracking-tight text-muted-foreground">
+                  Account balance:{" "}
+                  <span className="text-golden-dark">{(user?.balance ?? 0) / 100}</span>
                 </p>
               </div>
             )}
@@ -68,17 +76,21 @@ export const DashboardPage = ({
             <>
               {/* Desktop button wrapped so CreateEscrowModal manages opening */}
               <CreateEscrowModal>
-                <Button size="sm" className="hidden md:block bg-primary text-white hover:bg-amber-800">
+                <Button
+                  size="sm"
+                  className="hidden md:block bg-primary text-primary-foreground hover:bg-amber-600/90 shadow-primary-glow"
+                >
                   + Create Escrow
                 </Button>
               </CreateEscrowModal>
 
-              {/* Mobile floating button wrapped too */}
+              {/* Mobile floating button wrapped too (position unchanged) */}
               <CreateEscrowModal>
                 <button
-                  className="flex md:hidden fixed bottom-20 right-8 z-20 items-center justify-center h-16 w-16 rounded-full bg-primary text-white shadow-lg hover:bg-amber-700 transition-colors duration-200"
+                  className="flex md:hidden fixed bottom-20 right-8 z-20 items-center justify-center h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-amber-600/90 transition-colors duration-200"
+                  aria-label="Create Escrow"
                 >
-                  <Plus className="h-12 w-12" />
+                  <Plus className="h-12 w-12 drop-shadow-sm" />
                 </button>
               </CreateEscrowModal>
             </>

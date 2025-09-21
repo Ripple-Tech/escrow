@@ -153,17 +153,32 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-        <TabsList className="mb-2 w-full flex">
-          {tabs.map(({ value, label, icon }) => (
-            <TabsTrigger
-              key={value}
-              value={value}
-              className="flex-1 flex items-center justify-center gap-2"
-            >
-              {icon} {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <TabsList className="mb-4 w-full flex gap-2 rounded-full bg-muted/40 p-1 border border-border/60">
+  {tabs.map(({ value, label, icon }) => (
+    <TabsTrigger
+      key={value}
+      value={value}
+      className={[
+        "group relative flex-1",
+        "flex items-center justify-center gap-2",
+        "rounded-full px-3 py-2",
+        "text-xs uppercase tracking-wide",
+        "text-muted-foreground/80",
+        "transition-all duration-200",
+        "hover:text-foreground hover:bg-background/60",
+        "data-[state=active]:text-foreground",
+        "data-[state=active]:bg-background",
+        "data-[state=active]:shadow-primary-glow",
+        "focus-visible:outline-none focus-visible:ring-0",
+      ].join(" ")}
+    >
+      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+        {icon}
+      </span>
+      <span className="font-medium">{label}</span>
+    </TabsTrigger>
+  ))}
+</TabsList>
 
         <TabsContent value="overview">
   <Card className="p-6">
