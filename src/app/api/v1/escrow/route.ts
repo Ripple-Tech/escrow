@@ -2,6 +2,7 @@ import { db } from "@/db"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { ESCROW_VALIDATOR } from "@/lib/validators/escrow-validator"
+import getCurrentUser from "@/actions/getCurrentUser"
 
 export const runtime = "nodejs"
 
@@ -25,14 +26,13 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (!appUser) {
-      const { currentUser } = await import("@clerk/nextjs/server")
-      const clerkUser = await currentUser()
-      if (!clerkUser) {
+      const User = await getCurrentUser()
+      if (!User) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
       }
       // Map Clerk user to your app user
       const user = await db.user.findUnique({
-        where: { externalId: clerkUser.id },
+        where: { id: User.id },
         select: { id: true },
       })
       if (!user) {
@@ -62,6 +62,7 @@ export const POST = async (req: NextRequest) => {
       data: {
         userId: appUser.id,
         senderId: appUser.id, // enforce authenticated user as sender
+        creatorId: appUser.id, // add creatorId as required by schema
         productName: input.productName,
         description: input.description,
         amount: input.amount, // Prisma will store as Decimal
