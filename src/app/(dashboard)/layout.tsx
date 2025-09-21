@@ -1,4 +1,4 @@
-"use client";
+
 
 import { PropsWithChildren, useState } from "react";
 
@@ -6,8 +6,6 @@ import BottomNavBar from "@/components/shared/BottomNav";
 import LeftSidebar from "@/components/shared/LeftSideBar";
 
 const Layout = ({ children }: PropsWithChildren) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
   return (
      <div lang="en">
       
