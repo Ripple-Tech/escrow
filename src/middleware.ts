@@ -55,6 +55,7 @@ export default auth((req) => {
 // Read more: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
 export const config = {
     matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+    runtime: "nodejs",
   }
 
    
