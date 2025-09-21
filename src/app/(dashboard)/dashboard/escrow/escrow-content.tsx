@@ -9,8 +9,6 @@ import { format, formatDistanceToNow } from "date-fns"
 import { ArrowRight, Clock, DollarSign, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
-import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state"
-
 export const EscrowContent = () => {
   const [deletingEscrow, setDeletingEscrow] = useState<string | null>(null)
   const queryClient = useQueryClient()
