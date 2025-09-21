@@ -76,7 +76,9 @@ model User {
   // Opposite relation for Escrow.user
   escrows            Escrow[]             @relation("UserEscrows")
 
-  
+  // Opposite relation for EscrowActivity.user
+  escrowActivities   EscrowActivity[]
+
   // New index for improved query performance
   @@index([email, apiKey])
 }
@@ -201,6 +203,9 @@ model Escrow {
 
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+
+  // Opposite relation for EscrowActivity.escrow
+  activities    EscrowActivity[]
 }
 
 // Transaction Models
@@ -229,4 +234,15 @@ model Transaction {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model EscrowActivity {
+  id        String   @id @default(uuid())
+  escrowId  String
+  userId    String
+  action    String   // e.g. CREATED, ACCEPTED, RELEASED
+  createdAt DateTime @default(now())
+
+  escrow    Escrow   @relation(fields: [escrowId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }

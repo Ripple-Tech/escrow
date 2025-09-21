@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { client } from "@/lib/client"
 import { Card } from "@/components/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -15,6 +15,7 @@ import { FaInfoCircle } from "react-icons/fa"
 import { MdHistory, MdChat } from "react-icons/md"
 import { parseISO } from "date-fns"
 import { format } from "date-fns"
+import { getEscrowActivity } from "@/actions/escrow-activities"
 
 interface EscrowDetailContentProps {
   escrow: Escrow
@@ -24,6 +25,13 @@ interface EscrowDetailContentProps {
 export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentProps) => {
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/escrow/${escrow.id}`
   const [copied, setCopied] = useState(false)
+  const [activities, setActivities] = useState<any[]>([])
+  
+  const router = useRouter()
+  const qc = useQueryClient()
+  const [activeTab, setActiveTab] = useState<"overview" | "activity" | "chat">("overview")
+
+
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -36,10 +44,6 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
   }
 
 
-
-  const router = useRouter()
-  const qc = useQueryClient()
-  const [activeTab, setActiveTab] = useState<"overview" | "activity" | "chat">("overview")
 
   // fetch escrow details (no polling/window focus; keeps your current behavior)
   const { data } = useQuery({
@@ -74,10 +78,17 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
     },
   })
 
+  useEffect(() => {
+    getEscrowActivity(escrow.id).then(setActivities).catch(console.error)
+  }, [escrow.id])
+
   if (!data?.escrow) {
     return <p>Escrow not found.</p>
   }
   const e = data.escrow
+
+  if (!activities.length) return <p className="text-muted-foreground">No activity yet.</p>
+
 
   const created = typeof e.createdAt === "string" ? parseISO(e.createdAt) : new Date(e.createdAt)
 // Force a stable, unambiguous format (ISO-like). Avoid toLocaleString().
@@ -149,7 +160,8 @@ const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
               <strong>Role:</strong>{" "}
               {isCreator ? e.role : (e.invitedRole ?? (e.role === "SELLER" ? "BUYER" : "SELLER"))}
               </p>
-              {e.receiverEmail && <p><strong>Receiver Email:</strong> {e.receiverEmail}</p>}
+              {isCreator &&e.receiverEmail && <p><strong>Receiver Email:</strong> {e.receiverEmail}</p>}
+              {!isCreator && e.senderEmail && <p><strong>Sender Email:</strong> {e.senderEmail}</p>}
               {isCreator && <p><strong>Invitation Status:</strong> {e.invitationStatus}</p>}
               <p><strong>Created At:</strong> {createdStr}</p>
               {isCreator && e.invitationStatus === "PENDING" && (
@@ -189,11 +201,13 @@ const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell>{new Date(e.createdAt).toLocaleString()}</TableCell>
-                  <TableCell>Created</TableCell>
-                  <TableCell>{e.senderId}</TableCell>
-                </TableRow>
+                {activities.map((act) => (
+          <TableRow key={act.id}>
+            <TableCell>{new Date(act.createdAt).toLocaleString()}</TableCell>
+            <TableCell>{act.action}</TableCell>
+            <TableCell>{act.user?.email ?? act.userId}</TableCell>
+          </TableRow>
+        ))}
               </TableBody>
             </Table>
           </Card>

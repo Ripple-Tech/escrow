@@ -55,6 +55,15 @@ export const escrowRouter = router({
           quantity: input.quantity ?? undefined,
         },
       })
+      
+      // 🔥 Add the activity right after escrow is created
+await db.escrowActivity.create({
+  data: {
+    escrowId: escrow.id,
+    userId: ctx.user.id,
+    action: "CREATED",
+  },
+})
 
       return c.superjson({ escrow })
     }),
@@ -133,6 +142,16 @@ if (escrow.receiverId && escrow.receiverId === ctx.user.id) {
       },
     })
   }
+  
+// 🔥 Add the activity right after escrow is Accepted
+  await db.escrowActivity.create({
+  data: {
+    escrowId: escrow.id,
+    userId: ctx.user.id,
+    action: "ACCEPTED",
+  },
+})
+
   return c.superjson({ success: true, escrowId: escrow.id })
 }
 
