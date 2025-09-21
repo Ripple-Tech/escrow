@@ -13,30 +13,41 @@ const config: Config = {
       fontFamily: {
         heading: ["var(--font-heading)", ...fontFamily.sans],
       },
+
+      /* Glow shadows — you can use `shadow-primary-glow` or `shadow-brand-glow` */
       boxShadow: {
-        // name becomes class `shadow-primary-glow`
-        "primary-glow": "0 10px 30px rgb(var(--primary-rgb) / 0.18), 0 0 40px rgb(var(--primary-rgb) / 0.10)"
+        // uses CSS var for dynamic primary rgb (works with light/dark as you set --primary-rgb)
+        "primary-glow":
+          "0 10px 30px rgba(var(--primary-rgb) / 0.18), 0 0 40px rgba(var(--primary-rgb) / 0.10)",
+        // static amber-based glow (fallback / explicit)
+        "brand-glow":
+          "0 10px 30px rgba(245,158,11,0.18), 0 0 40px rgba(245,158,11,0.08)",
       },
+
       colors: {
+        /* BRAND = amber palette (tailwind amber) */
         brand: {
-          "25": "#F8F9FD",
-          "50": "#F0F4FA",
-          "100": "#E1E9F6",
-          "200": "#C3D3ED",
-          "300": "#A5BDE4",
-          "400": "#87A7DB",
-          "500": "#6991D2",
-          "600": "#4B76C9",
-          "700": "#3659B1",
-          "800": "#284189",
-          "900": "#1B2A61",
-          "950": "#111A3E",
+          50: "#fffbeb",
+          100: "#fef3c7",
+          200: "#fde68a",
+          300: "#fcd34d",
+          400: "#fbbf24",
+          500: "#f59e0b", // primary amber
+          600: "#d97706",
+          700: "#b45309",
+          800: "#92400e",
+          900: "#78350f",
+          950: "#4c2d07",
         },
+
+        /* keep Discord stubs and others you had */
         "discord-background": "#36393f",
-		"discord-brand-color": "#5865f2",
+        "discord-brand-color": "#5865f2",
         "discord-gray": "#36393f",
         "discord-text": "#dcddde",
         "discord-timestamp": "#72767d",
+
+        /* CSS-variable driven theme tokens (unchanged) */
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -47,10 +58,14 @@ const config: Config = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
+
+        /* primary remains dynamic (keeps your theme variables working) */
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          // NOTE: we keep these present so `bg-primary` etc still work.
         },
+
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -78,6 +93,7 @@ const config: Config = {
           "5": "hsl(var(--chart-5))",
         },
       },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

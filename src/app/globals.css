@@ -14,9 +14,9 @@
 
     /* ---------- PRIMARY: amber (glowy) ---------- */
     /* Amber ~ #f59e0b -> hsl(40 95% 50%) ; rgb(245,158,11) */
-    --primary: 40 95% 50%;
-    --primary-foreground: 210 20% 98%; /* white-ish text on primary */
-    --primary-rgb: 245 158 11; /* used for rgba/glow */
+    --primary: 40 95% 50%; /* HSL for #f59e0b */
+    --primary-foreground: 210 20% 98%;
+    --primary-rgb: 245 158 11; /* for rgba-based glow */
 
     /* small variant (darker) for hover states */
     --primary-600: 40 90% 45%;
@@ -54,10 +54,10 @@
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 40 95% 50%;
+        --primary: 40 95% 50%;
     --primary-foreground: 210 20% 98%;
     --primary-rgb: 245 158 11;
-    --primary-600: 40 90% 45%;
+
     --primary-glow: 0 10px 30px rgba(var(--primary-rgb) / 0.18), 0 0 40px rgba(var(--primary-rgb) / 0.10);
 
     --secondary: 215 27.9% 16.9%;

@@ -7,6 +7,7 @@ import { client } from "@/lib/client"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, formatDistanceToNow } from "date-fns"
 import { ArrowRight, Clock, DollarSign, Trash2 } from "lucide-react"
+import { FaNairaSign } from "react-icons/fa6";
 import Link from "next/link"
 import { useState } from "react"
 export const EscrowContent = () => {
@@ -70,7 +71,7 @@ export const EscrowContent = () => {
                 </div>
 
                 <span className="text-sm font-semibold text-gray-700 flex items-center">
-                  <DollarSign className="size-4 mr-1 text-brand-500" />
+                  <FaNairaSign className="size-4 mr-1 text-brand-500" />
                   {escrow.amount} {escrow.currency}
                 </span>
               </div>
