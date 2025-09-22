@@ -279,8 +279,6 @@ if (oppositeRole === "BUYER") {
 
 
 
-
-
   declineEscrow: privateProcedure
     .input(z.object({ escrowId: z.string().min(1) }))
     .mutation(async ({ ctx, input, c }) => {
@@ -313,59 +311,58 @@ if (oppositeRole === "BUYER") {
       return c.superjson({ success: true, escrowId: escrow.id })
     }),
 
+
+
   // releaseEscrow: buyer releases locked funds to the seller
   releaseEscrow: privateProcedure
-    .input(z.object({ escrowId: z.string().min(1) }))
-    .mutation(async ({ ctx, input, c }) => {
-      // Find locked fund and escrow
-      const locked = await db.lockedfund.findUnique({
+  .input(z.object({ escrowId: z.string().min(1) }))
+  .mutation(async ({ ctx, input, c }) => {
+    const locked = await db.lockedfund.findUnique({
+      where: { escrowId: input.escrowId },
+      include: { escrow: true },
+    })
+    if (!locked) throw new HTTPException(404, { message: "No locked funds found for this escrow." })
+    if (locked.released) throw new HTTPException(400, { message: "Funds already released." })
+    if (locked.buyerId !== ctx.user.id) throw new HTTPException(403, { message: "Only the buyer can release funds." })
+
+    const escrow = await db.escrow.findUnique({
+      where: { id: input.escrowId },
+      include: { sender: true, receiver: true },
+    })
+    if (!escrow) throw new HTTPException(404, { message: "Escrow not found." })
+
+    // ✅ derive seller
+    const sellerId = escrow.role === "SELLER" ? escrow.senderId : escrow.receiverId
+    if (!sellerId) throw new HTTPException(400, { message: "Escrow has no seller to receive funds." })
+
+    const amountInt = Math.round(Number(locked.amount))
+    if (!amountInt || amountInt <= 0) throw new HTTPException(400, { message: "Invalid locked amount." })
+
+    await db.$transaction([
+      db.lockedfund.update({
         where: { escrowId: input.escrowId },
-        include: { escrow: true },
-      })
-      if (!locked) {
-        throw new HTTPException(404, { message: "No locked funds found for this escrow." })
-      }
-      if (locked.released) {
-        throw new HTTPException(400, { message: "Funds already released." })
-      }
-      if (locked.buyerId !== ctx.user.id) {
-        throw new HTTPException(403, { message: "Only the buyer who locked the funds can release them." })
-      }
+        data: { released: true },
+      }),
+      db.escrow.update({
+        where: { id: input.escrowId },
+        data: { status: "RELEASED" },
+      }),
+      db.user.update({
+        where: { id: sellerId },
+        data: { balance: { increment: amountInt } },
+      }),
+      db.escrowActivity.create({
+        data: {
+          escrowId: input.escrowId,
+          userId: ctx.user.id,
+          action: "RELEASED",
+        },
+      }),
+    ])
 
-      // Need seller to credit funds
-      const escrow = await db.escrow.findUnique({ where: { id: input.escrowId } })
-      if (!escrow) throw new HTTPException(404, { message: "Escrow not found." })
-      if (!escrow.sellerId) throw new HTTPException(400, { message: "Escrow has no seller to receive funds." })
+    return c.superjson({ success: true })
+  }),
 
-      const amountNum = Number(locked.amount)
-      if (Number.isNaN(amountNum) || amountNum <= 0) {
-        throw new HTTPException(400, { message: "Invalid locked amount." })
-      }
-      const amountInt = Math.round(amountNum)
 
-      // Atomic update: mark lockedfund released, set escrow status RELEASED, credit seller
-      await db.$transaction([
-        db.lockedfund.update({
-          where: { escrowId: input.escrowId },
-          data: { released: true },
-        }),
-        db.escrow.update({
-          where: { id: input.escrowId },
-          data: { status: "RELEASED" },
-        }),
-        db.user.update({
-          where: { id: escrow.sellerId },
-          data: { balance: { increment: amountInt } },
-        }),
-        db.escrowActivity.create({
-          data: {
-            escrowId: input.escrowId,
-            userId: ctx.user.id,
-            action: "RELEASED",
-          },
-        }),
-      ])
 
-      return c.superjson({ success: true })
-    }),
 })

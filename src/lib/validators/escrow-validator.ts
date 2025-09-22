@@ -31,7 +31,7 @@ export const ESCROW_VALIDATOR = z
     currency: CURRENCY_ENUM,
     productName: z.string().min(1, "Product name is required."),
     description: z.string().optional(),
-    amount: z.coerce.number().positive("Amount must be greater than 0."),
+    amount: z.coerce.number().int("Amount must be a whole number.").positive("Amount must be greater than 0."),
     status: ESCROW_STATUS.default("PENDING"),
     senderEmail: z.string().email("Invalid sender email.").optional(),
     role: ESCROW_ROLE.default("SELLER"),

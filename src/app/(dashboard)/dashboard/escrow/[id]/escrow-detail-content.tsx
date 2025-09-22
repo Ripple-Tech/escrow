@@ -22,6 +22,7 @@ import { RiUserStarFill } from "react-icons/ri"
 import { FormError } from "@/components/forms/form-error"
 import { FormSuccess } from "@/components/forms/form-success"
 import { throwIfNotOk } from "@/lib/pass-error-helper"
+import { Modal } from "@/components/ui/modal"
 
 interface EscrowDetailContentProps {
   escrow: Escrow
@@ -33,7 +34,7 @@ interface EscrowDetailContentProps {
 export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: EscrowDetailContentProps) => {
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/escrow/${escrow.id}`
   const [copied, setCopied] = useState(false)
-  
+  const [releasingEscrow, setReleasingEscrow] = useState<string | null>(null)
   const router = useRouter()
   const qc = useQueryClient()
   const [activeTab, setActiveTab] = useState<"overview" | "activity" | "chat">("overview")
@@ -292,7 +293,7 @@ if (isInviteePreview) {
         </p>
       )}
 
-      {!isCreator && e.senderEmail && (
+      {!isCreator && e.senderEmail  && (
         <p className="flex items-start gap-3">
           <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
             <Mail className="w-4 h-4" />
@@ -354,12 +355,15 @@ if (isInviteePreview) {
 
       {/* Render locked fund block somewhere in the Overview (e.g., after Invitation Status) */}
  {e.lockedfund && (
-  <div className=" mt-10 p-4 border rounded   ">
-    <div className="flex flex-1 flex-col  w-full items-start justify-between gap-4 sm:flex-row">
+  <div className="mt-10 p-4 border rounded">
+    <div className="flex flex-1 flex-col w-full items-start justify-between gap-4 sm:flex-row">
       <div>
-        <div className="text-xs uppercase tracking-wide text-muted-foreground/80">Locked Funds</div>
+        <div className="text-xs uppercase tracking-wide text-muted-foreground/80">
+          Locked Funds
+        </div>
         <div className="text-base font-semibold">
-          {e.lockedfund.amount.toString()} {e.currency} — {e.lockedfund.released ? "Released" : "Locked"}
+          {(e.lockedfund.amount / 100).toString()} {e.currency} —{" "}
+          {e.lockedfund.released ? "Released" : "Locked"}
         </div>
         <div className="text-sm text-muted-foreground">
           Locked by: {e.lockedfund.buyer?.email ?? e.lockedfund.buyerId}
@@ -370,16 +374,53 @@ if (isInviteePreview) {
       {isBuyer && !e.lockedfund.released && (
         <div>
           <Button
-            onClick={() => releaseMutation.mutate()}
+            onClick={() => setReleasingEscrow(e.id)}
             disabled={releaseMutation.isPending}
           >
-            {releaseMutation.isPending ? "Releasing…" : "Release funds"}
+            Release funds
           </Button>
         </div>
       )}
     </div>
   </div>
 )}
+
+{/* Release Funds Modal */}
+<Modal
+  showModal={!!releasingEscrow}
+  setShowModal={() => setReleasingEscrow(null)}
+  className="max-w-md p-8"
+>
+  <div className="space-y-6">
+    <div>
+      <h2 className="text-lg/7 font-medium tracking-tight text-gray-950">
+        Release Funds
+      </h2>
+      <p className="text-sm/6 text-gray-600">
+        Are you sure you want to release these funds?{" "}
+        <strong>This action cannot be undone.</strong>
+      </p>
+    </div>
+
+    <div className="flex justify-end space-x-3 pt-4 border-t">
+      <Button variant="outline" onClick={() => setReleasingEscrow(null)}>
+        Cancel
+      </Button>
+      <Button
+        variant="destructive"
+        onClick={() => {
+          releaseMutation.mutate();
+          setReleasingEscrow(null);
+        }}
+        disabled={releaseMutation.isPending}
+      >
+        {releaseMutation.isPending ? "Releasing…" : "Release"}
+      </Button>
+    </div>
+  </div>
+</Modal>
+
+
     </div>
   </Card>
 </TabsContent>
