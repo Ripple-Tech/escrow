@@ -17,16 +17,11 @@ import { parseISO } from "date-fns"
 import { format } from "date-fns"
 import { FaNairaSign } from "react-icons/fa6";
 /* icon imports */
-import {
-  BadgeCheck,
-  UserCheck2,
-  Mail,
-  MailOpen,
-  Link2,
-  CalendarClock,
-  User2,
-} from "lucide-react"
+import { BadgeCheck, UserCheck2, Mail, MailOpen, Link2, CalendarClock, User2, } from "lucide-react"
 import { RiUserStarFill } from "react-icons/ri"
+import { FormError } from "@/components/forms/form-error"
+import { FormSuccess } from "@/components/forms/form-success"
+import { throwIfNotOk } from "@/lib/pass-error-helper"
 
 interface EscrowDetailContentProps {
   escrow: Escrow
@@ -60,6 +55,7 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
     queryKey: ["escrow", escrow.id],
     queryFn: async () => {
       const res = await client.escrow.getEscrowById.$get({ id: escrow.id })
+      await throwIfNotOk(res);
       return await res.json()
     },
     initialData: { escrow },
@@ -69,8 +65,13 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
   const acceptMutation = useMutation({
     mutationFn: async () => {
       const res = await client.escrow.acceptEscrow.$post({ escrowId: escrow.id })
+     await throwIfNotOk(res);
       return await res.json()
     },
+    onError: (error) => {
+    console.error("Error accepting escrow:", error);
+    // Additional error handling if necessary
+  },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
     },
@@ -79,6 +80,7 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
   const declineMutation = useMutation({
     mutationFn: async () => {
       const res = await client.escrow.declineEscrow.$post({ escrowId: escrow.id })
+      await throwIfNotOk(res);
       return await res.json()
     },
     onSuccess: async () => {
@@ -87,12 +89,38 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
     },
   })
 
+const releaseMutation = useMutation({
+  mutationFn: async () => {
+    const res = await client.escrow.releaseEscrow.$post({ escrowId: escrow.id })
+   await throwIfNotOk(res);
+   return await res.json()
+  },
+  onSuccess: async () => {
+    await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
+  },
+})
 
 
   if (!data?.escrow) {
     return <p>Escrow not found.</p>
   }
-  const e = data.escrow as Escrow & { activities?: any[] }
+  const e = data.escrow as Escrow & {
+  activities?: {
+    id: string
+    action: string
+    userId: string
+    createdAt: Date
+    user: { id: string; email: string; name: string | null }
+  }[]
+  lockedfund?: {
+    id: string
+    amount: number
+    released: boolean
+    buyerId: string
+    buyer: { id: string; email: string }
+  } | null
+}
+
   const activities = e.activities || []
  
   const created =
@@ -140,7 +168,7 @@ if (isInviteePreview) {
           </p>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 mb-3">
           <Button onClick={() => acceptMutation.mutate()} disabled={acceptMutation.isPending}>
             {acceptMutation.isPending ? "Accepting…" : "Accept"}
           </Button>
@@ -152,10 +180,25 @@ if (isInviteePreview) {
             {declineMutation.isPending ? "Declining…" : "Decline"}
           </Button>
         </div>
+          {/* Error & success messages */}
+ {/* Error & success messages */}
+<FormError message={(acceptMutation.error as any)?.message} />
+
+{(acceptMutation.error as any)?.code === "INSUFFICIENT_FUNDS" && (
+  <div className="mt-2">
+    <Button variant="secondary" onClick={() => router.push("/dashboard")}>
+      Top up balance
+    </Button>
+  </div>
+)}
+
+<FormSuccess message={acceptMutation.data?.success ? "Escrow accepted successfully." : undefined} />
       </Card>
     </div>
   )
 }
+
+
 
 
   // Full view (creator or accepted)
@@ -308,6 +351,35 @@ if (isInviteePreview) {
           </div>
         </div>
       )}
+
+      {/* Render locked fund block somewhere in the Overview (e.g., after Invitation Status) */}
+ {e.lockedfund && (
+  <div className="mt-4 p-4 border rounded">
+    <div className="flex items-center justify-between">
+      <div>
+        <div className="text-xs uppercase tracking-wide text-muted-foreground/80">Locked Funds</div>
+        <div className="text-base font-semibold">
+          {e.lockedfund.amount.toString()} {e.currency} — {e.lockedfund.released ? "Released" : "Locked"}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Locked by: {e.lockedfund.buyer?.email ?? e.lockedfund.buyerId}
+        </div>
+      </div>
+
+      {/* Buyer can release when not released */}
+      {isBuyer && !e.lockedfund.released && (
+        <div>
+          <Button
+            onClick={() => releaseMutation.mutate()}
+            disabled={releaseMutation.isPending}
+          >
+            {releaseMutation.isPending ? "Releasing…" : "Release funds"}
+          </Button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
     </div>
   </Card>
 </TabsContent>

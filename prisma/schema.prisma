@@ -56,7 +56,7 @@ model User {
   isTwoFactorEnabled Boolean              @default(false)
   balance            Int                  @default(0)
 
-  buyerLockedFunds  LockedFund[] 
+  buyerLockedFunds  Lockedfund[] 
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
 
@@ -164,7 +164,7 @@ model Escrow {
   currency      Currency
   status        EscrowStatus @default(PENDING)
   role          EscrowRole
-  lockedfund   LockedFund?
+  lockedfund   Lockedfund?
   // Sender is required
   sender        User         @relation("SentEscrows", fields: [senderId], references: [id])
   senderId      String
@@ -247,7 +247,7 @@ model EscrowActivity {
   user      User     @relation(fields: [userId], references: [id])
 }
 
-model LockedFund {
+model Lockedfund {
   id        String   @id @default(cuid())
   escrowId  String   @unique
   buyerId   String

@@ -12,60 +12,111 @@ export const escrowRouter = router({
       // Prevent same user if receiverId provided and equals sender
       if (input.receiverId && input.receiverId === ctx.user.id) {
         throw new HTTPException(400, {
-          message: "Sender and receiver cannot be the same user.",
+          message: "[SENDER_RECEIVER_SAME] Sender and receiver cannot be the same user.",
         })
       }
 
-      // Determine invited role based on creator's role
-      // Default to "SELLER" if not provided to keep prior behavior
       const creatorRole = (input.role ?? "SELLER") as "SELLER" | "BUYER"
       const invitedRole = creatorRole === "SELLER" ? "BUYER" : "SELLER"
 
-      const escrow = await db.escrow.create({
-        data: {
-          userId: ctx.user.id,
-          senderId: ctx.user.id,
-          senderEmail: input.senderEmail ?? ctx.user.email,
-          
-          // Product core
-          productName: input.productName,
-          description: input.description,
-          creatorId: ctx.user.id,
-          // Money
-          amount: input.amount,
-          currency: input.currency,
+      // Simple amount parsing & validate
+      const amountNum = Number(input.amount)
+      if (Number.isNaN(amountNum) || amountNum <= 0) {
+        throw new HTTPException(400, { message: "Invalid escrow amount." })
+      }
+      // Use integer balances for now (rounding to nearest integer)
+      const amountInt = Math.round(amountNum)
 
-          // State
-          status: (input.status as any) ?? "PENDING",
-          role: creatorRole,
+      // Use interactive transaction to ensure atomicity
+      const createdEscrow = await db.$transaction(async (tx) => {
+        const escrow = await tx.escrow.create({
+          data: {
+            userId: ctx.user.id,
+            senderId: ctx.user.id,
+            senderEmail: input.senderEmail ?? ctx.user.email,
+            // Product core
+            productName: input.productName,
+            description: input.description,
+            creatorId: ctx.user.id,
+            // Money
+            amount: input.amount,
+            currency: input.currency,
+            // State
+            status: (input.status as any) ?? "PENDING",
+            role: creatorRole,
+            // Receiver (optional until accepted)
+            receiverId: input.receiverId ?? undefined,
+            receiverEmail: input.receiverEmail,
+            // New fields (optional fallbacks)
+            source: (input.source as any) ?? "INTERNAL",
+            invitationStatus: "PENDING",
+            invitedRole,
+            logistics: (input.logistics as any) ?? "NO",
+            photoUrl: input.photoUrl ?? undefined,
+            color: input.color ?? undefined,
+            category: input.category ?? undefined,
+            quantity: input.quantity ?? undefined,
+          },
+        })
 
-          // Receiver (optional until accepted)
-          receiverId: input.receiverId ?? undefined,
-          receiverEmail: input.receiverEmail,
+        // Activity
+        await tx.escrowActivity.create({
+          data: {
+            escrowId: escrow.id,
+            userId: ctx.user.id,
+            action: "CREATED",
+          },
+        })
 
-          // New fields (optional fallbacks)
-          source: (input.source as any) ?? "INTERNAL",
-          invitationStatus: "PENDING",
-          invitedRole,
+        // If creator is BUYER -> lock funds immediately
+        if (creatorRole === "BUYER") {
+          // Load buyer balance
+          const buyer = await tx.user.findUnique({
+            where: { id: ctx.user.id },
+            select: { id: true, balance: true },
+          })
+          if (!buyer) {
+            throw new HTTPException(404, { message: "User not found." })
+          }
+          if (buyer.balance < amountInt) {
+            throw new HTTPException(400, {
+               message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.",
+            })
+          }
 
-          logistics: (input.logistics as any) ?? "NO",
-          photoUrl: input.photoUrl ?? undefined,
-          color: input.color ?? undefined,
-          category: input.category ?? undefined,
-          quantity: input.quantity ?? undefined,
+          // decrement buyer balance and create Lockedfund
+          await tx.user.update({
+            where: { id: ctx.user.id },
+            data: { balance: { decrement: amountInt } },
+          })
+
+          await tx.lockedfund.create({
+            data: {
+              escrowId: escrow.id,
+              buyerId: ctx.user.id,
+              amount: input.amount, // keep as Decimal (Prisma will accept string/number)
+            },
+          })
+        }
+
+        return escrow
+      })
+
+      // Refetch with relations to return (include lockedfund)
+      const escrowWithRelations = await db.escrow.findUnique({
+        where: { id: createdEscrow.id },
+        include: {
+          sender: { select: { id: true, email: true } },
+          receiver: { select: { id: true, email: true } },
+          activities: {
+            include: { user: { select: { id: true, email: true, name: true } } },
+            orderBy: { createdAt: "desc" },
+          },
+          lockedfund: true,
         },
       })
-      
-      // 🔥 Add the activity right after escrow is created
-await db.escrowActivity.create({
-  data: {
-    escrowId: escrow.id,
-    userId: ctx.user.id,
-    action: "CREATED",
-  },
-})
 
-      return c.superjson({ escrow })
+      return c.superjson({ escrow: escrowWithRelations })
     }),
 
   getEscrows: privateProcedure.query(async ({ ctx, c }) => {
@@ -99,97 +150,136 @@ await db.escrowActivity.create({
           sender: { select: { id: true, email: true } },
           receiver: { select: { id: true, email: true } },
           activities: {
-          include: {
-          user: { select: { id: true, email: true, name: true } },
+            include: {
+              user: { select: { id: true, email: true, name: true } },
+            },
+            orderBy: { createdAt: "desc" },
           },
-          orderBy: { createdAt: "desc" },
+          // <<-- include locked fund so client can display it
+          lockedfund: {
+            include: { buyer: { select: { id: true, email: true } } },
           },
         },
       })
 
       if (!escrow) {
         throw new HTTPException(404, {
-          message: "Escrow not found or you do not have access.",
+          message: "[ESCROW_NOT_FOUND] Escrow not found or you do not have access.",
         })
       }
 
       return c.superjson({ escrow })
     }),
 
-  // acceptEscrow procedure
+
+
+    
+
+
+  // acceptEscrow procedure (updated to lock funds if accepter is the buyer)
 acceptEscrow: privateProcedure
-.input(z.object({ escrowId: z.string().min(1) }))
-.mutation(async ({ ctx, input, c }) => {
-const escrow = await db.escrow.findUnique({
-where: { id: input.escrowId },
-include: {
-sender: { select: { id: true, email: true } },
-receiver: { select: { id: true, email: true } },
-},
-})
+  .input(z.object({ escrowId: z.string().min(1) }))
+  .mutation(async ({ ctx, input, c }) => {
+    const escrow = await db.escrow.findUnique({
+      where: { id: input.escrowId },
+      include: {
+        sender: { select: { id: true, email: true } },
+        receiver: { select: { id: true, email: true } },
+      },
+    })
 
-if (!escrow) {
-  throw new HTTPException(404, { message: "Escrow not found" })
-}
+    if (!escrow) {
+      throw new HTTPException(404, { 
+        message: "[ESCROW_NOT_FOUND] Escrow not found" })
+    }
 
-if (escrow.senderId === ctx.user.id) {
-  throw new HTTPException(403, { message: "Sender cannot accept own escrow." })
-}
+    if (escrow.senderId === ctx.user.id) {
+      throw new HTTPException(403, { message: "[SENDER_CANNOT_ACCEPT] Sender cannot accept own escrow." })
+    }
 
-// If already accepted by same user, ensure idempotency fields are correct
-if (escrow.receiverId && escrow.receiverId === ctx.user.id) {
-  if (escrow.invitationStatus !== "ACCEPTED" || !escrow.invitedRole) {
+    // If already accepted
+    if (escrow.receiverId && escrow.receiverId === ctx.user.id) {
+      if (escrow.invitationStatus !== "ACCEPTED" || !escrow.invitedRole) {
+        const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
+        await db.escrow.update({
+          where: { id: input.escrowId },
+          data: {
+            invitationStatus: "ACCEPTED",
+            invitedRole: oppositeRole,
+          },
+        })
+      }
+      return c.superjson({ success: true, escrowId: escrow.id })
+    }
+
+    if (escrow.receiverId && escrow.receiverId !== ctx.user.id) {
+      throw new HTTPException(409, { 
+        message: "[ESCROW_ALREADY_ACCEPTED] Escrow already accepted by another user." })
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: ctx.user.id },
+      select: { id: true, email: true, balance: true },
+    })
+
+    if (!user) {
+      throw new HTTPException(404, { message: "User not found" })
+    }
+
     const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
-    await db.escrow.update({
+
+    // 🛑 If the opposite role is BUYER, that means current user must pay
+    if (oppositeRole === "BUYER") {
+      if (user.balance < Number(escrow.amount)) {
+        throw new HTTPException(400, {
+          message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.",
+        })
+      }
+
+      // Deduct balance + lock fund
+      await db.$transaction([
+        db.user.update({
+          where: { id: user.id },
+          data: { balance: { decrement: Number(escrow.amount) } },
+        }),
+        db.lockedfund.create({
+          data: {
+            escrowId: escrow.id,
+            buyerId: user.id,
+            amount: escrow.amount,
+          },
+        }),
+      ])
+    }
+
+    const updated = await db.escrow.update({
       where: { id: input.escrowId },
       data: {
+        receiverId: ctx.user.id,
+        receiverEmail: escrow.receiverEmail ?? user.email ?? "",
         invitationStatus: "ACCEPTED",
         invitedRole: oppositeRole,
       },
     })
-  }
- return c.superjson({ success: true, escrowId: escrow.id })
-}
 
-if (escrow.receiverId && escrow.receiverId !== ctx.user.id) {
-  throw new HTTPException(409, { message: "Escrow already accepted by another user." })
-}
+    await db.escrowActivity.create({
+      data: {
+        escrowId: updated.id,
+        userId: ctx.user.id,
+        action: "ACCEPTED",
+      },
+    })
 
-const user = await db.user.findUnique({
-  where: { id: ctx.user.id },
-  select: { id: true, email: true },
-})
-if (!user) {
-  throw new HTTPException(404, { message: "User not found" })
-}
-
-const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
-
-const updated =await db.escrow.update({
-  where: { id: input.escrowId },
-  data: {
-    receiverId: ctx.user.id,
-    receiverEmail: escrow.receiverEmail ?? user.email ?? "",
-    invitationStatus: "ACCEPTED",
-    invitedRole: oppositeRole,
-    // keep status as PENDING (your schema has no ACCEPTED in EscrowStatus)
-  },
-})
-
-// 🔥 Add the activity right after escrow is Accepted
-  await db.escrowActivity.create({
-  data: {
-    escrowId: updated.id,
-    userId: ctx.user.id,
-    action: "ACCEPTED",
-  },
-})
-
-return c.superjson({ success: true, escrowId: escrow.id })
-}),
+    return c.superjson({ success: true, escrowId: escrow.id })
+  }),
 
 
-declineEscrow: privateProcedure
+
+
+
+
+
+  declineEscrow: privateProcedure
     .input(z.object({ escrowId: z.string().min(1) }))
     .mutation(async ({ ctx, input, c }) => {
       const escrow = await db.escrow.findUnique({
@@ -221,5 +311,59 @@ declineEscrow: privateProcedure
       return c.superjson({ success: true, escrowId: escrow.id })
     }),
 
+  // releaseEscrow: buyer releases locked funds to the seller
+  releaseEscrow: privateProcedure
+    .input(z.object({ escrowId: z.string().min(1) }))
+    .mutation(async ({ ctx, input, c }) => {
+      // Find locked fund and escrow
+      const locked = await db.lockedfund.findUnique({
+        where: { escrowId: input.escrowId },
+        include: { escrow: true },
+      })
+      if (!locked) {
+        throw new HTTPException(404, { message: "No locked funds found for this escrow." })
+      }
+      if (locked.released) {
+        throw new HTTPException(400, { message: "Funds already released." })
+      }
+      if (locked.buyerId !== ctx.user.id) {
+        throw new HTTPException(403, { message: "Only the buyer who locked the funds can release them." })
+      }
 
+      // Need seller to credit funds
+      const escrow = await db.escrow.findUnique({ where: { id: input.escrowId } })
+      if (!escrow) throw new HTTPException(404, { message: "Escrow not found." })
+      if (!escrow.sellerId) throw new HTTPException(400, { message: "Escrow has no seller to receive funds." })
+
+      const amountNum = Number(locked.amount)
+      if (Number.isNaN(amountNum) || amountNum <= 0) {
+        throw new HTTPException(400, { message: "Invalid locked amount." })
+      }
+      const amountInt = Math.round(amountNum)
+
+      // Atomic update: mark lockedfund released, set escrow status RELEASED, credit seller
+      await db.$transaction([
+        db.lockedfund.update({
+          where: { escrowId: input.escrowId },
+          data: { released: true },
+        }),
+        db.escrow.update({
+          where: { id: input.escrowId },
+          data: { status: "RELEASED" },
+        }),
+        db.user.update({
+          where: { id: escrow.sellerId },
+          data: { balance: { increment: amountInt } },
+        }),
+        db.escrowActivity.create({
+          data: {
+            escrowId: input.escrowId,
+            userId: ctx.user.id,
+            action: "RELEASED",
+          },
+        }),
+      ])
+
+      return c.superjson({ success: true })
+    }),
 })

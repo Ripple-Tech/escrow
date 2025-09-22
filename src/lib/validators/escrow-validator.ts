@@ -1,3 +1,4 @@
+import { release } from "os"
 import { z } from "zod"
 
 // Existing enums
@@ -12,6 +13,17 @@ export const ESCROW_INVITATION_STATUS = z
 export const LOGISTICS_OPTION = z.enum(["NO", "PICKUP", "DELIVERY"]).default("NO")
 export const CURRENCY_ENUM = z.enum(["NGN", "USD", "GHS"]);
 
+// lockedFund validator
+export const LOCKED_FUND_VALIDATOR = z.object({
+  id: z.string(),
+  amount: z.coerce.number(),
+  released: z.boolean(),
+  buyerId: z.string(),
+  buyer: z.object({
+    id: z.string(),
+    email: z.string().email(),
+  }),
+})
 
 export const ESCROW_VALIDATOR = z
   .object({
@@ -24,7 +36,7 @@ export const ESCROW_VALIDATOR = z
     senderEmail: z.string().email("Invalid sender email.").optional(),
     role: ESCROW_ROLE.default("SELLER"),
     receiverId: z.string().cuid("Invalid receiver ID.").optional(),
-
+    lockedfund: LOCKED_FUND_VALIDATOR.optional(),
     // New optional fields
     source: ESCROW_SOURCE.optional(), // server defaults to INTERNAL if omitted
     logistics: LOGISTICS_OPTION.optional(), // server defaults to NO if omitted
