@@ -354,8 +354,8 @@ if (isInviteePreview) {
 
       {/* Render locked fund block somewhere in the Overview (e.g., after Invitation Status) */}
  {e.lockedfund && (
-  <div className="mt-4 p-4 border rounded">
-    <div className="flex items-center justify-between">
+  <div className=" mt-10 p-4 border rounded   ">
+    <div className="flex flex-1 flex-col  w-full items-start justify-between gap-4 sm:flex-row">
       <div>
         <div className="text-xs uppercase tracking-wide text-muted-foreground/80">Locked Funds</div>
         <div className="text-base font-semibold">
