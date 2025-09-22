@@ -15,7 +15,6 @@ import { FaInfoCircle } from "react-icons/fa"
 import { MdHistory, MdChat } from "react-icons/md"
 import { parseISO } from "date-fns"
 import { format } from "date-fns"
-import { getEscrowActivity } from "@/actions/escrow-activities"
 import { FaNairaSign } from "react-icons/fa6";
 /* icon imports */
 import {
@@ -32,12 +31,13 @@ import { RiUserStarFill } from "react-icons/ri"
 interface EscrowDetailContentProps {
   escrow: Escrow
   isCreator: boolean
+  isBuyer: boolean
+  isSeller: boolean
 }
 
-export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentProps) => {
+export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: EscrowDetailContentProps) => {
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/escrow/${escrow.id}`
   const [copied, setCopied] = useState(false)
-  const [activities, setActivities] = useState<any[]>([])
   
   const router = useRouter()
   const qc = useQueryClient()
@@ -87,17 +87,14 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
     },
   })
 
-  useEffect(() => {
-    getEscrowActivity(escrow.id).then(setActivities).catch(console.error)
-  }, [escrow.id])
+
 
   if (!data?.escrow) {
     return <p>Escrow not found.</p>
   }
-  const e = data.escrow
-
-  if (!activities.length) return <p className="text-muted-foreground">No activity yet.</p>
-
+  const e = data.escrow as Escrow & { activities?: any[] }
+  const activities = e.activities || []
+ 
   const created =
     typeof e.createdAt === "string" ? parseISO(e.createdAt) : new Date(e.createdAt)
   const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
@@ -108,46 +105,58 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
     { value: "chat", label: "Chat", icon: <MdChat size={16} /> },
   ]
 
-  // Compact preview for invitee before acceptance:
-  const isInviteePreview = !isCreator && !e.receiverId
+ // Compact preview for invitee before acceptance:
+const isInviteePreview = !isCreator && !e.receiverId
 
-  if (isInviteePreview) {
-    return (
-      <div className="space-y-6">
-        <Card className="p-6">
-          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary shadow-primary-glow">
-              <RiUserStarFill className="w-5 h-5" />
-            </span>
-            {e.productName}
-          </h2>
-          <p className="mb-4 flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary shadow-primary-glow">
-              <FaNairaSign className="w-4 h-4" />
-            </span>
-            <strong>Amount:</strong> {e.amount.toString()} {e.currency}
+if (isInviteePreview) {
+  const inviteeRole = e.role === "SELLER" ? "BUYER" : "SELLER"
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+          <RiUserStarFill className="w-5 h-5" />
+          {e.productName}
+        </h2>
+
+        <p className="mb-4 flex items-center gap-2">
+          <FaNairaSign className="w-4 h-4" />
+          <strong>Amount:</strong> {e.amount.toString()} {e.currency}
+        </p>
+
+        {/* 👇 Dynamic lock message */}
+        {inviteeRole === "BUYER" ? (
+          <p className="text-sm text-muted-foreground mb-4">
+            You as the <strong>buyer</strong> of this product agree to lock{" "}
+            <strong>{e.amount.toString()} {e.currency}</strong> from your account balance. 
+            When you receive <strong>{e.productName}</strong> in good condition, you can 
+            release the funds to the seller.
           </p>
+        ) : (
+          <p className="text-sm text-muted-foreground mb-4">
+            The buyer agrees to lock <strong>{e.amount.toString()} {e.currency}</strong> 
+            for the purchase of <strong>{e.productName}</strong>. Once the buyer confirms 
+            good condition, funds will be released to your account.
+          </p>
+        )}
 
-          <div className="flex gap-3">
-            <Button
-              onClick={() => acceptMutation.mutate()}
-              disabled={acceptMutation.isPending}
-              className="shadow-primary-glow"
-            >
-              {acceptMutation.isPending ? "Accepting…" : "Accept"}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => declineMutation.mutate()}
-              disabled={declineMutation.isPending}
-            >
-              {declineMutation.isPending ? "Declining…" : "Decline"}
-            </Button>
-          </div>
-        </Card>
-      </div>
-    )
-  }
+        <div className="flex gap-3">
+          <Button onClick={() => acceptMutation.mutate()} disabled={acceptMutation.isPending}>
+            {acceptMutation.isPending ? "Accepting…" : "Accept"}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => declineMutation.mutate()}
+            disabled={declineMutation.isPending}
+          >
+            {declineMutation.isPending ? "Declining…" : "Decline"}
+          </Button>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
 
   // Full view (creator or accepted)
   return (
@@ -314,15 +323,24 @@ export const EscrowDetailContent = ({ escrow, isCreator }: EscrowDetailContentPr
                   <TableHead>By</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {activities.map((act) => (
-                  <TableRow key={act.id}>
-                    <TableCell>{new Date(act.createdAt).toLocaleString()}</TableCell>
-                    <TableCell>{act.action}</TableCell>
-                    <TableCell>{act.user?.email ?? act.userId}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+             <TableBody>
+{activities.length === 0 ? (
+<TableRow>
+<TableCell colSpan={3} className="text-center text-muted-foreground">
+No activity yet.
+</TableCell>
+</TableRow>
+) : (
+activities.map((act) => (
+<TableRow key={act.id}>
+<TableCell>{new Date(act.createdAt).toLocaleString()}</TableCell>
+<TableCell>{act.action}</TableCell>
+<TableCell>{act.user?.email ?? act.userId}</TableCell>
+</TableRow>
+))
+)}
+</TableBody>
+
             </Table>
           </Card>
         </TabsContent>

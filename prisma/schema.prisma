@@ -56,7 +56,7 @@ model User {
   isTwoFactorEnabled Boolean              @default(false)
   balance            Int                  @default(0)
 
-
+  buyerLockedFunds  LockedFund[] 
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
 
@@ -164,7 +164,7 @@ model Escrow {
   currency      Currency
   status        EscrowStatus @default(PENDING)
   role          EscrowRole
-
+  lockedfund   LockedFund?
   // Sender is required
   sender        User         @relation("SentEscrows", fields: [senderId], references: [id])
   senderId      String
@@ -194,7 +194,7 @@ model Escrow {
   source            EscrowSource           @default(INTERNAL)
   invitationStatus  EscrowInvitationStatus @default(PENDING)
   invitedRole       EscrowRole?
-
+ 
   logistics     LogisticsOption @default(NO)
   photoUrl      String?
   color         String?
@@ -246,3 +246,19 @@ model EscrowActivity {
   escrow    Escrow   @relation(fields: [escrowId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 }
+
+model LockedFund {
+  id        String   @id @default(cuid())
+  escrowId  String   @unique
+  buyerId   String
+  amount    Decimal
+  createdAt DateTime @default(now())
+  released  Boolean  @default(false)
+
+  // Relations
+  escrow Escrow @relation(fields: [escrowId], references: [id])
+  buyer  User   @relation(fields: [buyerId], references: [id])
+}
+
+
+ 
