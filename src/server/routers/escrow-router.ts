@@ -78,7 +78,8 @@ export const escrowRouter = router({
           if (!buyer) {
             throw new HTTPException(404, { message: "User not found." })
           }
-          if (buyer.balance < amountInt) {
+          const amountKobo = input.amount * 100
+          if (buyer.balance < amountKobo) {
             throw new HTTPException(400, {
                message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.",
             })
@@ -87,14 +88,14 @@ export const escrowRouter = router({
           // decrement buyer balance and create Lockedfund
           await tx.user.update({
             where: { id: ctx.user.id },
-            data: { balance: { decrement: amountInt } },
+            data: { balance: { decrement: amountKobo } },
           })
 
           await tx.lockedfund.create({
             data: {
               escrowId: escrow.id,
               buyerId: ctx.user.id,
-              amount: input.amount, // keep as Decimal (Prisma will accept string/number)
+              amount: amountKobo, 
             },
           })
         }
