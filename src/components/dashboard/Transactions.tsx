@@ -5,6 +5,8 @@ import { JSX, SVGProps } from "react"
 import { cn } from "@/utils"
 import { Modal } from "@/components/ui/modal"
 import { DepositForm } from "@/components/forms/deposit-form"
+import { CreateEscrowModal } from "../create-escrow"
+import { Plus } from "lucide-react"
 
 type Action = {
   key: string
@@ -89,6 +91,14 @@ const Transaction = () => {
           onSuccess={() => setShowDepositModal(false)} 
         /> 
       </Modal>
+       <CreateEscrowModal>
+                <button
+                  className="flex md:hidden fixed bottom-20 right-8 z-20 items-center justify-center h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-amber-600/90 transition-colors duration-200"
+                  aria-label="Create Escrow"
+                >
+                  <Plus className="h-12 w-12 drop-shadow-sm" />
+                </button>
+              </CreateEscrowModal>
     </div>
   )
 }

@@ -173,7 +173,7 @@ export const escrowRouter = router({
 
 
 
-    
+
 
 
   // acceptEscrow procedure (updated to lock funds if accepter is the buyer)
@@ -229,28 +229,30 @@ acceptEscrow: privateProcedure
     const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
 
     // 🛑 If the opposite role is BUYER, that means current user must pay
-    if (oppositeRole === "BUYER") {
-      if (user.balance < Number(escrow.amount)) {
-        throw new HTTPException(400, {
-          message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.",
-        })
-      }
+if (oppositeRole === "BUYER") {
+  const amountKobo = Number(escrow.amount) * 100;
 
-      // Deduct balance + lock fund
-      await db.$transaction([
-        db.user.update({
-          where: { id: user.id },
-          data: { balance: { decrement: Number(escrow.amount) } },
-        }),
-        db.lockedfund.create({
-          data: {
-            escrowId: escrow.id,
-            buyerId: user.id,
-            amount: escrow.amount,
-          },
-        }),
-      ])
-    }
+  if (user.balance < amountKobo) {
+    throw new HTTPException(400, {
+      message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.",
+    })
+  }
+
+  // Deduct balance + lock fund (all in kobo)
+  await db.$transaction([
+    db.user.update({
+      where: { id: user.id },
+      data: { balance: { decrement: amountKobo } },
+    }),
+    db.lockedfund.create({
+      data: {
+        escrowId: escrow.id,
+        buyerId: user.id,
+        amount: amountKobo, // store in kobo
+      },
+    }),
+  ])
+}
 
     const updated = await db.escrow.update({
       where: { id: input.escrowId },
