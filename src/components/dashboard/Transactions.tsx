@@ -35,7 +35,7 @@ function CardButton({ action, className }: { action: Action; className?: string 
         "bg-black border border-amber-700/30 hover:border-amber-500/50",
         "hover:shadow-[0_8px_24px_rgba(251,191,36,0.15)] active:scale-[0.99]",
         // responsive padding
-        "p-6  md:p-6 lg:p-8 xl:p-10",
+        "p-3  md:p-5 lg:p-8 xl:p-10",
         className
       )}
     >
@@ -86,7 +86,7 @@ const Transaction = () => {
   )
 
   return (
-    <div className="mx-auto w-full px-8 sm:px-10 md:px-14 lg:px-20 ">
+    <div className="mx-auto w-full px-4 sm:px-10 md:px-14 lg:px-20 ">
       <div className="mb-4 px-1">
         <h2 className="text-2xl font-bold text-gray-800">Quick actions</h2>
         <p className="text-sm text-gold-dark">Manage your funds</p>
