@@ -263,7 +263,7 @@ if (isInviteePreview) {
         </span>
         <span className="flex-1">
           <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Status</span>
-          <span className="text-base font-semibold text-foreground">{e.status}</span>
+          <span className="text-base font-semibold text-foreground">{e.status.replaceAll("_", " ")}</span>
         </span>
       </p>
 
@@ -465,11 +465,12 @@ activities.map((act) => (
         </TabsContent>
       </Tabs>
 
-      <div className="flex justify-end">
+     {/* <div className="flex justify-end">
         <Button variant="destructive" onClick={() => router.push("/dashboard/escrow")}>
           Delete Escrow
         </Button>
       </div>
+       */}
     </div>
   )
 }

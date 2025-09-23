@@ -58,7 +58,6 @@ export const escrowRouter = router({
             quantity: input.quantity ?? undefined,
           },
         })
-
         // Activity
         await tx.escrowActivity.create({
           data: {
@@ -67,7 +66,6 @@ export const escrowRouter = router({
             action: "CREATED",
           },
         })
-
         // If creator is BUYER -> lock funds immediately
         if (creatorRole === "BUYER") {
           // Load buyer balance
@@ -84,13 +82,11 @@ export const escrowRouter = router({
                message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.",
             })
           }
-
           // decrement buyer balance and create Lockedfund
           await tx.user.update({
             where: { id: ctx.user.id },
             data: { balance: { decrement: amountKobo } },
           })
-
           await tx.lockedfund.create({
             data: {
               escrowId: escrow.id,
@@ -99,10 +95,8 @@ export const escrowRouter = router({
             },
           })
         }
-
         return escrow
       })
-
       // Refetch with relations to return (include lockedfund)
       const escrowWithRelations = await db.escrow.findUnique({
         where: { id: createdEscrow.id },
@@ -116,9 +110,10 @@ export const escrowRouter = router({
           lockedfund: true,
         },
       })
-
       return c.superjson({ escrow: escrowWithRelations })
     }),
+
+
 
   getEscrows: privateProcedure.query(async ({ ctx, c }) => {
     const escrows = await db.escrow.findMany({
@@ -128,20 +123,22 @@ export const escrowRouter = router({
     return c.superjson({ escrows })
   }),
 
+
+
   deleteEscrow: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ c, input, ctx }) => {
-      await db.escrow.delete({
+      await db.escrow.deleteMany({
         where: { id: input.id, senderId: ctx.user.id },
       })
       return c.superjson({ success: true })
     }),
 
+
   getEscrowById: privateProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input, c }) => {
       const { id } = input
-
       const escrow = await db.escrow.findFirst({
         where: {
           id,
@@ -162,13 +159,11 @@ export const escrowRouter = router({
           },
         },
       })
-
       if (!escrow) {
         throw new HTTPException(404, {
           message: "[ESCROW_NOT_FOUND] Escrow not found or you do not have access.",
         })
       }
-
       return c.superjson({ escrow })
     }),
 

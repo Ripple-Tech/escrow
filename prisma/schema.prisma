@@ -208,6 +208,8 @@ model Escrow {
 
   // Opposite relation for EscrowActivity.escrow
   activities    EscrowActivity[]
+  
+  @@unique([id, senderId])
 }
 
 // Transaction Models
