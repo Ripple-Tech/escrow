@@ -3,8 +3,7 @@ import { z } from "zod"
 
 // Existing enums
 export const ESCROW_ROLE = z.enum(["SELLER", "BUYER"])
-export const ESCROW_STATUS = z.enum(["PENDING", "RELEASED", "CANCELLED"])
-
+export const ESCROW_STATUS = z.enum(["PENDING", "IN_PROGRESS", "RELEASED", "CANCELLED", "COMPLETED"])
 // New enums (match Prisma)
 export const ESCROW_SOURCE = z.enum(["INTERNAL", "API"]).default("INTERNAL")
 export const ESCROW_INVITATION_STATUS = z

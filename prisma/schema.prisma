@@ -123,8 +123,10 @@ model TwoFactorConfirmation {
 
 enum EscrowStatus {
   PENDING
+  IN_PROGRESS
   RELEASED
   CANCELLED
+  COMPLETED
 }
 
 enum EscrowRole {

@@ -188,16 +188,9 @@ acceptEscrow: privateProcedure
         receiver: { select: { id: true, email: true } },
       },
     })
-
-    if (!escrow) {
-      throw new HTTPException(404, { 
-        message: "[ESCROW_NOT_FOUND] Escrow not found" })
-    }
-
+    if (!escrow) { throw new HTTPException(404, {  message: "[ESCROW_NOT_FOUND] Escrow not found" }) }
     if (escrow.senderId === ctx.user.id) {
-      throw new HTTPException(403, { message: "[SENDER_CANNOT_ACCEPT] Sender cannot accept own escrow." })
-    }
-
+      throw new HTTPException(403, { message: "[SENDER_CANNOT_ACCEPT] Sender cannot accept own escrow." }) }
     // If already accepted
     if (escrow.receiverId && escrow.receiverId === ctx.user.id) {
       if (escrow.invitationStatus !== "ACCEPTED" || !escrow.invitedRole) {
@@ -222,22 +215,14 @@ acceptEscrow: privateProcedure
       where: { id: ctx.user.id },
       select: { id: true, email: true, balance: true },
     })
-
-    if (!user) {
-      throw new HTTPException(404, { message: "User not found" })
-    }
-
+    if (!user) { throw new HTTPException(404, { message: "User not found" }) }
     const oppositeRole = escrow.role === "SELLER" ? "BUYER" : "SELLER"
 
     // 🛑 If the opposite role is BUYER, that means current user must pay
 if (oppositeRole === "BUYER") {
   const amountKobo = Number(escrow.amount) * 100;
-
   if (user.balance < amountKobo) {
-    throw new HTTPException(400, {
-      message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.",
-    })
-  }
+    throw new HTTPException(400, { message: "[INSUFFICIENT_FUNDS] Insufficient balance. Please top up your account to accept this escrow.", })}
 
   // Deduct balance + lock fund (all in kobo)
   await db.$transaction([
@@ -252,19 +237,17 @@ if (oppositeRole === "BUYER") {
         amount: amountKobo, // store in kobo
       },
     }),
-  ])
-}
-
+  ])}
     const updated = await db.escrow.update({
       where: { id: input.escrowId },
       data: {
         receiverId: ctx.user.id,
         receiverEmail: escrow.receiverEmail ?? user.email ?? "",
         invitationStatus: "ACCEPTED",
+        status: "IN_PROGRESS", 
         invitedRole: oppositeRole,
       },
     })
-
     await db.escrowActivity.create({
       data: {
         escrowId: updated.id,
@@ -272,7 +255,6 @@ if (oppositeRole === "BUYER") {
         action: "ACCEPTED",
       },
     })
-
     return c.superjson({ success: true, escrowId: escrow.id })
   }),
 
