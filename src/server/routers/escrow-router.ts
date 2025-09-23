@@ -125,14 +125,37 @@ export const escrowRouter = router({
 
 
 
-  deleteEscrow: privateProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ c, input, ctx }) => {
-      await db.escrow.deleteMany({
-        where: { id: input.id, senderId: ctx.user.id },
+deleteEscrow: privateProcedure
+  .input(z.object({ id: z.string() }))
+  .mutation(async ({ c, input, ctx }) => {
+    // 1. Make sure this user has access (sender or receiver)
+    const escrow = await db.escrow.findFirst({
+      where: {
+        id: input.id,
+        OR: [{ senderId: ctx.user.id }, { receiverId: ctx.user.id }],
+      },
+      select: { id: true },
+    })
+
+    if (!escrow) {
+      throw new HTTPException(404, {
+        message:
+          "[ESCROW_NOT_FOUND_OR_FORBIDDEN] Escrow not found or you do not have access.",
       })
-      return c.superjson({ success: true })
-    }),
+    }
+
+    // 2. Delete escrow + dependents in a transaction
+    await db.$transaction([
+      db.escrowActivity.deleteMany({ where: { escrowId: input.id } }),
+      db.lockedfund.deleteMany({ where: { escrowId: input.id } }),
+      db.escrow.delete({ where: { id: input.id } }),
+    ])
+
+    return c.superjson({ success: true })
+  }),
+
+
+
 
 
   getEscrowById: privateProcedure

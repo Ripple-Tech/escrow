@@ -23,7 +23,7 @@ export const EscrowContent = () => {
     },
   })
 
-  const { mutate: deleteEscrow, isPending: isDeletingEscrow } = useMutation({
+  const { mutate: deleteEscrow, isPending: isDeletingEscrow  } = useMutation({
     mutationFn: async (id: string) => {
       // you’ll need to add a deleteEscrow endpoint in escrowRouter
       await client.escrow.deleteEscrow.$post({ id })
@@ -80,7 +80,7 @@ export const EscrowContent = () => {
                 <div className="flex items-center text-sm/5 text-gray-600">
                   <Clock className="size-4 mr-2 text-brand-500" />
                   <span className="font-medium">Status:</span>
-                  <span className="ml-1">{escrow.status}</span>
+                  <span className="ml-1">{escrow.status.replaceAll("_", " ")}</span>
                 </div>
               </div>
 

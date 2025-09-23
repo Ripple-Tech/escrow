@@ -78,6 +78,7 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
     },
   })
 
+
   const declineMutation = useMutation({
     mutationFn: async () => {
       const res = await client.escrow.declineEscrow.$post({ escrowId: escrow.id })
@@ -465,12 +466,12 @@ activities.map((act) => (
         </TabsContent>
       </Tabs>
 
-     {/* <div className="flex justify-end">
+     <div className="flex justify-end">
         <Button variant="destructive" onClick={() => router.push("/dashboard/escrow")}>
           Delete Escrow
         </Button>
       </div>
-       */}
+       
     </div>
   )
 }
