@@ -10,6 +10,7 @@ import { ArrowRight, Clock, DollarSign, Trash2 } from "lucide-react"
 import { FaNairaSign } from "react-icons/fa6";
 import Link from "next/link"
 import { useState } from "react"
+import { toast } from "sonner"
 export const EscrowContent = () => {
   const [deletingEscrow, setDeletingEscrow] = useState<string | null>(null)
   const queryClient = useQueryClient()
@@ -31,6 +32,10 @@ export const EscrowContent = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-escrows"] })
       setDeletingEscrow(null)
+      toast.success("Escrow deleted successfully ✅")
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again.")
     },
   })
 

@@ -465,13 +465,13 @@ activities.map((act) => (
           </Card>
         </TabsContent>
       </Tabs>
-
+  {/* 
      <div className="flex justify-end">
         <Button variant="destructive" onClick={() => router.push("/dashboard/escrow")}>
           Delete Escrow
         </Button>
       </div>
-       
+       */}
     </div>
   )
 }

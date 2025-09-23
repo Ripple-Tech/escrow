@@ -3,7 +3,7 @@ import { Inter } from "next/font/google"
 import { Providers } from "@/components/providers"
 import { EB_Garamond } from "next/font/google"
 import { cn } from "@/utils"
-
+import { Toaster } from "sonner"
 import "./globals.css"
 import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth"
@@ -33,7 +33,10 @@ export default async function RootLayout({
       <html lang="en" className={cn(inter.variable, eb_garamond.variable)}>
         <body className="min-h-[calc(100vh-1px)] flex flex-col font-sans bg-brand-50 text-brand-950 antialiased">
           <main className="relative flex-1 flex flex-col">
-            <Providers>{children}</Providers>
+            <Providers>
+              {children}
+               <Toaster richColors closeButton position="top-right" />
+            </Providers>
           </main>
         </body>
       </html>
