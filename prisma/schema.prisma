@@ -79,6 +79,11 @@ model User {
   // Opposite relation for EscrowActivity.user
   escrowActivities   EscrowActivity[]
 
+  // Many-to-many relations
+  conversations Conversation[]  @relation("ConversationUsers")
+  seenMessages  Message[]       @relation("SeenMessages")
+
+  messages      Message[]
   // New index for improved query performance
   @@index([email, apiKey])
 }
@@ -196,6 +201,8 @@ model Escrow {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   activities    EscrowActivity[]
+
+   conversation     Conversation?
   
 //  @@unique([id, senderId])
 }
@@ -252,5 +259,30 @@ model Lockedfund {
   buyer  User   @relation(fields: [buyerId], references: [id])
 }
 
+model Conversation {
+  id            String      @id @default(uuid())
+  createdAt     DateTime    @default(now())
+  lastMessageAt DateTime    @default(now())
+  escrowId      String?     @unique
+  escrow        Escrow?     @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  messagesIds   String[]
+  userIds       String[]
+  users         User[]      @relation("ConversationUsers")
+  messages      Message[]
+}
 
- 
+model Message {
+  id             String       @id @default(uuid())
+  body           String?
+  image          String?
+  createdAt      DateTime     @default(now())
+  seenIds        String[]
+  seen           User[]       @relation("SeenMessages")
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+

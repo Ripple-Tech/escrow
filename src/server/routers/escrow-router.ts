@@ -69,6 +69,23 @@ export const escrowRouter = router({
             action: "CREATED",
           },
         })
+
+        // Conversation: link buyer & seller ids (only when receiver exists)
+  const userIds: string[] = [
+    ctx.user.id,
+    ...(input.receiverId ? [input.receiverId] : []),
+  ]
+
+  await tx.conversation.create({
+    data: {
+      escrowId: escrow.id,
+      userIds,
+      users: {
+        connect: userIds.map((id) => ({ id })),
+      },
+    },
+  })
+
         // If creator is BUYER -> lock funds immediately
         if (creatorRole === "BUYER") {
           // Load buyer balance
@@ -98,6 +115,7 @@ export const escrowRouter = router({
             },
           })
         }
+        console.log("Escrow created:", escrow)
         return escrow
       })
       // Refetch with relations to return (include lockedfund)

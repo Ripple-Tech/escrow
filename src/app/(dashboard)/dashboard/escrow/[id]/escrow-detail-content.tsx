@@ -518,7 +518,7 @@ if (isInviteePreview) {
       </Modal>
     </div>
   </Card>
-</TabsContent>;
+</TabsContent>
 
         <TabsContent value="activity">
           <Card className="p-6">
