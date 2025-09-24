@@ -4,7 +4,7 @@ import { privateProcedure } from "../procedures"
 import { ESCROW_VALIDATOR } from "@/lib/validators/escrow-validator"
 import { HTTPException } from "hono/http-exception"
 import { z } from "zod"
-
+//npx prisma migrate dev -n add-delivery-status
  const ALLOWED_DELETE_STATUSES = ["PENDING", "COMPLETED"] as const
 
 export const escrowRouter = router({
@@ -51,6 +51,7 @@ export const escrowRouter = router({
             receiverEmail: input.receiverEmail,
             // New fields (optional fallbacks)
             source: (input.source as any) ?? "INTERNAL",
+            deliveryStatus: "PENDING",
             invitationStatus: "PENDING",
             invitedRole,
             logistics: (input.logistics as any) ?? "NO",
@@ -389,10 +390,55 @@ if (oppositeRole === "BUYER") {
         },
       }),
     ])
-
     return c.superjson({ success: true })
   }),
 
 
+
+  markDelivered: privateProcedure
+.input(z.object({ escrowId: z.string().min(1) }))
+.mutation(async ({ ctx, input, c }) => {
+const escrow = await db.escrow.findUnique({
+where: { id: input.escrowId },
+select: { id: true, status: true, role: true, senderId: true, receiverId: true, deliveryStatus: true }, })
+if (!escrow) {
+throw new HTTPException(404, { message: "[ESCROW_NOT_FOUND] Escrow not found." })
+}
+
+// derive sellerId using role
+const sellerId = escrow.role === "SELLER" ? escrow.senderId : escrow.receiverId
+if (!sellerId) {
+  throw new HTTPException(400, { message: "[NO_SELLER] Escrow has no seller." })
+}
+
+if (ctx.user.id !== sellerId) {
+  throw new HTTPException(403, { message: "[ONLY_SELLER] Only the seller can mark delivery." })
+}
+
+if (escrow.deliveryStatus === "DELIVERED") {
+  throw new HTTPException(400, { message: "[ALREADY_DELIVERED] Delivery already marked." })
+}
+
+if (escrow.status !== "IN_PROGRESS") {
+  throw new HTTPException(400, { message: "[INVALID_STATE] Delivery can be marked only when escrow is IN_PROGRESS." })
+}
+
+const updated = await db.$transaction(async (tx) => {
+  const u = await tx.escrow.update({
+    where: { id: input.escrowId },
+    data: { deliveryStatus: "DELIVERED" },
+  })
+  await tx.escrowActivity.create({
+    data: {
+      escrowId: input.escrowId,
+      userId: ctx.user.id,
+      action: "DELIVERY_MARKED_DELIVERED",
+    },
+  })
+  return u
+})
+
+return c.superjson({ success: true, escrowId: updated.id })
+})
 
 })

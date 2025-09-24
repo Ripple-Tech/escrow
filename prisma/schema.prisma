@@ -151,7 +151,10 @@ enum LogisticsOption {
   PICKUP
   DELIVERY
 }
-
+enum DeliveryStatus {
+PENDING
+DELIVERED
+}
 enum Currency {
   NGN
   USD
@@ -167,49 +170,34 @@ model Escrow {
   status        EscrowStatus @default(PENDING)
   role          EscrowRole
   lockedfund   Lockedfund?
-  // Sender is required
   sender        User         @relation("SentEscrows", fields: [senderId], references: [id])
   senderId      String
   senderEmail   String?
-  // Receiver is optional until connected
   receiver      User?        @relation("ReceivedEscrows", fields: [receiverId], references: [id])
   receiverId    String?
   receiverEmail String?
-
-  // Buyer relation (opposite of buyerEscrows)
   buyer         User?        @relation("BuyerEscrows", fields: [buyerId], references: [id])
   buyerId       String?
-
-  // Seller relation (opposite of sellerEscrows)
   seller        User?        @relation("SellerEscrows", fields: [sellerId], references: [id])
   sellerId      String?
-
-  // Creator relation
   creator       User         @relation("CreatorEscrows", fields: [creatorId], references: [id])
   creatorId     String
-
-  // Opposite relation for User.escrows
   user         User?        @relation("UserEscrows", fields: [userId], references: [id])
   userId       String?
-
-  // New features from reference model
   source            EscrowSource           @default(INTERNAL)
+  deliveryStatus    DeliveryStatus @default(PENDING)
   invitationStatus  EscrowInvitationStatus @default(PENDING)
   invitedRole       EscrowRole?
- 
   logistics     LogisticsOption @default(NO)
   photoUrl      String?
   color         String?
   category      String?
   quantity      Int?
-
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-
-  // Opposite relation for EscrowActivity.escrow
   activities    EscrowActivity[]
   
-  @@unique([id, senderId])
+//  @@unique([id, senderId])
 }
 
 // Transaction Models

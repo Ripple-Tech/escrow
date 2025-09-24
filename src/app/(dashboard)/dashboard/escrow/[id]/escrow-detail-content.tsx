@@ -23,13 +23,25 @@ import { FormError } from "@/components/forms/form-error"
 import { FormSuccess } from "@/components/forms/form-success"
 import { throwIfNotOk } from "@/lib/pass-error-helper"
 import { Modal } from "@/components/ui/modal"
-
+import { toast } from "sonner"
 interface EscrowDetailContentProps {
   escrow: Escrow
   isCreator: boolean
   isBuyer: boolean
   isSeller: boolean
 }
+// Define reusable Tailwind class constants
+const cardPadding = "p-6";
+const heading = "text-2xl font-bold mb-4 flex items-center gap-3";
+const descText = "text-sm text-muted-foreground mb-6 leading-relaxed";
+const infoRow = "flex items-start gap-3";
+const labelText =
+  "block text-xs uppercase tracking-wide text-muted-foreground/80";
+const valueText = "text-base font-semibold text-foreground";
+const iconWrapperBase =
+  "inline-flex shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary shadow-primary-glow";
+const iconWrapper7 = `${iconWrapperBase} w-7 h-7`;
+const iconWrapper9 = `${iconWrapperBase} w-9 h-9`;
 
 export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: EscrowDetailContentProps) => {
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/escrow/${escrow.id}`
@@ -38,7 +50,7 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
   const router = useRouter()
   const qc = useQueryClient()
   const [activeTab, setActiveTab] = useState<"overview" | "activity" | "chat">("overview")
-  
+  const [confirmDeliver, setConfirmDeliver] = useState(false)
 
   const handleCopy = async (text: string) => {
     try {
@@ -71,10 +83,11 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
     },
     onError: (error) => {
     console.error("Error accepting escrow:", error);
-    // Additional error handling if necessary
+   toast.error("Something went wrong. check your balance.")
   },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
+      toast.success("Escrow accepted successfully ✅")
     },
   })
 
@@ -100,6 +113,17 @@ const releaseMutation = useMutation({
   onSuccess: async () => {
     await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
   },
+})
+
+const markDeliveredMutation = useMutation({
+mutationFn: async () => {
+const res = await client.escrow.markDelivered.$post({ escrowId: escrow.id })
+await throwIfNotOk(res)
+return await res.json()
+},
+onSuccess: async () => {
+await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
+},
 })
 
 
@@ -234,47 +258,63 @@ if (isInviteePreview) {
   ))}
 </TabsList>
 
-        <TabsContent value="overview">
-  <Card className="p-6">
-    <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-      <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+       <TabsContent value="overview">
+  <Card className={cardPadding}>
+    <h2 className={heading}>
+      <span className={iconWrapper9}>
         <FaInfoCircle className="w-5 h-5" />
       </span>
       {e.productName}
     </h2>
 
-    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-      {e.description}
-    </p>
+    <p className={descText}>{e.description}</p>
 
     <div className="space-y-3">
-      <p className="flex items-start gap-3">
-        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+      {/* Amount */}
+      <p className={infoRow}>
+        <span className={iconWrapper7}>
           <FaNairaSign className="w-4 h-4" />
         </span>
         <span className="flex-1">
-          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Amount</span>
-          <span className="text-base font-semibold text-foreground">{e.amount.toString()} {e.currency}</span>
+          <span className={labelText}>Amount</span>
+          <span className={valueText}>
+            {e.amount.toString()} {e.currency}
+          </span>
         </span>
       </p>
 
-      <p className="flex items-start gap-3">
-        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+      {/* Status */}
+      <p className={infoRow}>
+        <span className={iconWrapper7}>
           <BadgeCheck className="w-4 h-4" />
         </span>
         <span className="flex-1">
-          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Status</span>
-          <span className="text-base font-semibold text-foreground">{e.status.replaceAll("_", " ")}</span>
+          <span className={labelText}>Status</span>
+          <span className={valueText}>{e.status.replaceAll("_", " ")}</span>
         </span>
       </p>
 
-      <p className="flex items-start gap-3">
-        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+      {/* Delivery Status */}
+      <p className={infoRow}>
+        <span className={iconWrapper7}>
+          <BadgeCheck className="w-4 h-4" />
+        </span>
+        <span className="flex-1">
+          <span className={labelText}>Delivery Status</span>
+          <span className={valueText}>
+            {e.deliveryStatus?.replaceAll("_", " ") ?? "PENDING"}
+          </span>
+        </span>
+      </p>
+
+      {/* Role */}
+      <p className={infoRow}>
+        <span className={iconWrapper7}>
           <User2 className="w-4 h-4" />
         </span>
         <span className="flex-1">
-          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Role</span>
-          <span className="text-base font-semibold text-foreground">
+          <span className={labelText}>Role</span>
+          <span className={valueText}>
             {isCreator
               ? e.role
               : e.invitedRole ?? (e.role === "SELLER" ? "BUYER" : "SELLER")}
@@ -282,57 +322,62 @@ if (isInviteePreview) {
         </span>
       </p>
 
+      {/* Receiver Email */}
       {isCreator && e.receiverEmail && (
-        <p className="flex items-start gap-3">
-          <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+        <p className={infoRow}>
+          <span className={iconWrapper7}>
             <MailOpen className="w-4 h-4" />
           </span>
           <span className="flex-1">
-            <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Receiver Email</span>
-            <span className="text-base font-semibold text-foreground">{e.receiverEmail}</span>
+            <span className={labelText}>Receiver Email</span>
+            <span className={valueText}>{e.receiverEmail}</span>
           </span>
         </p>
       )}
 
-      {!isCreator && e.senderEmail  && (
-        <p className="flex items-start gap-3">
-          <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+      {/* Sender Email */}
+      {!isCreator && e.senderEmail && (
+        <p className={infoRow}>
+          <span className={iconWrapper7}>
             <Mail className="w-4 h-4" />
           </span>
           <span className="flex-1">
-            <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Sender Email</span>
-            <span className="text-base font-semibold text-foreground">{e.senderEmail}</span>
+            <span className={labelText}>Sender Email</span>
+            <span className={valueText}>{e.senderEmail}</span>
           </span>
         </p>
       )}
 
-      <p className="flex items-start gap-3">
-        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+      {/* Invitation Status */}
+      <p className={infoRow}>
+        <span className={iconWrapper7}>
           <UserCheck2 className="w-4 h-4" />
         </span>
         <span className="flex-1">
-          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Invitation Status</span>
-          <span className="text-base font-semibold text-foreground">{e.invitationStatus}</span>
+          <span className={labelText}>Invitation Status</span>
+          <span className={valueText}>{e.invitationStatus}</span>
         </span>
       </p>
 
-      <p className="flex items-start gap-3">
-        <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+      {/* Created At */}
+      <p className={infoRow}>
+        <span className={iconWrapper7}>
           <CalendarClock className="w-4 h-4" />
         </span>
         <span className="flex-1">
-          <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Created At</span>
-          <span className="text-base font-semibold text-foreground">{createdStr}</span>
+          <span className={labelText}>Created At</span>
+          <span className={valueText}>{createdStr}</span>
         </span>
       </p>
 
+      {/* Sharable link */}
       {isCreator && e.invitationStatus === "PENDING" && (
         <div className="flex items-start gap-3 flex-wrap">
-          <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary shadow-primary-glow">
+          <span className={iconWrapper7}>
             <Link2 className="w-4 h-4" />
           </span>
           <div className="flex-1 min-w-0">
-            <span className="block text-xs uppercase tracking-wide text-muted-foreground/80">Sharable Link</span>
+            <span className={labelText}>Sharable Link</span>
             <div className="flex items-center gap-2 min-w-0">
               <a
                 href={shareUrl}
@@ -347,84 +392,133 @@ if (isInviteePreview) {
                 onClick={() => handleCopy(shareUrl)}
               >
                 <IoCopyOutline size={16} />
-                {copied ? <span className="text-green-600">Copied!</span> : <span>Copy</span>}
+                {copied ? (
+                  <span className="text-green-600">Copied!</span>
+                ) : (
+                  <span>Copy</span>
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Render locked fund block somewhere in the Overview (e.g., after Invitation Status) */}
- {e.lockedfund && (
-  <div className="mt-10 p-4 border rounded">
-    <div className="flex flex-1 flex-col w-full items-start justify-between gap-4 sm:flex-row">
-      <div>
-        <div className="text-xs uppercase tracking-wide text-muted-foreground/80">
-          Locked Funds
-        </div>
-        <div className="text-base font-semibold">
-          {(e.lockedfund.amount / 100).toString()} {e.currency} —{" "}
-          {e.lockedfund.released ? "Released" : "Locked"}
-        </div>
-        <div className="text-sm text-muted-foreground">
-          Locked by: {e.lockedfund.buyer?.email ?? e.lockedfund.buyerId}
-        </div>
-      </div>
-
-      {/* Buyer can release when not released */}
-      {isBuyer && !e.lockedfund.released && (
-        <div>
-          <Button
-            onClick={() => setReleasingEscrow(e.id)}
-            disabled={releaseMutation.isPending}
-          >
-            Release funds
-          </Button>
+      {/* Locked Funds Block */}
+      {e.lockedfund && (
+        <div className="mt-10 p-4 border rounded">
+          <div className="flex flex-1 flex-col w-full items-start justify-between gap-4 sm:flex-row">
+            <div>
+              <div className={labelText}>Locked Funds</div>
+              <div className={valueText}>
+                {(e.lockedfund.amount / 100).toString()} {e.currency} —{" "}
+                {e.lockedfund.released ? "Released" : "Locked"}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Locked by: {e.lockedfund.buyer?.email ?? e.lockedfund.buyerId}
+              </div>
+            </div>
+            {isBuyer && !e.lockedfund.released && (
+              <div>
+                <Button
+                  onClick={() => setReleasingEscrow(e.id)}
+                  disabled={releaseMutation.isPending}
+                >
+                  Release funds
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       )}
-    </div>
-  </div>
-)}
 
-{/* Release Funds Modal */}
-<Modal
-  showModal={!!releasingEscrow}
-  setShowModal={() => setReleasingEscrow(null)}
-  className="max-w-md p-8"
->
-  <div className="space-y-6">
-    <div>
-      <h2 className="text-lg/7 font-medium tracking-tight text-gray-950">
-        Release Funds
-      </h2>
-      <p className="text-sm/6 text-gray-600">
-        Are you sure you want to release these funds?{" "}
-        <strong>This action cannot be undone.</strong>
-      </p>
-    </div>
+      {/* Seller mark delivered */}
+      {isSeller &&
+        e.status === "IN_PROGRESS" &&
+        e.deliveryStatus !== "DELIVERED" && (
+          <div className="mt-4">
+            <Button
+              variant="secondary"
+              onClick={() => setConfirmDeliver(true)}
+              disabled={markDeliveredMutation.isPending}
+            >
+              {markDeliveredMutation.isPending
+                ? "Marking…"
+                : "Mark as Delivered"}
+            </Button>
+          </div>
+        )}
 
-    <div className="flex justify-end space-x-3 pt-4 border-t">
-      <Button variant="outline" onClick={() => setReleasingEscrow(null)}>
-        Cancel
-      </Button>
-      <Button
-        variant="destructive"
-        onClick={() => {
-          releaseMutation.mutate();
-          setReleasingEscrow(null);
-        }}
-        disabled={releaseMutation.isPending}
+      {/* Modals (unchanged, but could reuse text classes too) */}
+      <Modal
+        showModal={confirmDeliver}
+        setShowModal={() => setConfirmDeliver(false)}
+        className="max-w-md p-8"
       >
-        {releaseMutation.isPending ? "Releasing…" : "Release"}
-      </Button>
-    </div>
-  </div>
-</Modal>
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg/7 font-medium tracking-tight text-gray-950">
+              Mark as Delivered
+            </h2>
+            <p className="text-sm/6 text-gray-600">
+              Are you sure the buyer has received the product? This will set
+              delivery status to Delivered.
+            </p>
+          </div>
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setConfirmDeliver(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                markDeliveredMutation.mutate();
+                setConfirmDeliver(false);
+              }}
+              disabled={markDeliveredMutation.isPending}
+            >
+              {markDeliveredMutation.isPending
+                ? "Marking…"
+                : "Yes, mark delivered"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
-
+      {/* Release Funds Modal */}
+      <Modal
+        showModal={!!releasingEscrow}
+        setShowModal={() => setReleasingEscrow(null)}
+        className="max-w-md p-8"
+      >
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg/7 font-medium tracking-tight text-gray-950">
+              Release Funds
+            </h2>
+            <p className="text-sm/6 text-gray-600">
+              Are you sure you want to release these funds?{" "}
+              <strong>This action cannot be undone.</strong>
+            </p>
+          </div>
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setReleasingEscrow(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                releaseMutation.mutate();
+                setReleasingEscrow(null);
+              }}
+              disabled={releaseMutation.isPending}
+            >
+              {releaseMutation.isPending ? "Releasing…" : "Release"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   </Card>
-</TabsContent>
+</TabsContent>;
 
         <TabsContent value="activity">
           <Card className="p-6">
