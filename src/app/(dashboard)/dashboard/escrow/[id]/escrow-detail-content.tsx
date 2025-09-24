@@ -38,7 +38,7 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
   const router = useRouter()
   const qc = useQueryClient()
   const [activeTab, setActiveTab] = useState<"overview" | "activity" | "chat">("overview")
-
+  
 
   const handleCopy = async (text: string) => {
     try {

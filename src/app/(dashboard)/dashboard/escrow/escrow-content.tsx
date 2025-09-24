@@ -14,7 +14,7 @@ import { toast } from "sonner"
 export const EscrowContent = () => {
   const [deletingEscrow, setDeletingEscrow] = useState<string | null>(null)
   const queryClient = useQueryClient()
-
+  
   const { data: escrows, isPending: isEscrowsLoading } = useQuery({
     queryKey: ["user-escrows"],
     queryFn: async () => {
@@ -51,11 +51,14 @@ export const EscrowContent = () => {
     return <div>No escrows found </div>
    // return <DashboardEmptyState />
   }
+  
 
   return (
     <>
       <ul className="grid max-w-6xl grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {escrows.map((escrow: any) => (
+        {escrows.map((escrow: any) => {
+          const canDelete = escrow.status === "PENDING" || escrow.status === "COMPLETED"
+      return (
           <li
             key={escrow.id}
             className="relative group z-10 transition-all duration-200 hover:-translate-y-0.5"
@@ -103,6 +106,7 @@ export const EscrowContent = () => {
                 <Button
                   variant="ghost"
                   size="sm"
+                  disabled={!canDelete}
                   className="text-gray-500 hover:text-red-600 transition-colors"
                   aria-label={`Delete escrow ${escrow.productName}`}
                   onClick={() => setDeletingEscrow(escrow.id)}
@@ -112,7 +116,7 @@ export const EscrowContent = () => {
               </div>
             </div>
           </li>
-        ))}
+         ) })}
       </ul>
 
       <Modal

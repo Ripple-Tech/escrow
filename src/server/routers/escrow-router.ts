@@ -5,6 +5,8 @@ import { ESCROW_VALIDATOR } from "@/lib/validators/escrow-validator"
 import { HTTPException } from "hono/http-exception"
 import { z } from "zod"
 
+ const ALLOWED_DELETE_STATUSES = ["PENDING", "COMPLETED"] as const
+
 export const escrowRouter = router({
   createEscrow: privateProcedure
     .input(ESCROW_VALIDATOR)
@@ -125,6 +127,7 @@ export const escrowRouter = router({
 
 
 
+
 deleteEscrow: privateProcedure
   .input(z.object({ id: z.string() }))
   .mutation(async ({ c, input, ctx }) => {
@@ -134,8 +137,9 @@ deleteEscrow: privateProcedure
         id: input.id,
         OR: [{ senderId: ctx.user.id }, { receiverId: ctx.user.id }],
       },
-      select: { id: true },
-    })
+      select: { id: true, status: true, senderId: true, receiverId: true, amount: true,
+      lockedfund: { select: { id: true, buyerId: true, amount: true, released: true }, },
+      }, })
 
     if (!escrow) {
       throw new HTTPException(404, {
@@ -143,15 +147,40 @@ deleteEscrow: privateProcedure
           "[ESCROW_NOT_FOUND_OR_FORBIDDEN] Escrow not found or you do not have access.",
       })
     }
+    //  Only allow delete when status is PENDING or COMPLETED
+if (!ALLOWED_DELETE_STATUSES.includes(escrow.status as any)) {
+  throw new HTTPException(400, {
+    message: "[DELETE_NOT_ALLOWED] Escrow can only be deleted when status is PENDING, RELEASED, or COMPLETED.",
+  })
+}
 
-    // 2. Delete escrow + dependents in a transaction
-    await db.$transaction([
-      db.escrowActivity.deleteMany({ where: { escrowId: input.id } }),
-      db.lockedfund.deleteMany({ where: { escrowId: input.id } }),
-      db.escrow.delete({ where: { id: input.id } }),
-    ])
+  // 3) Transaction: if there is an unreleased locked fund, refund the buyer first,
+// then remove activities, lockedfund, and the escrow itself
+await db.$transaction(async (tx) => {
+  // refund if needed
+  if (escrow.lockedfund && !escrow.lockedfund.released) {
+    const refundAmount = Number(escrow.lockedfund.amount) // already stored in kobo
+    if (refundAmount > 0) {
+      await tx.user.update({
+        where: { id: escrow.lockedfund.buyerId },
+        data: { balance: { increment: refundAmount } },
+      })
+    }
+    // remove the lockedfund row after refund
+    await tx.lockedfund.delete({ where: { escrowId: escrow.id } })
+  } else {
+    // even if no refund, ensure dangling lockedfund (if any) is deleted
+    await tx.lockedfund.deleteMany({ where: { escrowId: escrow.id } })
+  }
 
-    return c.superjson({ success: true })
+  // delete activities first due to FK constraints
+  await tx.escrowActivity.deleteMany({ where: { escrowId: escrow.id } })
+
+  // finally delete the escrow
+  await tx.escrow.delete({ where: { id: escrow.id } })
+})
+
+return c.superjson({ success: true })
   }),
 
 
