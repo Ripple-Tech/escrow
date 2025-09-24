@@ -115,7 +115,6 @@ export const escrowRouter = router({
             },
           })
         }
-        console.log("Escrow created:", escrow)
         return escrow
       })
       // Refetch with relations to return (include lockedfund)
@@ -194,6 +193,10 @@ await db.$transaction(async (tx) => {
 
   // delete activities first due to FK constraints
   await tx.escrowActivity.deleteMany({ where: { escrowId: escrow.id } })
+  // delete conversation(s) tied to escrow
+await tx.conversation.deleteMany({
+  where: { escrowId: escrow.id },
+})
 
   // finally delete the escrow
   await tx.escrow.delete({ where: { id: escrow.id } })
@@ -321,6 +324,13 @@ if (oppositeRole === "BUYER") {
         action: "ACCEPTED",
       },
     })
+    // After updating escrow and creating escrowActivity
+await db.conversation.updateMany({
+  where: { escrowId: updated.id },
+  data: {
+    userIds: [escrow.senderId, ctx.user.id], // buyer + seller
+  },
+})
     return c.superjson({ success: true, escrowId: escrow.id })
   }),
 
