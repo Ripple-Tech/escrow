@@ -128,6 +128,14 @@ export const escrowRouter = router({
             orderBy: { createdAt: "desc" },
           },
           lockedfund: true,
+          conversation: {
+include: {
+messages: {
+include: { sender: { select: { id: true, email: true, name: true } } },
+orderBy: { createdAt: "desc" }
+}
+}
+}
         },
       })
       return c.superjson({ escrow: escrowWithRelations })
@@ -230,6 +238,14 @@ return c.superjson({ success: true })
           // <<-- include locked fund so client can display it
           lockedfund: {
             include: { buyer: { select: { id: true, email: true } } },
+          }, 
+          conversation: {
+            include: {
+              messages: {
+                include: { sender: { select: { id: true, email: true, name: true } } },
+                orderBy: { createdAt: "desc" },
+                },
+             },
           },
         },
       })

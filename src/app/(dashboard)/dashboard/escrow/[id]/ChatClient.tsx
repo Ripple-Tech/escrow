@@ -1,0 +1,191 @@
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { formatDistanceToNow } from "date-fns"
+import { Send, Image as ImageIcon } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/utils"
+import { pusherClient } from "@/lib/pusher"
+import { client } from "@/lib/client"
+import { throwIfNotOk } from "@/lib/pass-error-helper"
+
+interface ChatClientProps {
+  conversationId: string
+  initialMessages: any[]
+  currentUserId: string
+}
+
+export function ChatClient({ conversationId, initialMessages, currentUserId }: ChatClientProps) {
+  const queryClient = useQueryClient()
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  // messages query - using your Hono client approach
+  const { data: messages = [] } = useQuery({
+    queryKey: ["conversation", conversationId],
+    queryFn: async () => {
+      if (!conversationId) return initialMessages
+      
+      // CORRECTED: Pass parameters directly, not in a "query" object
+      const res = await client.conversation.getConversation.$get({ 
+        conversationId // Direct parameter, not nested in "query"
+      })
+      await throwIfNotOk(res)
+      const data = await res.json()
+      return data.conversation?.messages || []
+    },
+    initialData: initialMessages,
+    enabled: !!conversationId,
+  })
+
+  // send message mutation - using sendMessage endpoint
+  const sendMessage = useMutation({
+    mutationFn: async (body: string) => {
+      if (!conversationId) throw new Error("No conversation ID")
+      
+      // CORRECTED: Pass parameters directly
+      const res = await client.conversation.sendMessage.$post({ 
+        message: body, 
+        conversationId // Direct parameter
+      })
+      await throwIfNotOk(res)
+      return await res.json()
+    },
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({ queryKey: ["conversation", conversationId] })
+      const prev = queryClient.getQueryData<any[]>(["conversation", conversationId]) || []
+
+      const optimistic = {
+        id: `temp-${Date.now()}`,
+        body,
+        senderId: currentUserId,
+        sender: { id: currentUserId, name: "You" },
+        createdAt: new Date().toISOString(),
+        seen: [],
+        optimistic: true,
+      }
+
+      queryClient.setQueryData(["conversation", conversationId], [...prev, optimistic])
+      return { prev }
+    },
+    onError: (_err, _body, ctx) => {
+      if (ctx?.prev) {
+        queryClient.setQueryData(["conversation", conversationId], ctx.prev)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] })
+    },
+  })
+
+  // scroll on new message
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  // realtime updates
+  useEffect(() => {
+    if (!conversationId) return
+
+    pusherClient.subscribe(conversationId)
+
+    const handleNew = (msg: any) => {
+      queryClient.setQueryData<any[]>(["conversation", conversationId], (old = []) => {
+        if (old.find((m) => m.id === msg.id)) return old
+        return [...old, msg]
+      })
+    }
+
+    const handleUpdate = (msg: any) => {
+      queryClient.setQueryData<any[]>(["conversation", conversationId], (old = []) =>
+        old.map((m) => (m.id === msg.id ? msg : m))
+      )
+    }
+
+    pusherClient.bind("messages:new", handleNew)
+    pusherClient.bind("message:update", handleUpdate)
+
+    return () => {
+      pusherClient.unsubscribe(conversationId)
+      pusherClient.unbind("messages:new", handleNew)
+      pusherClient.unbind("message:update", handleUpdate)
+    }
+  }, [conversationId, queryClient])
+
+  // local input state
+  const [input, setInput] = useState("")
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || !conversationId) return
+    sendMessage.mutate(input.trim())
+    setInput("")
+  }
+
+  // If no conversation exists yet
+  if (!conversationId) {
+    return (
+      <Card className="flex flex-col h-[500px] border shadow-md items-center justify-center">
+        <div className="text-muted-foreground text-center p-4">
+          <p>Chat will be available once the escrow is accepted</p>
+          <p className="text-sm">Both parties need to accept the escrow to start chatting</p>
+        </div>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="flex flex-col h-[500px] border shadow-md">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {messages.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">
+            No messages yet. Start the conversation!
+          </div>
+        ) : (
+          messages.map((m: any) => {
+            const isOwn = m.senderId === currentUserId
+            return (
+              <div key={m.id} className={cn("flex gap-2", isOwn && "justify-end")}>
+                <div className="flex flex-col max-w-xs">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {m.sender?.name || "Unknown"} · {formatDistanceToNow(new Date(m.createdAt))} ago
+                  </div>
+                  <div
+                    className={cn(
+                      "rounded-2xl px-3 py-2 text-sm",
+                      isOwn
+                        ? "bg-primary text-primary-foreground self-end"
+                        : "bg-muted text-foreground"
+                    )}
+                  >
+                    {m.body}
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <form onSubmit={handleSend} className="flex items-center gap-2 p-3 border-t">
+        <Button type="button" size="icon" variant="ghost">
+          <ImageIcon className="w-5 h-5" />
+        </Button>
+        <Input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Write a message..."
+          disabled={sendMessage.isPending}
+        />
+        <Button type="submit" size="icon" disabled={sendMessage.isPending || !conversationId}>
+          <Send className="w-4 h-4" />
+        </Button>
+      </form>
+    </Card>
+  )
+}

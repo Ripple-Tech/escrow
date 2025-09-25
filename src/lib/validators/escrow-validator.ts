@@ -1,5 +1,6 @@
 import { release } from "os"
 import { z } from "zod"
+import { CONVERSATION_VALIDATOR } from "./conversation"
 
 // Existing enums
 export const ESCROW_ROLE = z.enum(["SELLER", "BUYER"])
@@ -42,7 +43,7 @@ export const ESCROW_VALIDATOR = z
     receiverEmail: z.string().email("Invalid receiver email.").optional(),
    
     photoUrl: z.string().url().optional().or(z.literal("")),
-
+    conversation: CONVERSATION_VALIDATOR.optional(),
     color: z.string().optional(),
     category: z.string().optional(),
     quantity: z.coerce.number().int().positive().optional(),

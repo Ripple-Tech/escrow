@@ -17,18 +17,22 @@ import { parseISO } from "date-fns"
 import { format } from "date-fns"
 import { FaNairaSign } from "react-icons/fa6";
 /* icon imports */
-import { BadgeCheck, UserCheck2, Mail, MailOpen, Link2, CalendarClock, User2, } from "lucide-react"
+import { BadgeCheck, UserCheck2, Mail, MailOpen, Link2, CalendarClock, User2, User, } from "lucide-react"
 import { RiUserStarFill } from "react-icons/ri"
 import { FormError } from "@/components/forms/form-error"
 import { FormSuccess } from "@/components/forms/form-success"
 import { throwIfNotOk } from "@/lib/pass-error-helper"
 import { Modal } from "@/components/ui/modal"
 import { toast } from "sonner"
+import { ChatClient } from "./ChatClient"
+import { useCurrentUser } from "@/hooks/use-current-user"
+
 interface EscrowDetailContentProps {
   escrow: Escrow
   isCreator: boolean
   isBuyer: boolean
   isSeller: boolean
+
 }
 // Define reusable Tailwind class constants
 const cardPadding = "p-6";
@@ -51,7 +55,7 @@ export const EscrowDetailContent = ({ escrow, isCreator, isBuyer, isSeller }: Es
   const qc = useQueryClient()
   const [activeTab, setActiveTab] = useState<"overview" | "activity" | "chat">("overview")
   const [confirmDeliver, setConfirmDeliver] = useState(false)
-
+  const currentUser = useCurrentUser();
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -126,11 +130,7 @@ await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
 },
 })
 
-
-  if (!data?.escrow) {
-    return <p>Escrow not found.</p>
-  }
-  const e = data.escrow as Escrow & {
+type EscrowWithRelations = Escrow & {
   activities?: {
     id: string
     action: string
@@ -145,9 +145,22 @@ await qc.invalidateQueries({ queryKey: ["escrow", escrow.id] })
     buyerId: string
     buyer: { id: string; email: string }
   } | null
+  conversation?: {
+    id: string
+    createdAt: Date
+    lastMessageAt: Date
+    messages: {
+      id: string
+      body: string | null
+      createdAt: Date
+      sender: { id: string; email: string; name: string | null }
+    }[]
+  } | null
 }
+  const e = data?.escrow as EscrowWithRelations
 
   const activities = e.activities || []
+  const conversationId = e.conversation?.id || null
  const canReleaseFund = e.invitationStatus === "ACCEPTED" && e.status === "IN_PROGRESS"  && e.lockedfund && !e.lockedfund.released && isBuyer
   const created =
     typeof e.createdAt === "string" ? parseISO(e.createdAt) : new Date(e.createdAt)
@@ -550,12 +563,16 @@ activities.map((act) => (
 </TableBody>
 
             </Table>
-          </Card>
+          </Card> 
         </TabsContent>
 
         <TabsContent value="chat">
           <Card className="p-6">
-            <p>Chat coming soon.</p>
+            <ChatClient
+              conversationId={e.conversation?.id || " " }
+              initialMessages={e.conversation?.messages ?? []}
+              currentUserId={currentUser?.id || " "}
+            />
           </Card>
         </TabsContent>
       </Tabs>
