@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { SVGProps } from "react"
 import { cn } from "@/utils"
+import { useCurrentUser } from "@/hooks/use-current-user"
 
 // Define bottom nav items
 export const bottomNavItems = [
@@ -16,11 +17,15 @@ export const bottomNavItems = [
 
 export default function BottomNavBar() {
   const pathname = usePathname()
+  const user = useCurrentUser();
+    if(!user){ console.error("User ID is undefined"); return;}
+    const userId = user.id;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-14 w-full items-center justify-around bg-background shadow-[0_-2px_4px_rgba(0,0,0,0.1)] md:hidden">
       {bottomNavItems.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href
+         if (href === "/dashboard/profile") href = `${href}/${userId}`;
         return (
           <Link
             key={href}

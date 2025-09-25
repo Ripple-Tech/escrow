@@ -48,6 +48,7 @@ model User {
   emailVerified      DateTime?
   verifiedUser       DateTime?
   name               String?
+  username           String?              @unique
   image              String?
   password           String?
   role               UserRole             @default(USER)
@@ -60,6 +61,12 @@ model User {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
 
+  isChatEnabled Boolean @default(true)
+  isChatFollowersOnly Boolean @default(false)
+  following     Follow[] @relation("UserFollowing")
+  followedBy    Follow[] @relation("UserFollowedBy")
+  blocking      Block[]  @relation("Blocking")
+  blockedBy     Block[]  @relation("BlockedBy")
   // Auth and security relations
   accounts           Account[]
   twoFactorConfirmation TwoFactorConfirmation?
@@ -86,6 +93,32 @@ model User {
   messages      Message[]
   // New index for improved query performance
   @@index([email, apiKey])
+}
+
+model Follow {
+  id           String   @id @default(uuid())
+  followerId   String
+  followingId  String
+  follower     User     @relation(name: "UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following    User     @relation(name: "UserFollowedBy", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Block {
+  id          String   @id @default(uuid())
+  blockerId   String
+  blockedId   String
+  blocker     User     @relation(name: "Blocking", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked     User     @relation(name: "BlockedBy", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
 }
 
 // Security and password management models
