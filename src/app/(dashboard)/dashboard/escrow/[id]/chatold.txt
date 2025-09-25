@@ -22,14 +22,15 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
   const queryClient = useQueryClient()
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // messages query
+  // messages query - using your Hono client approach
   const { data: messages = [] } = useQuery({
     queryKey: ["conversation", conversationId],
     queryFn: async () => {
       if (!conversationId) return initialMessages
       
+      // CORRECTED: Pass parameters directly, not in a "query" object
       const res = await client.conversation.getConversation.$get({ 
-        conversationId
+        conversationId // Direct parameter, not nested in "query"
       })
       const data = await res.json()
       return data.conversation?.messages || []
@@ -38,68 +39,81 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
     enabled: !!conversationId,
   })
 
-  // send message mutation - simplified without optimistic updates
+  // send message mutation - using sendMessage endpoint
   const sendMessage = useMutation({
     mutationFn: async (body: string) => {
       if (!conversationId) throw new Error("No conversation ID")
       
+      // CORRECTED: Pass parameters directly
       const res = await client.conversation.sendMessage.$post({ 
         message: body, 
-        conversationId
+        conversationId // Direct parameter
       })
       await throwIfNotOk(res)
       return await res.json()
     },
-    onSuccess: () => {
-      // Pusher will handle the real-time update, so we don't need to manually invalidate
-      // This prevents the double message issue
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({ queryKey: ["conversation", conversationId] })
+      const prev = queryClient.getQueryData<any[]>(["conversation", conversationId]) || []
+
+      const optimistic = {
+        id: `temp-${Date.now()}`,
+        body,
+        senderId: currentUserId,
+        sender: { id: currentUserId, name: "You" },
+        createdAt: new Date().toISOString(),
+        seen: [],
+        optimistic: true,
+      }
+
+      queryClient.setQueryData(["conversation", conversationId], [...prev, optimistic])
+      return { prev }
+    },
+    onError: (_err, _body, ctx) => {
+      if (ctx?.prev) {
+        queryClient.setQueryData(["conversation", conversationId], ctx.prev)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] })
     },
   })
 
-  // scroll to bottom when messages change
+  // scroll on new message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // realtime updates with Pusher
+  // realtime updates
   useEffect(() => {
     if (!conversationId) return
 
     pusherClient.subscribe(conversationId)
 
-    const handleNewMessage = (newMessage: any) => {
+    const handleNew = (msg: any) => {
       queryClient.setQueryData<any[]>(["conversation", conversationId], (old = []) => {
-        // Avoid duplicates - check if message already exists
-        if (old.find((m) => m.id === newMessage.id)) return old
-        return [...old, newMessage]
+        if (old.find((m) => m.id === msg.id)) return old
+        return [...old, msg]
       })
     }
 
-    const handleUpdateMessage = (updatedMessage: any) => {
+    const handleUpdate = (msg: any) => {
       queryClient.setQueryData<any[]>(["conversation", conversationId], (old = []) =>
-        old.map((m) => (m.id === updatedMessage.id ? updatedMessage : m))
+        old.map((m) => (m.id === msg.id ? msg : m))
       )
     }
 
-    const handleDeleteMessage = (deletedMessage: any) => {
-      queryClient.setQueryData<any[]>(["conversation", conversationId], (old = []) =>
-        old.filter((m) => m.id !== deletedMessage.id)
-      )
-    }
-
-    // Bind to Pusher events
-    pusherClient.bind("messages:new", handleNewMessage)
-    pusherClient.bind("message:update", handleUpdateMessage)
-    pusherClient.bind("message:deleted", handleDeleteMessage)
+    pusherClient.bind("messages:new", handleNew)
+    pusherClient.bind("message:update", handleUpdate)
 
     return () => {
       pusherClient.unsubscribe(conversationId)
-      pusherClient.unbind("messages:new", handleNewMessage)
-      pusherClient.unbind("message:update", handleUpdateMessage)
-      pusherClient.unbind("message:deleted", handleDeleteMessage)
+      pusherClient.unbind("messages:new", handleNew)
+      pusherClient.unbind("message:update", handleUpdate)
     }
   }, [conversationId, queryClient])
 
+  // local input state
   const [input, setInput] = useState("")
 
   const handleSend = (e: React.FormEvent) => {
@@ -109,6 +123,7 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
     setInput("")
   }
 
+  // If no conversation exists yet
   if (!conversationId) {
     return (
       <Card className="flex flex-col h-[500px] border shadow-md items-center justify-center">
@@ -166,11 +181,7 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
           placeholder="Write a message..."
           disabled={sendMessage.isPending}
         />
-        <Button 
-          type="submit" 
-          size="icon" 
-          disabled={sendMessage.isPending || !conversationId || !input.trim()}
-        >
+        <Button type="submit" size="icon" disabled={sendMessage.isPending || !conversationId}>
           <Send className="w-4 h-4" />
         </Button>
       </form>
