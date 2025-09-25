@@ -121,7 +121,7 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
   }
 
   return (
-    <Card className="flex flex-col h-[500px] border shadow-md">
+    <div className="flex flex-col >
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 ? (
@@ -174,6 +174,6 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
           <Send className="w-4 h-4" />
         </Button>
       </form>
-    </Card>
+    </div>
   )
 }
