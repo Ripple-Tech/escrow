@@ -123,7 +123,7 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
   return (
     <div className="flex flex-col ">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto  space-y-3">
         {messages.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             No messages yet. Start the conversation!
@@ -156,7 +156,7 @@ export function ChatClient({ conversationId, initialMessages, currentUserId }: C
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="flex items-center gap-2 p-3 border-t">
+      <form onSubmit={handleSend} className="flex items-center gap-2  border-t">
         <Button type="button" size="icon" variant="ghost">
           <ImageIcon className="w-5 h-5" />
         </Button>

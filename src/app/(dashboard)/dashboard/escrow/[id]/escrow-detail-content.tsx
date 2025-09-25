@@ -567,7 +567,7 @@ activities.map((act) => (
         </TabsContent>
 
         <TabsContent value="chat">
-          <Card className="p-6">
+          <Card className="">
             <ChatClient
               conversationId={e.conversation?.id || " " }
               initialMessages={e.conversation?.messages ?? []}
