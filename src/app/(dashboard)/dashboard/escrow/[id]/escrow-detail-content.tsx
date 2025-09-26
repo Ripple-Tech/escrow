@@ -161,7 +161,7 @@ type EscrowWithRelations = Escrow & {
 
   const activities = e.activities || []
   const conversationId = e.conversation?.id || null
- const canReleaseFund = e.invitationStatus === "ACCEPTED" && e.status === "IN_PROGRESS"  && e.lockedfund && !e.lockedfund.released && isBuyer
+ const canReleaseFund = e.invitationStatus === "ACCEPTED" && e.deliveryStatus === "DELIVERED" && e.status === "IN_PROGRESS"  && e.lockedfund && !e.lockedfund.released && isBuyer
   const created =
     typeof e.createdAt === "string" ? parseISO(e.createdAt) : new Date(e.createdAt)
   const createdStr = format(created, "yyyy-MM-dd HH:mm:ss")
