@@ -1,6 +1,7 @@
 import { fetchUser } from "@/actions/user.actions";
 import ToggleCard from "@/components/card/ToggleCard";
 import  currentUser  from "@/actions/getCurrentUser";
+import { DashboardPage } from "@/components/dashboard/dashboard-page";
 
 const ChatSettingsPage = async () => {
   const user = await currentUser();
@@ -8,12 +9,10 @@ const ChatSettingsPage = async () => {
     return null;
   }
   const userInfo = await fetchUser(user.id);
+   const back =  `/dashboard/profile/${user.id}`;
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold">Chat Settings</h1>
-      </div>
+   <DashboardPage title="Chat Settings" backHref={back}>
       <div className="space-y-4">
         <ToggleCard
           field="isChatEnabled"
@@ -31,7 +30,7 @@ const ChatSettingsPage = async () => {
           value={userInfo.isChatFollowersOnly}
         />
       </div>
-    </div>
+    </DashboardPage>
   );
 };
 
