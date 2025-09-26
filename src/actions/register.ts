@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs"
 import * as z from "zod";
 import { RegisterSchema } from "@/schemas";
 import {db} from "@/db"
-import { getUserByEmail } from "@/data/user";
+import { getUserByEmail, getUserByUsername } from "@/data/user";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail"
 
@@ -14,21 +14,41 @@ export const Register = async (values: z.infer<typeof RegisterSchema>) => {
         return { error: "Invalid fields!"};
     }
 
-    const { email, password, name } = validatedFields.data;
+    const { email, surname, username, password, name } = validatedFields.data;
     const hashedPassword = await bcrypt.hash(password, 10)
-
+    const normalizedUsername = username.trim().toLowerCase();
     const existingUser = await getUserByEmail(email)
 
     if (existingUser) {
         return {error: "Email already in use!"};
     }
-
+    // Check username uniqueness
+if (normalizedUsername) {
+const existingByUsername = await getUserByUsername(normalizedUsername);
+if (existingByUsername) {
+return { error: "Username already taken!" };
+}
+}
+     try {
     await db.user.create({
         data: {
-            name, email, password: hashedPassword,
+            name, email, surname, username: normalizedUsername, password: hashedPassword,
         },
     });
+} catch (e: any) {
+    // Handle race-condition duplicate (Prisma unique constraint)
+if (e?.code === "P2002" && Array.isArray(e?.meta?.target)) {
+if (e.meta.target.includes("username")) {
+return { error: "Username already taken!" };
+}
+if (e.meta.target.includes("email")) {
+return { error: "Email already in use!" };
+}
+}
+return { error: "Failed to create user" };
+}
 
+// Generate email verification token
     const verificationToken = await generateVerificationToken(email);
 // Send verification email
 try {

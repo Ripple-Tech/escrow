@@ -32,8 +32,11 @@ export const RegisterSchema = z.object({
     }),
     name: z.string().min(1, {
         message: "Name is required" 
-    })
-});
+    }),
+    surname: z.string().min(1, "Surname is required"),
+     username: z.string().min(3, "Username must be at least 3 characters").max(12, "Username must be at most 12 characters")
+    .regex(/^[a-zA-Z0-9._]+$/, "Only letters, numbers, dot and underscore"),
+    });
 
 export const SettingsSchema = z.object({
     name: z.optional(z.string()),

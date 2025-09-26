@@ -20,7 +20,7 @@ import { cn } from "@/utils"
 type Tx = {
   id: string
   userId: string
-  type: "DEPOSIT" | "WITHDRAW" | "TRANSFER"
+  type: "DEPOSIT" | "FEE" | "WITHDRAW" | "TRANSFER"
   status: "PENDING" | "SUCCESS" | "FAILED"
   reference: string
   amount: number
@@ -51,6 +51,12 @@ const typeMeta: Record<
     Icon: Repeat, // swap arrows
     color: "text-indigo-600",
     dot: "bg-indigo-100",
+  },
+  FEE: {
+    label: "Fee",
+    Icon: XCircle, // or another icon, maybe Percent or Receipt
+    color: "text-amber-600",
+    dot: "bg-amber-100",
   },
 }
 

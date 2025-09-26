@@ -48,6 +48,7 @@ model User {
   emailVerified      DateTime?
   verifiedUser       DateTime?
   name               String?
+  surname            String?
   username           String?              @unique
   image              String?
   password           String?
@@ -246,6 +247,7 @@ enum TransactionType {
   DEPOSIT
   WITHDRAW
   TRANSFER
+  FEE
 }
 
 enum TransactionStatus {

@@ -462,7 +462,6 @@ await db.conversation.updateMany({
 
 
 
-  // releaseEscrow: buyer releases locked funds to the seller
   releaseEscrow: privateProcedure
   .input(z.object({ escrowId: z.string().min(1) }))
   .mutation(async ({ ctx, input, c }) => {
@@ -487,6 +486,14 @@ await db.conversation.updateMany({
     const amountInt = Math.round(Number(locked.amount))
     if (!amountInt || amountInt <= 0) throw new HTTPException(400, { message: "Invalid locked amount." })
 
+    // ➕ Calculate fee (3%, min 500, max 5000)
+    let fee = Math.floor(amountInt * 0.03) // integer only
+    if (fee < 500) fee = 500
+    if (fee > 5000) fee = 5000
+
+    const sellerCredit = amountInt - fee
+    if (sellerCredit <= 0) throw new HTTPException(400, { message: "Calculated seller amount is invalid." })
+
     await db.$transaction([
       db.lockedfund.update({
         where: { escrowId: input.escrowId },
@@ -498,7 +505,7 @@ await db.conversation.updateMany({
       }),
       db.user.update({
         where: { id: sellerId },
-        data: { balance: { increment: amountInt } },
+        data: { balance: { increment: sellerCredit } },
       }),
       db.escrowActivity.create({
         data: {
@@ -508,18 +515,31 @@ await db.conversation.updateMany({
         },
       }),
       // ➕ Create CREDIT transaction for seller
-  db.transaction.create({
-    data: {
-      userId: sellerId,
-      type: "TRANSFER",
-      direction: "CREDIT",
-      status: "SUCCESS",
-      reference: `ESCROW-${escrow.id}-RELEASE`,
-      amount: amountInt / 100,
-      currency: escrow.currency,
-    },
-  }),
+      db.transaction.create({
+        data: {
+          userId: sellerId,
+          type: "TRANSFER",
+          direction: "CREDIT",
+          status: "SUCCESS",
+          reference: `ESCROW-${escrow.id}-RELEASE`,
+          amount: sellerCredit, // already in Naira, no decimals
+          currency: escrow.currency,
+        },
+      }),
+      // ➕ Create FEE transaction (optional, but useful for accounting)
+      db.transaction.create({
+        data: {
+          userId: ctx.user.id, // platform takes the fee
+          type: "FEE",
+          direction: "DEBIT",
+          status: "SUCCESS",
+          reference: `ESCROW-${escrow.id}-FEE`,
+          amount: fee,
+          currency: escrow.currency,
+        },
+      }),
     ])
+
     return c.superjson({ success: true })
   }),
 
