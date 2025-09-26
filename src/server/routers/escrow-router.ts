@@ -114,7 +114,20 @@ export const escrowRouter = router({
               amount: amountKobo, 
             },
           })
+          // ➕ Create DEBIT transaction
+         await tx.transaction.create({
+           data: {
+             userId: ctx.user.id,
+             type: "TRANSFER",
+             direction: "DEBIT",
+             status: "SUCCESS",
+             reference: `ESCROW-${escrow.id}-CREATE`,
+             amount: amountKobo / 100,
+             currency: input.currency,
+           },
+         })
         }
+        
         return escrow
       })
       // Refetch with relations to return (include lockedfund)
@@ -163,7 +176,7 @@ deleteEscrow: privateProcedure
         id: input.id,
         OR: [{ senderId: ctx.user.id }, { receiverId: ctx.user.id }],
       },
-      select: { id: true, status: true, senderId: true, receiverId: true, amount: true,
+      select: { id: true, status: true, senderId: true, receiverId: true, amount: true, currency: true,
       lockedfund: { select: { id: true, buyerId: true, amount: true, released: true }, },
       }, })
 
@@ -191,6 +204,18 @@ await db.$transaction(async (tx) => {
         where: { id: escrow.lockedfund.buyerId },
         data: { balance: { increment: refundAmount } },
       })
+       // ➕ Create CREDIT transaction for buyer (refund on delete)
+    await tx.transaction.create({
+      data: {
+        userId: escrow.lockedfund.buyerId,
+        type: "TRANSFER",
+        direction: "CREDIT",
+        status: "SUCCESS",
+        reference: `ESCROW-${escrow.id}-DELETE-REFUND`,
+        amount: refundAmount / 100,
+        currency: escrow.currency, // make sure currency is selected earlier
+      },
+    })
     }
     // remove the lockedfund row after refund
     await tx.lockedfund.delete({ where: { escrowId: escrow.id } })
@@ -322,6 +347,18 @@ if (oppositeRole === "BUYER") {
         amount: amountKobo, // store in kobo
       },
     }),
+    // ➕ Create DEBIT transaction
+  db.transaction.create({
+    data: {
+      userId: user.id,
+      type: "TRANSFER",
+      direction: "DEBIT",
+      status: "SUCCESS",
+      reference: `ESCROW-${escrow.id}-ACCEPT`,
+      amount: amountKobo / 100,
+      currency: escrow.currency,
+    },
+  }),
   ])}
     const updated = await db.escrow.update({
       where: { id: input.escrowId },
@@ -354,37 +391,74 @@ await db.conversation.updateMany({
 
 
 
-  declineEscrow: privateProcedure
-    .input(z.object({ escrowId: z.string().min(1) }))
-    .mutation(async ({ ctx, input, c }) => {
-      const escrow = await db.escrow.findUnique({
+ declineEscrow: privateProcedure
+  .input(z.object({ escrowId: z.string().min(1) }))
+  .mutation(async ({ ctx, input, c }) => {
+    const escrow = await db.escrow.findUnique({
+      where: { id: input.escrowId },
+      select: {
+        id: true,
+        senderId: true,
+        receiverId: true,
+        invitationStatus: true,
+        currency: true,
+        lockedfund: {
+          select: { buyerId: true, amount: true, released: true },
+        },
+      },
+    })
+
+    if (!escrow) {
+      throw new HTTPException(404, { message: "Escrow not found" })
+    }
+    if (escrow.senderId === ctx.user.id) {
+      throw new HTTPException(403, { message: "Sender cannot decline own escrow." })
+    }
+    if (escrow.receiverId && escrow.receiverId !== ctx.user.id) {
+      throw new HTTPException(409, { message: "Escrow already accepted by another user." })
+    }
+
+    await db.$transaction(async (tx) => {
+      // If there are unreleased locked funds, refund the buyer and create CREDIT tx
+      if (escrow.lockedfund && !escrow.lockedfund.released) {
+        const refundAmountKobo = Number(escrow.lockedfund.amount)
+        if (refundAmountKobo > 0) {
+          await tx.user.update({
+            where: { id: escrow.lockedfund.buyerId },
+            data: { balance: { increment: refundAmountKobo } },
+          })
+          await tx.transaction.create({
+            data: {
+              userId: escrow.lockedfund.buyerId,
+              type: "TRANSFER",
+              direction: "CREDIT",
+              status: "SUCCESS",
+              reference: `ESCROW-${escrow.id}-DECLINE-REFUND`,
+              amount: refundAmountKobo / 100,
+              currency: escrow.currency,
+            },
+          })
+        }
+        await tx.lockedfund.delete({ where: { escrowId: escrow.id } })
+      }
+
+      await tx.escrow.update({
         where: { id: input.escrowId },
-        select: { id: true, senderId: true, receiverId: true, invitationStatus: true },
+        data: { invitationStatus: "DECLINED" },
       })
 
-      if (!escrow) {
-        throw new HTTPException(404, { message: "Escrow not found" })
-      }
-
-      if (escrow.senderId === ctx.user.id) {
-        throw new HTTPException(403, { message: "Sender cannot decline own escrow." })
-      }
-
-      // If already accepted by someone, cannot decline
-      if (escrow.receiverId && escrow.receiverId !== ctx.user.id) {
-        throw new HTTPException(409, { message: "Escrow already accepted by another user." })
-      }
-
-      // Mark as declined. Do not set receiverId.
-      await db.escrow.update({
-        where: { id: input.escrowId },
+      await tx.escrowActivity.create({
         data: {
-          invitationStatus: "DECLINED",
+          escrowId: escrow.id,
+          userId: ctx.user.id,
+          action: "DECLINED",
         },
       })
+    })
 
-      return c.superjson({ success: true, escrowId: escrow.id })
-    }),
+    return c.superjson({ success: true, escrowId: escrow.id })
+  }),
+
 
 
 
@@ -433,6 +507,18 @@ await db.conversation.updateMany({
           action: "RELEASED",
         },
       }),
+      // ➕ Create CREDIT transaction for seller
+  db.transaction.create({
+    data: {
+      userId: sellerId,
+      type: "TRANSFER",
+      direction: "CREDIT",
+      status: "SUCCESS",
+      reference: `ESCROW-${escrow.id}-RELEASE`,
+      amount: amountInt / 100,
+      currency: escrow.currency,
+    },
+  }),
     ])
     return c.superjson({ success: true })
   }),

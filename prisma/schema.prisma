@@ -253,6 +253,10 @@ enum TransactionStatus {
   SUCCESS
   FAILED
 }
+enum TransactionDirection {
+  DEBIT  
+  CREDIT  
+}
 
 model Transaction {
   id        String   @id @default(uuid())
@@ -264,7 +268,7 @@ model Transaction {
   reference String            @unique
   amount    Float
   currency  Currency
-
+  direction TransactionDirection  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
