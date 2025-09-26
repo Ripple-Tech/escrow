@@ -384,7 +384,7 @@ if (isInviteePreview) {
       </p>
 
       {/* Sharable link */}
-      {isCreator && e.invitationStatus === "PENDING" && (
+      {isCreator && (e.invitationStatus === "PENDING" || e.invitationStatus === "DECLINED")  && (
         <div className="flex items-start gap-3 flex-wrap">
           <span className={iconWrapper7}>
             <Link2 className="w-4 h-4" />
