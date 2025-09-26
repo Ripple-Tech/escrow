@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Actions } from "@/app/(dashboard)/dashboard/profile/[id]/_components/actions";
 import { isFollowingUser } from "@/lib/follow-service";
-import { UserCircle } from "lucide-react";
+import {  SquarePenIcon, UserCircle } from "lucide-react";
 
 interface Props {
   accountId: string;
@@ -78,13 +78,7 @@ async function ProfileHeader({
               ].join(" ")}
             >
               <span className={iconWrapper7}>
-                <Image
-                  src="/edit.svg"
-                  alt="Edit"
-                  width={14}
-                  height={14}
-                  className="object-contain"
-                />
+               <SquarePenIcon className="w-4 h-4" />
               </span>
               <span className="font-medium">Edit</span>
             </div>

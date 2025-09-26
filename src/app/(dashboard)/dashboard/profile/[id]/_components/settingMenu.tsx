@@ -50,16 +50,9 @@ export const SettingsMenu = () => {
             "focus-visible:outline-none focus-visible:ring-0",
           ].join(" ")}
         >
-          <span className={iconWrapper7}>
-            {/* If you prefer lucide icon for consistency, replace Image with <LucideSettings /> */}
-            <Image
-              src="/settings.svg"
-              alt="Settings"
-              width={14}
-              height={14}
-              className="object-contain"
-            />
-          </span>
+          <span className={iconWrapper6}>
+                <LucideSettings className="w-4 h-4" />
+              </span>
           <span className="font-medium">Settings</span>
         </button>
       </DropdownMenuTrigger>
@@ -78,7 +71,7 @@ export const SettingsMenu = () => {
           Menu
         </DropdownMenuLabel>
 
-        <Link href="/settings/" passHref>
+        <Link href="/dashboard/settings/" passHref>
           <DropdownMenuItem
             asChild
             className={[
@@ -100,7 +93,7 @@ export const SettingsMenu = () => {
           </DropdownMenuItem>
         </Link>
 
-        <Link href="/settings/chat" passHref>
+        <Link href="/dashboard/settings/chat" passHref>
           <DropdownMenuItem
             asChild
             className={[
