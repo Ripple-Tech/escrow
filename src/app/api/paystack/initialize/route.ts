@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
         status: "PENDING",
         reference,
         amount,
+        direction: "CREDIT",
         currency: "NGN",
       },
     })
