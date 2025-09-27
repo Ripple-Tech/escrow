@@ -483,17 +483,21 @@ await db.conversation.updateMany({
     const sellerId = escrow.role === "SELLER" ? escrow.senderId : escrow.receiverId
     if (!sellerId) throw new HTTPException(400, { message: "Escrow has no seller to receive funds." })
 
-    const amountInt = Math.round(Number(locked.amount))
-    if (!amountInt || amountInt <= 0) throw new HTTPException(400, { message: "Invalid locked amount." })
+    // amounts are in KOBO
+    const amountKobo = Math.round(Number(locked.amount))
+    if (!amountKobo || amountKobo <= 0) throw new HTTPException(400, { message: "Invalid locked amount." })
 
-    // ➕ Calculate fee (3%, min 500, max 5000)
-    let fee = Math.floor(amountInt * 0.03) // integer only
-    if (fee < 500) fee = 500
-    if (fee > 5000) fee = 5000
+    // Calculate fee in KOBO (3%, min ₦500, max ₦5000)
+let feeKobo = Math.floor(amountKobo * 0.03)
+const MIN_FEE_KOBO = 50_000
+const MAX_FEE_KOBO = 500_000
+if (feeKobo < MIN_FEE_KOBO) feeKobo = MIN_FEE_KOBO
+if (feeKobo > MAX_FEE_KOBO) feeKobo = MAX_FEE_KOBO
 
-    const sellerCredit = amountInt - fee
-    if (sellerCredit <= 0) throw new HTTPException(400, { message: "Calculated seller amount is invalid." })
-
+const sellerCreditKobo = amountKobo - feeKobo
+if (sellerCreditKobo <= 0) {
+  throw new HTTPException(400, { message: "Calculated seller amount is invalid." })
+}
     await db.$transaction([
       db.lockedfund.update({
         where: { escrowId: input.escrowId },
@@ -505,7 +509,7 @@ await db.conversation.updateMany({
       }),
       db.user.update({
         where: { id: sellerId },
-        data: { balance: { increment: sellerCredit } },
+        data: { balance: { increment: sellerCreditKobo } },
       }),
       db.escrowActivity.create({
         data: {
@@ -522,19 +526,19 @@ await db.conversation.updateMany({
           direction: "CREDIT",
           status: "SUCCESS",
           reference: `ESCROW-${escrow.id}-RELEASE`,
-          amount: sellerCredit, // already in Naira, no decimals
+          amount: sellerCreditKobo / 100, // already in Naira, no decimals
           currency: escrow.currency,
         },
       }),
       // ➕ Create FEE transaction (optional, but useful for accounting)
       db.transaction.create({
         data: {
-          userId: ctx.user.id, // platform takes the fee
+          userId: sellerId, // platform takes the fee, show in seller's transactions  
           type: "FEE",
           direction: "DEBIT",
           status: "SUCCESS",
           reference: `ESCROW-${escrow.id}-FEE`,
-          amount: fee,
+          amount: feeKobo / 100, // already in Naira, no decimals
           currency: escrow.currency,
         },
       }),
