@@ -84,7 +84,7 @@ const Hero = () => {
         </div>
          <p className="font-semibold mt-4 text-center text-[15px] text-gray-800">Download Kyve App Today!</p>
      
-          <div className="flex flex-auto flex-col py-5 items-center justify-center gap-6 bg-brand-25 mt-0  lg:p-10 rounded-b-[2rem] lg:rounded-bl-none lg:rounded-r-[2rem]">
+          <div className="flex  flex-col py-5 items-center justify-center gap-6  mt-0  lg:p-10 rounded-b-[2rem]">
                     <div className="flex gap-0.5 mb-1 justify-center lg:justify-start">
                       <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
                       <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
