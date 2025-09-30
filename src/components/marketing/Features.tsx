@@ -17,25 +17,55 @@ export const featuresData: FeatureItem[] = [
 
 const Features: React.FC = () => {
   return (
-    <section className="w-full  bg-amber-200 px-0 py-10 mb-10 mt-10">
-        <Heading className="text-center mb-10">
-          Key Features </Heading>
-      <div className="grid grid-cols-1 gap-10 px-10 sm:gap-12 md:grid-cols-2 lg:grid-cols-3">
-        {featuresData.map((item) => (
-          <div key={item.id} className="rounded-xl border border-stone-200 bg-white p-2 shadow-sm">
-            
-              <Image
-                src={item.img}           // width/height are auto from static import
-                alt={item.alt}
-                width={700}      // set an intrinsic size to avoid layout shift
-                height={800}
-                className="h-auto w-full rounded-lg"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                priority={false}
-              />
-        
+    <section className="w-full bg-amber-200 px-0 py-10 mb-10 mt-10">
+      <Heading className="text-center mb-10">Key Features</Heading>
+
+      <div className="flex flex-col gap-12 px-6 sm:px-8 max-w-6xl mx-auto">
+        {/* Top row - 3 items */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {featuresData.slice(0, 3).map((item) => (
+            <div
+              key={item.id}
+              className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col"
+            >
+              <div className="aspect-square w-full overflow-hidden rounded-lg">
+                <Image
+                  src={item.img}
+                  alt={item.alt}
+                  width={400}
+                  height={400}
+                  className="h-full w-full object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  priority={false}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom row - 2 items centered with larger gap */}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 max-w-2xl">
+            {featuresData.slice(3, 5).map((item) => (
+              <div
+                key={item.id}
+                className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col"
+              >
+                <div className="aspect-square w-full overflow-hidden rounded-lg">
+                  <Image
+                    src={item.img}
+                    alt={item.alt}
+                    width={400}
+                    height={400}
+                    className="h-full w-full object-cover"
+                    sizes="(max-width: 768px) 100vw, 45vw"
+                    priority={false}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </section>
   );

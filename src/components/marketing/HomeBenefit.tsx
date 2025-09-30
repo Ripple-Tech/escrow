@@ -17,9 +17,9 @@ const steps: Step[] = [
 export default function HomeBenefit() {
   return (
     <section className="w-full mb-20">
-       <Heading className="text-center mt-10">
+       <Heading className="text-center mt-10 px-2">
           How Kyve Escrow Works </Heading>
-     <div className="px-10 py-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+     <div className="px-10 py-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
            {steps.map((s, i) => (
           <div
   key={i}

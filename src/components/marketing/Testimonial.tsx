@@ -84,7 +84,7 @@ const Testimonial = () => {
           </div>
 
           <ShinyButton
-            href="/sign-up"
+            href="/auth/register"
             className="relative z-10 h-14 w-full max-w-xs bg-amber-600 text-base shadow-lg transition-shadow duration-300 hover:shadow-xl"
           >
             Start For Free Today

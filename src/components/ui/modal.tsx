@@ -51,12 +51,12 @@ export const Modal = ({
         <Drawer.Portal>
           <Drawer.Content
             className={cn(
-              "fixed !max-w-none bottom-0 left-0 right-0 z-50 mt-24 rounded-t-[10px] border-t border-gray-200 bg-white",
+              "fixed !max-w-none bottom-0 left-0 right-0 z-50 mt-24 rounded-t-[10px] border-t border-gray-200 bg-brand-glassmorphismlight backdrop-blur-md",
               className
             )}
           >
             <div className="sticky top-0 z-20 flex w-full items-center justify-center rounded-t-[10px] bg-inherit">
-              <div className="my-3 h-1 w-12 rounded-full bg-gray-300" />
+              <div className="my-3 h-1 w-12 rounded-full bg-brand-glassmorphismlight backdrop-blur-md" />
             </div>
 
             {children}
@@ -76,7 +76,10 @@ export const Modal = ({
       }}
     >
       <DialogTitle className="sr-only">Dialog</DialogTitle>
-      <DialogContent>{children}</DialogContent>
+        <DialogContent  className={cn(
+    "bg-primary-glass shadow-lg border border-primary/20 backdrop-blur-md",
+    className
+  )}> {children} </DialogContent>
     </Dialog>
   )
 }

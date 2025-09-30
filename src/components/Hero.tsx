@@ -6,6 +6,7 @@ import EscrowCalculator from "./marketing/escrowCalculator"
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
+import { ShinyButton } from "./shiny-button"
 
 // Detect large screens (lg: 1024px+)
 const useIsLargeScreen = () => {
@@ -59,9 +60,9 @@ const Hero = () => {
   }, [controls, inView, isLg]);
 
   return (
-    <div className="bg-kyve-hero min-h-screen w-full flex flex-1  py-10 gap-10 flex-col lg:flex-row">
+    <div className="bg-kyve-hero min-h-screen w-full flex flex-1  py-8 gap-10 flex-col lg:flex-row">
       <div className="flex flex-col md:flex-1 text-left px-10  mt-10">
-        <h1 className="text-4xl md:text-5xl font-bold text-golden-dark">The Escrow Platform You Can <br/> Trust</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-golden-dark">The Escrow Platform You Can Trust</h1>
         
      
    {/* Store buttons */}
@@ -83,7 +84,7 @@ const Hero = () => {
         </div>
          <p className="font-semibold mt-4 text-center text-[15px] text-gray-800">Download Kyve App Today!</p>
      
-          <div className="flex flex-auto flex-col py-5 items-center justify-center gap-6 bg-brand-25 mt-0  lg:p-16 rounded-b-[2rem] lg:rounded-bl-none lg:rounded-r-[2rem]">
+          <div className="flex flex-auto flex-col py-5 items-center justify-center gap-6 bg-brand-25 mt-0  lg:p-10 rounded-b-[2rem] lg:rounded-bl-none lg:rounded-r-[2rem]">
                     <div className="flex gap-0.5 mb-1 justify-center lg:justify-start">
                       <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
                       <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
@@ -92,9 +93,19 @@ const Hero = () => {
                       <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
                     </div>
        </div>
-      </div>
+           <div className="flex items-center justify-center">
+             <ShinyButton
+                  href="/auth/register"
+                  className="relative z-10 h-14 w-full max-w-xs bg-amber-600 text-base shadow-lg transition-shadow duration-300 hover:shadow-xl"
+                >
+                  Get Started
+             </ShinyButton>
+             </div>
      
-      <div className="relative z-10 mt-8 px-5 lg:mt-0 w-full md:basis-2/3 lg:basis-1/2 md:px-6 lg:px-10">
+      </div>
+
+     
+      <div className="relative z-10 mt-8 px-5 w-full lg:mt-40 md:basis-2/3 lg:basis-1/2 md:px-6 lg:px-10">
           <motion.div
             ref={ref}
             initial={{ opacity: 0, x: -80 }}  // start off-screen to the left
