@@ -17,7 +17,7 @@ export const featuresData: FeatureItem[] = [
 
 const Features: React.FC = () => {
   return (
-    <section className="w-full bg-amber-200 px-0 py-10 mb-10 mt-10">
+    <section className="w-full bg-white px-0 py-10 mb-10 mt-10">
       <Heading className="text-center mb-10">Key Features</Heading>
 
       <div className="flex flex-col gap-12 px-6 sm:px-8 max-w-6xl mx-auto">
