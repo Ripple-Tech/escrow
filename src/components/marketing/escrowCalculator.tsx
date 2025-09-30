@@ -156,7 +156,7 @@ export default function EscrowCalculator() {
             <Button
               type="submit"
               disabled={isPending}
-              className="h-12 w-full rounded-md bg-primary text-primary-foreground font-semibold shadow-primary-glow ring-1 ring-primary/40 hover:bg-primary/90 transition-all duration-200"
+              className="h-12 w-full rounded-md bg-amber-600 text-primary-foreground font-semibold shadow-primary-glow ring-1 ring-primary/40 hover:bg-amber-500 transition-all duration-200"
             >
               {isPending ? "Calculating..." : "Calculate Fee"}
             </Button>
