@@ -38,6 +38,8 @@ const config: Config = {
           800: "#92400e",
           900: "#78350f",
           950: "#4c2d07",
+          glassmorphism: "rgba(16, 16, 18, 0.60)",
+          glassmorphismlight: "rgba(255, 255, 255, 0.60)",
         },
 
         /* keep Discord stubs and others you had */

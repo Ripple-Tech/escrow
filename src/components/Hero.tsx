@@ -2,6 +2,7 @@
 import Image from "next/image"
 import { Star } from "lucide-react"
 import { CreateEscrowModal } from "./create-escrow"
+import EscrowCalculator from "./marketing/escrowCalculator"
 
 const Hero = () => {
   return (
@@ -41,7 +42,7 @@ const Hero = () => {
       </div>
      
       <div className="flex md:flex-1 py-10 px-3">
-        <CreateEscrowModal />
+        <EscrowCalculator />
       </div>
     </div>
   )

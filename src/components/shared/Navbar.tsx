@@ -55,7 +55,7 @@ export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   
   return (
-    <nav className="flex h-20 border-b justify-between px-2  bg-white">
+    <nav className="flex h-20 border-b justify-between px-2  bg-brand-glassmorphismlight">
       <Link
         href={"/"}
         className="pl-4 md:pl-5 flex gap-4 md:gap-6 items-center"
@@ -130,7 +130,7 @@ export const Navbar = () => {
           onClick={() => setIsSidebarOpen(true)}
           className="p-1 border border-gray-300 rounded-md bg-transparent hover:bg-gray-100"
         >
-          <MenuIcon color="black" className="w-8 h-8" />
+          <MenuIcon  className="w-8 h-8 text-primary" />
         </button>
       </div>
     </nav>
