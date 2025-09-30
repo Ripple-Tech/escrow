@@ -85,7 +85,7 @@ const Testimonial = () => {
 
           <ShinyButton
             href="/auth/register"
-            className="relative z-10 h-14 w-full max-w-xs bg-amber-600 text-base shadow-lg transition-shadow duration-300 hover:shadow-xl"
+            className="relative z-10 h-14 w-full max-w-xs mb-20 bg-amber-600 text-base shadow-lg transition-shadow duration-300 hover:shadow-xl"
           >
             Start For Free Today
           </ShinyButton>

@@ -1,3 +1,4 @@
+import { Foot } from "@/components/shared/Footer";
 import { Navbar } from "@/components/shared/Navbar";
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {
@@ -5,6 +6,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-1 bg-[#FFF]">{children}</div>
+      <Foot/>
     </div>
   );
 }

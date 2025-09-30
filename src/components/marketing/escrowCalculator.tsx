@@ -72,9 +72,9 @@ export default function EscrowCalculator() {
 
         <CardDescription className="text-balance px-4 text-sm text-foreground/80">
         <span className="font-bold text-base text-golden-dark">
-            Estimate Your Fees Before You Trade
+            Estimate Your Fees Before You Trade.
           </span><br/>
-          <span className="font-bold text-lg text-amber-600">
+          <span className="font-bold text-lg text-gray-900">
             Kyve got your back!
           </span>
         </CardDescription>
@@ -144,10 +144,10 @@ export default function EscrowCalculator() {
             {/* Results Display */}
             {fee !== null && sellerReceives !== null && (
               <div className="mt-4 text-center space-y-1">
-                <p className="text-lg font-semibold text-primary">
+                <p className="text-lg font-semibold text-amber-600">
                   Fee: ₦{fee.toLocaleString()}
                 </p>
-                <p className="text-lg font-semibold text-primary">
+                <p className="text-lg font-semibold text-amber-600">
                   Seller Receives: ₦{sellerReceives.toLocaleString()}
                 </p>
               </div>
@@ -156,7 +156,7 @@ export default function EscrowCalculator() {
             <Button
               type="submit"
               disabled={isPending}
-              className="h-12 w-full rounded-md bg-amber-600 text-primary-foreground font-semibold shadow-primary-glow ring-1 ring-primary/40 hover:bg-amber-500 transition-all duration-200"
+              className="h-12 w-full rounded-md bg-black text-golden-dark font-bold shadow-primary-glow ring-1 ring-primary/40 hover:bg-gray-500 transition-all duration-200"
             >
               {isPending ? "Calculating..." : "Calculate Fee"}
             </Button>
