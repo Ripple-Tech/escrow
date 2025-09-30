@@ -207,22 +207,23 @@
 
 @layer components {
   /* Big, bold display heading */
-  .heading-display {
-    @apply font-extrabold tracking-tight leading-[1.05]
-           text-4xl sm:text-5xl md:text-6xl lg:text-7xl
-           bg-clip-text text-transparent
-           bg-[radial-gradient(100%_100%_at_top_left,black,black,rgba(245,158,11,0.8))]
-           drop-shadow-[0_0_25px_rgba(245,158,11,0.3)];
-  }
+ /* Big, bold display heading */
+ /* Big, bold display heading */
+.heading-display {
+  @apply font-extrabold tracking-tight leading-[1.05]
+         text-5xl sm:text-5xl md:text-6xl lg:text-7xl
+         text-golden-dark
+         drop-shadow-[0_0_25px_rgba(var(--primary-rgb)/0.3)];
+}
 
-  /* Subheading / kicker text */
-  .subheading {
-    @apply text-base sm:text-lg md:text-xl lg:text-2xl
-           text-gray-700 leading-relaxed;
-  }
+/* Subheading / kicker text */
+.subheading {
+  @apply text-base sm:text-lg md:text-xl lg:text-2xl
+         text-foreground/80 leading-relaxed;
+}
 
-  /* Optional: a tight container for section headings */
-  .heading-wrap {
-    @apply max-w-4xl mt-10 mx-auto px-6 text-center;
-  }
+/* Optional: a tight container for section headings */
+.heading-wrap {
+  @apply max-w-4xl mt-10 mx-auto px-4 text-center;
+}
 }

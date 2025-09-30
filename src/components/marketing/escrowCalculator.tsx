@@ -5,11 +5,11 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTransition, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem, SelectLabel, } from "@/components/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem, SelectLabel } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
 const FormSchema = z.object({
@@ -62,17 +62,20 @@ export default function EscrowCalculator() {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-xl rounded-2xl border border-gray-900/60 bg-white/90 backdrop-blur-xl shadow-[0_10px_40px_rgba(245,158,11,0.1)]">
+    <Card className="mx-auto w-full max-w-xl rounded-2xl border border-primary/30 bg-primary-glass shadow-primary-glow">
       <CardHeader className="space-y-2 text-center">
-        <CardTitle className="text-3xl md:text-4xl font-extrabold text-primary-glow">
+        <CardTitle className="text-3xl md:text-4xl font-extrabold text-amber-600">
           Escrow Calculator
         </CardTitle>
 
         <Separator className="mx-auto w-24 h-[2px] divider-primary rounded-full" />
 
-        <CardDescription className="text-balance px-4 text-sm text-gray-600">
-          <span className="font-bold text-lg text-primary-glow-soft">
-            Guess what? Kyve got your back!
+        <CardDescription className="text-balance px-4 text-sm text-foreground/80">
+        <span className="font-bold text-base text-golden-dark">
+            Estimate Your Fees Before You Trade
+          </span><br/>
+          <span className="font-bold text-lg text-amber-600">
+            Kyve got your back!
           </span>
         </CardDescription>
       </CardHeader>
@@ -93,18 +96,18 @@ export default function EscrowCalculator() {
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="bg-white backdrop-blur-xl border border-amber-500/30 shadow-primary-glow text-gray-900">
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border border-primary/30 shadow-primary-glow text-foreground">
                       <SelectGroup>
-                        <SelectLabel className="text-amber-600">Role</SelectLabel>
+                        <SelectLabel className="text-primary font-semibold">Role</SelectLabel>
                         <SelectItem
                           value="buyer"
-                          className="cursor-pointer hover:bg-amber-500/10 focus:bg-amber-500/20"
+                          className="cursor-pointer hover:bg-primary/10 focus:bg-primary/20 focus:text-primary"
                         >
                           Buyer
                         </SelectItem>
                         <SelectItem
                           value="seller"
-                          className="cursor-pointer hover:bg-amber-500/10 focus:bg-amber-500/20"
+                          className="cursor-pointer hover:bg-primary/10 focus:bg-primary/20 focus:text-primary"
                         >
                           Seller
                         </SelectItem>
@@ -127,7 +130,7 @@ export default function EscrowCalculator() {
                     <Input
                       inputMode="decimal"
                       placeholder="Enter Amount"
-                      className="card-control text-gray-900 placeholder:text-gray-900/60" 
+                      className="card-control text-foreground placeholder:text-primary/60" 
                       value={field.value}
                       onChange={(e) => field.onChange(e.target.value)}
                       disabled={isPending}
@@ -141,10 +144,10 @@ export default function EscrowCalculator() {
             {/* Results Display */}
             {fee !== null && sellerReceives !== null && (
               <div className="mt-4 text-center space-y-1">
-                <p className="text-lg font-semibold text-gray-900">
+                <p className="text-lg font-semibold text-primary">
                   Fee: ₦{fee.toLocaleString()}
                 </p>
-                <p className="text-lg font-semibold text-gray-900">
+                <p className="text-lg font-semibold text-primary">
                   Seller Receives: ₦{sellerReceives.toLocaleString()}
                 </p>
               </div>
@@ -153,7 +156,7 @@ export default function EscrowCalculator() {
             <Button
               type="submit"
               disabled={isPending}
-              className="h-12 w-full rounded-md bg-primary/90 text-white font-semibold shadow-[0_0_12px_hsl(var(--primary))] ring-1 ring-primary/40 hover:bg-primary transition-all duration-200"
+              className="h-12 w-full rounded-md bg-primary text-primary-foreground font-semibold shadow-primary-glow ring-1 ring-primary/40 hover:bg-primary/90 transition-all duration-200"
             >
               {isPending ? "Calculating..." : "Calculate Fee"}
             </Button>
