@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 function PhaseCard({ step, idx, total }: { step: any; idx: number; total: number }) {
   const [ref, inView] = useInView({
     threshold: 0.1,
-    triggerOnce: false, // This allows the animation to trigger again when scrolling out
+    triggerOnce: false,
   });
 
   return (
@@ -20,10 +20,10 @@ function PhaseCard({ step, idx, total }: { step: any; idx: number; total: number
       }}
       transition={{
         duration: 0.6,
-        delay: idx * 0.1, // Staggered animation
+        delay: idx * 0.1,
         ease: "easeOut",
       }}
-      className="relative overflow-hidden flex flex-col w-full max-w-sm mx-auto bg-white/80 backdrop-blur-sm border border-primary/40 rounded-2xl shadow-lg shadow-primary/5 hover:shadow-primary-glow transition-all duration-300 hover:border-amber-500 group"
+      className="relative overflow-hidden flex flex-col w-full bg-white/80 backdrop-blur-sm border border-primary/40 rounded-2xl shadow-lg shadow-primary/5 hover:shadow-primary-glow transition-all duration-300 hover:border-amber-500 group"
     >
       <div className="relative p-5 md:p-6 lg:p-6 flex flex-col gap-4 z-10">
         {/* Top meta */}
@@ -128,7 +128,7 @@ export const Work = () => {
           {phasesData.map((step, idx) => (
             <div 
               key={step.id} 
-              className="w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-22px)]"
+              className="w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-22px)] flex justify-center"
             >
               <PhaseCard
                 step={step}
