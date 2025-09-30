@@ -1,11 +1,29 @@
 "use client";
 import Image from "next/image";
 import { phasesData } from "@/data";
+import { useInView } from "react-intersection-observer";
+import { motion } from "framer-motion";
 
 function PhaseCard({ step, idx, total }: { step: any; idx: number; total: number }) {
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: false,
+  });
+
   return (
-    <div
-      className="relative overflow-hidden flex flex-col w-full max-w-sm mx-auto bg-white/80 backdrop-blur-sm border border-primary/40 rounded-2xl shadow-lg shadow-primary/5 hover:shadow-primary-glow transition-all duration-300 hover:border-amber-500 group"
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -50 }}
+      animate={{ 
+        opacity: inView ? 1 : 0, 
+        x: inView ? 0 : 50 
+      }}
+      transition={{
+        duration: 0.6,
+        delay: idx * 0.1,
+        ease: "easeOut",
+      }}
+      className="relative overflow-hidden flex flex-col w-full bg-white/80 backdrop-blur-sm border border-primary/40 rounded-2xl shadow-lg shadow-primary/5 hover:shadow-primary-glow transition-all duration-300 hover:border-amber-500 group"
     >
       <div className="relative p-5 md:p-6 lg:p-6 flex flex-col gap-4 z-10">
         {/* Top meta */}
@@ -78,13 +96,13 @@ function PhaseCard({ step, idx, total }: { step: any; idx: number; total: number
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 export const Work = () => {
   return (
-      <section className="relative w-full pt-5 bg-background">
+    <section className="relative w-full pt-5 bg-background overflow-hidden">
       <div className="heading-wrap relative">  
         <h2 className="heading-display">How Kyve Works</h2>
         <p className="subheading mt-4 md:mt-6 text-foreground/80">
@@ -110,7 +128,7 @@ export const Work = () => {
           {phasesData.map((step, idx) => (
             <div 
               key={step.id} 
-              className="w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-22px)]" /* Adjust widths and gaps */
+              className="w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-22px)] flex justify-center"
             >
               <PhaseCard
                 step={step}
