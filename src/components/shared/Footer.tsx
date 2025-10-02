@@ -15,7 +15,7 @@ import {
   BsFacebook,
   BsGithub,
   BsInstagram,
-  BsTwitter,
+  BsTwitter, BsX, BsTiktok
 } from "react-icons/bs";
 import { Star } from "lucide-react";
 import { ShinyButton } from "@/components/shiny-button";
@@ -113,42 +113,14 @@ export function Foot() {
           <div className="w-full px-4 py-6 sm:flex sm:items-center sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <FooterCopyright href="#" by="Kyve™" year={2025} className="!text-gray-200" />
-              <div className="flex items-center gap-3 sm:hidden">
-                <Link
-                  href="https://play.google.com"
-                  aria-label="Get it on Google Play"
-                  className="hover:opacity-90 transition no-text-override"
-                >
-                  <Image
-                    src="/playstore.png"
-                    alt="Get it on Google Play"
-                    width={140}
-                    height={48}
-                    className="h-auto w-[140px] max-w-full"
-                  />
-                </Link>
-                <Link
-                  href="https://apple.com/app-store"
-                  aria-label="Download on the App Store"
-                  className="hover:opacity-90 transition no-text-override"
-                >
-                  <Image
-                    src="/appstore.png"
-                    alt="Download on the App Store"
-                    width={140}
-                    height={48}
-                    className="h-auto w-[140px] max-w-full"
-                  />
-                </Link>
-              </div>
+             
             </div>
 
             <div className="mt-4 flex space-x-6 sm:mt-0 sm:justify-center">
-              <FooterIcon href="#" icon={BsFacebook} className="!text-gray-200" />
-              <FooterIcon href="#" icon={BsInstagram} className="!text-gray-200" />
-              <FooterIcon href="#" icon={BsTwitter} className="!text-gray-200" />
-              <FooterIcon href="#" icon={BsGithub} className="!text-gray-200" />
-              <FooterIcon href="#" icon={BsDribbble} className="!text-gray-200" />
+              <FooterIcon href="https://www.facebook.com/kyveapp" icon={BsFacebook} className="!text-gray-200" />
+              <FooterIcon href="https://www.instagram.com/kyveapp" icon={BsInstagram} className="!text-gray-200" />
+              <FooterIcon href="https://x.com/thekyveapp" icon={BsX} className="!text-gray-200" />
+              <FooterIcon href="https://www.tiktok.com/@kyveapp" icon={BsTiktok} className="!text-gray-200" />
             </div>
           </div>
         </div>

@@ -61,39 +61,12 @@ const Hero = () => {
 
   return (
     <div className="bg-kyve-hero min-h-screen w-full flex flex-1  py-8 gap-10 flex-col lg:flex-row">
-      <div className="flex flex-col md:flex-1 text-left px-10  mt-10">
-        <h1 className="text-4xl md:text-5xl font-bold text-golden-dark">The Escrow Platform You Can Trust</h1>
+      <div className="flex flex-col md:flex-1 text-left px-10 gap-8  mt-10">
+        <h1 className="heading-display text-center">The Escrow Platform You Can Trust</h1>
         
-     
-   {/* Store buttons */}
-        <div className="flex flex-col items-center justify-center gap-4 mt-8">
-          <Image
-            src="/playstore.png"
-            alt="Get it on Google Play"
-            width={260}
-            height={100}
-            className="cursor-pointer"
-          />
-          <Image
-            src="/appstore.png"
-            alt="Download on the App Store"
-            width={260}
-            height={100}
-            className="cursor-pointer"
-          />
-        </div>
-         <p className="font-semibold mt-4 text-center text-[15px] text-gray-800">Download Kyve App Today!</p>
-     
-          <div className="flex  flex-col py-5 items-center justify-center gap-6  mt-0  lg:p-10 rounded-b-[2rem]">
-                    <div className="flex gap-0.5 mb-1 justify-center lg:justify-start">
-                      <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
-                      <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
-                      <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
-                      <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
-                      <Star className="size-5 text-brand-600 fill-[#fb9e08]" />
-                    </div>
-       </div>
-           <div className="flex items-center justify-center">
+         <p className="font-semibold mt-4 text-center text-[20px] text-gray-800">Trade Safely, Kyve is your digital shield</p>
+         
+           <div className="flex items-center mt-5 justify-center">
              <ShinyButton 
                   href="/auth/register"
                   className="relative z-10 h-14 max-w-xs bg-amber-600 text-base shadow-lg transition-shadow duration-300 hover:shadow-xl"
@@ -105,7 +78,7 @@ const Hero = () => {
       </div>
 
      
-      <div className="relative z-10 mt-8 px-5 w-full lg:mt-40 md:basis-2/3 lg:basis-1/2 md:px-6 lg:px-10">
+      <div className="relative z-10 mt-8 px-5 w-full lg:mt-30 md:basis-2/3 lg:basis-1/2 md:px-6 lg:px-10">
           <motion.div
             ref={ref}
             initial={{ opacity: 0, x: -80 }}  // start off-screen to the left

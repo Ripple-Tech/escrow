@@ -81,7 +81,7 @@ export const Navbar = () => {
           </span>
           <span
             className={cn(
-              "text-sm md:text-base text-center uppercase tracking-wide -mb-1 text-primary",
+              "text-sm md:text-base text-center tracking-wide -mb-1 text-primary",
               poppins?.className ?? ""
             )}
             aria-hidden="true"
