@@ -11,11 +11,8 @@ import {
   FooterTitle,
 } from "flowbite-react";
 import {
-  BsDribbble,
   BsFacebook,
-  BsGithub,
-  BsInstagram,
-  BsTwitter, BsTwitterX, BsTiktok
+  BsInstagram, BsTwitterX, BsTiktok
 } from "react-icons/bs";
 import { Star } from "lucide-react";
 import { ShinyButton } from "@/components/shiny-button";
@@ -119,7 +116,7 @@ export function Foot() {
             <div className="mt-4 flex space-x-6 sm:mt-0 sm:justify-center">
               <FooterIcon href="https://www.facebook.com/kyveapp" icon={BsFacebook} className="!text-gray-200" />
               <FooterIcon href="https://www.instagram.com/kyveapp" icon={BsInstagram} className="!text-gray-200" />
-              <FooterIcon href="https://x.com/thekyveapp" icon={BsX} className="!text-gray-200" />
+              <FooterIcon href="https://x.com/thekyveapp" icon={BsTwitterX} className="!text-gray-200" />
               <FooterIcon href="https://www.tiktok.com/@kyveapp" icon={BsTiktok} className="!text-gray-200" />
             </div>
           </div>
