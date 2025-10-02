@@ -15,7 +15,7 @@ import {
   BsFacebook,
   BsGithub,
   BsInstagram,
-  BsTwitter, BsX, BsTiktok
+  BsTwitter, BsTwitterX, BsTiktok
 } from "react-icons/bs";
 import { Star } from "lucide-react";
 import { ShinyButton } from "@/components/shiny-button";
