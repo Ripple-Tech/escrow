@@ -43,6 +43,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
     --golden-dark: #5f3d05;
+    --darktext: #413d37;
   }
 
   .dark {
@@ -77,6 +78,7 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --golden-dark: #5f3d05;
+    --darktext: #413d37;
   }
 }
 
@@ -87,6 +89,23 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .link-with-lines::before,
+  .link-with-lines::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: currentColor;
+  }
+
+  .link-with-lines::before {
+    left: 0;
+  }
+
+  .link-with-lines::after {
+    right: 0;
   }
 }
 
@@ -226,4 +245,14 @@
 .heading-wrap {
   @apply max-w-4xl mt-10 mx-auto px-4 text-center;
 }
+ .link-with-lines {
+    @apply relative inline-block px-3;
+  }
+   .backgroundimage {
+   @apply w-full h-[250px] md:h-[350px] lg:h-[450px] bg-no-repeat bg-cover bg-center relative
+  }
+  .paragraphtextdiv{
+   @apply flex flex-col items-center justify-center leading-relaxed gap-10 text-base text-center md:text-xl md:px-20 lg:px-40 text-darktext px-10 mb-10
+  }
+
 }

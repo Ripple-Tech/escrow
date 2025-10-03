@@ -42,6 +42,7 @@ const config: Config = {
           glassmorphismlight: "rgba(255, 255, 255, 0.60)",
         },
 
+        darktext: "var(--darktext)",
         /* keep Discord stubs and others you had */
         "discord-background": "#36393f",
         "discord-brand-color": "#5865f2",

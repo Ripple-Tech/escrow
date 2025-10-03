@@ -1,4 +1,20 @@
-// Phases data (only provided SVGs are used)
+import { 
+  MultiCurrencyIcon, 
+  KyveProtectionIcon, 
+  KYCVerificationIcon, 
+  SolveDisputeIcon,
+  RiskReductionIcon 
+} from "@/components/marketing/featureIcon";
+
+export type HomeBenefitItem = {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+};
+
+
 export const phasesData = [
   {
     id: 1,
@@ -49,4 +65,55 @@ export const phasesData = [
     image: "/phase5.svg",
     cta: "Release",
   },
+];
+
+export const homeBenefitsData: HomeBenefitItem[] = [
+  {
+    id: "benefit-1",
+    title: "Multi-Currency Escrow",
+    subtitle:
+      "At Kyve, we ensure that payments are securely held and released across multiple currencies, giving buyers and sellers confidence in global transactions.",
+    icon: MultiCurrencyIcon,
+    href: "/services/multi-currency-escrow",
+  },
+  {
+    id: "benefit-2",
+    title: "Protected Payments",
+    subtitle:
+      "We at Kyve safeguard your funds by locking them until both parties meet the agreed conditions, ensuring peace of mind for every transaction.",
+    icon: KyveProtectionIcon,
+    href: "/services/protected-payments",
+  },
+  {
+    id: "benefit-3",
+    title: "KYC Verification",
+    subtitle:
+      "We ensure that trust is built on every deal by verifying user identities through our compliance-driven KYC process.",
+    icon: KYCVerificationIcon,
+    href: "/services/kyc-verification",
+  },
+  {
+    id: "benefit-4",
+    title: "Dispute Resolution",
+    subtitle:
+      "At Kyve, we provide a fair resolution process when buyers and sellers disagree, ensuring that every outcome is impartial and transparent.",
+    icon: SolveDisputeIcon,
+    href: "/services/dispute-resolution",
+  },
+  {
+    id: "benefit-5",
+    title: "Risk Reduction",
+    subtitle: 
+      "We ensure reduced fraud and payment risks by acting as the trusted middle layer between both parties in every transaction.",
+    icon: RiskReductionIcon,
+    href: "/services/risk-reduction",
+  },
+  {
+    id: "benefit-6",
+    title: "Business Escrow",
+    subtitle:
+      "At Kyve, we provide secure escrow services for individuals and businesses, ensuring smooth and reliable transactions across industries.",
+    icon: RiskReductionIcon,
+    href: "/services/business-escrow",
+  }
 ];
