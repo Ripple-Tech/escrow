@@ -22,13 +22,13 @@ export const ServiceClient = () => {
             href='/home' 
             className='link-with-lines hover:underline text-brand-secondary text-[18px] font-semibold'
           >
-            Back to Kyve Escrow
+            Back to Kyve
           </a>
-          <h2 className='heading-display'>Our Services</h2>
+          <h2 className='heading-display py-5'>Our Services</h2>
         </div>
 
         {/* Intro paragraphs */}
-        <div className='paragraphtextdiv'>
+        <div className='paragraphtextdiv py-10'>
           <p>
             At Kyve, we ensure that every transaction is handled with trust, security, and fairness. 
             Whether you’re a buyer, seller, or business partner, our escrow services are designed 
