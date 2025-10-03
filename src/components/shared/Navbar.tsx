@@ -27,6 +27,7 @@ const NavbarItems = [
   { children: "Home", href: "/" },
   { children: "Dashboard", href: "/dashboard" },
   { children: "About", href: "/about" },
+  { children: "Services", href: "/services" },
   { children: "Buyers", href: "/buyers" },
   { children: "Sellers", href: "/sellers" },
   
