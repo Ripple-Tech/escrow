@@ -19,7 +19,7 @@ export const ServiceClient = () => {
         {/* Heading */}
         <div className='heading-wrap'>
           <a 
-            href='/home' 
+            href='/' 
             className='link-with-lines hover:underline text-brand-secondary text-[18px] font-semibold'
           >
             Back to Kyve
