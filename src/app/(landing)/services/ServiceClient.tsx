@@ -28,7 +28,7 @@ export const ServiceClient = () => {
         </div>
 
         {/* Intro paragraphs */}
-        <div className='paragraphtextdiv py-10'>
+        <div className='paragraphtextdiv py-5 px-10'>
           <p>
             At Kyve, we ensure that every transaction is handled with trust, security, and fairness. 
             Whether you’re a buyer, seller, or business partner, our escrow services are designed 
@@ -45,10 +45,10 @@ export const ServiceClient = () => {
               Need help right now? Reach out to our support team
             </p>
             <a 
-              href="mailto:support@kyve.com" 
+               href="tel:+234 9077144184" 
               className="text-2xl text-center font-bold mt-3 text-brand-secondary hover:text-brand"
             >
-              support@kyve.com
+              + 234 9077144184
             </a> 
           </div>
         </div>
