@@ -72,53 +72,48 @@ export const ServiceClient = () => {
             ))}
           </div>
 
-          {/* Middle banner */}
-          <div className='px-6 md:px-20 lg:px-40'>
+         
+        </div>
+
+        <div className='flex flex-1 flex-col lg:flex-row-reverse'>
+   <div className='flex flex-col lg:w-1/2'>
+    <div className='px-6 md:px-20 lg:px-10'>
             <div
-              className="backgroundimage mb-10"
-              style={{ backgroundImage: "url('/hero4ky.png')" }}
-            />
+             className="backgroundimage mb-10 "
+             style={{ backgroundImage: "url('/hero4ky.png')", }} >
+            </div>
+         </div>
+  </div>
+
+  <div className='flex flex-col items-center lg:w-1/2'>
+         <div className=" mx-auto px-6 text-center">
+                 <h2 className="heading-display">
+                   Our Process  </h2> </div>
+
+         <div className='flex flex-col items-center justify-center leading-relaxed gap-5 text-base text-center md:text-xl md:px-20 text-brand-secondary px-10 mb-10'>
+          {/*  <p>When you think about life at home, you may picture raising children, sharing meals with family, enjoying time with a pet, or simply resting after years of work. What many people don’t often think about is the support they might one day need to continue living safely and comfortably at home. That is completely normal, most of us don’t.</p>  */}
+           <p>At Omega Caring Hands, we have been honored to walk beside families through different stages of life, offering care in many forms. From daily assistance and health reminders to guidance on making the home safer and even showing how to use new technology, we provide what truly matters. Our simple, thoughtful process helps connect you with the right kind of support and the right caregiver, so home continues to feel like home.</p>
+         </div>
+       
+              <ShinyButton
+                   href="/services/our-five-steps"
+                   className="relative z-10 h-14 w-full max-w-xs mb-20 bg-primary text-base shadow-lg transition-shadow duration-300 hover:shadow-xl"
+                 >
+                   Our five steps
+                 </ShinyButton>
           </div>
+         </div>
 
-          {/* Process */}
-          <div className="mb-10 heading-wrap">
-            <h2 className="heading-display">
-              Our Process
-            </h2> 
-          </div>
-        </div>
+        
 
-        {/* Process explanation */}
-        <div className='paragraphtextdiv'>
-          <p>
-            We at Kyve have built a clear and transparent escrow process. 
-            From the moment funds are deposited, they remain securely locked until 
-            both buyer and seller fulfill the agreed conditions. 
-          </p>
-          <p>
-            Our five-step approach ensures confidence: deposit, verification, delivery, confirmation, and release. 
-            If disagreements arise, our dispute resolution process steps in to ensure fairness and impartiality. 
-            With Kyve, you don’t just transact — you transact with peace of mind.
-          </p>
-        </div>
-
-        {/* CTA button */}
-        <ShinyButton
-          href="/auth/register"
-          className="relative z-10 h-14 w-full max-w-xs mb-20 bg-primary text-base shadow-lg transition-shadow duration-300 hover:shadow-xl"
-        >
-          Our Five Steps
-        </ShinyButton>
-
-        {/* Final section */}
+      </div>
+      {/* Final section */}
         <div className='flex flex-col border px'>
           <h3 className='text-2xl sm:text-3xl md:text-4xl px-5
             text-center font-semibold mb-4 leading-snug text-brand-secondary'>
             Already know which escrow service you need?
           </h3>
         </div>
-
-      </div>
     </>
   )
 }
