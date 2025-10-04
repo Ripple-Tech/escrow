@@ -44,10 +44,8 @@ export const ServiceClient = () => {
             <p className='text-2xl font-semibold text-center text-brand'>
               Need help right now? Reach out to our support team
             </p>
-            <a 
-               href="tel:+234 9077144184" 
-              className="text-2xl text-center font-bold mt-3 text-brand-secondary hover:text-brand"
-            >
+            <a  href="tel:+234 9077144184" 
+              className="text-2xl text-center font-bold mt-3 text-brand-secondary hover:text-brand">
               + 234 9077144184
             </a> 
           </div>
