@@ -27,9 +27,9 @@ const NavbarItems = [
   { children: "Home", href: "/" },
   { children: "Dashboard", href: "/dashboard" },
   { children: "Services", href: "/services" },
-  { children: "Buyers", href: "/buyers" },
-  { children: "Sellers", href: "/sellers" },
+  { children: "Protection", href: "/kyve-protection" },
   { children: "About Us", href: "/about-us" },
+  { children: "Contact", href: "/contact-us" },
   
 ]
 
