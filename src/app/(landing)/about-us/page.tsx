@@ -18,7 +18,7 @@ const page = () => {
 <div className="flex flex-col lg:flex-row">
     <div className='flex flex-col items-center justify-center leading-relaxed gap-10 text-base text-center md:text-xl md:px-20 lg:px-10 text-darktext px-10 mb-10 lg:w-2/3'>
          <p >
-           The Kyve platform was born from a simple vision;
+           The Kyve was born from a simple vision;
             a world where every exchange is fair and every voice is protected. Our founder believed buyers and sellers deserve the same shield of justice, the same clarity, the same peace of mind.
              We build systems that make trust practical, with safeguards that reduce risk and resolve conflicts, so people can focus on creating value rather than worrying about what could go wrong.</p>
           <p>
@@ -85,7 +85,7 @@ const page = () => {
        
          <div className='flex flex-col items-center justify-center leading-relaxed gap-5 text-base text-center md:text-xl md:px-20 text-brand-secondary/30 px-10 mb-10'>
            <p className='text-3xl '>To make every exchange fair, secure, and effortless for everyone.</p>  
-           <p className="text-darktext"> On the Kyve platform, our mission is simple: protect both sides and keep value moving with confidence. 
+           <p className="text-darktext"> Kyve mission is simple: protect both sides and keep value moving with confidence. 
             We create an environment where trust is built in, risks are minimized, and outcomes are clear for buyers and sellers alike.</p>
             <p className="text-darktext">We focus on clarity, accountability, and peace of mind. Clear terms guide each step. Security safeguards commitments. Transparent progress reduces uncertainty.
                Resolution is available when it is needed, so momentum is never lost.</p>
@@ -117,7 +117,7 @@ const page = () => {
 
          <div className='flex flex-col items-center justify-center leading-relaxed gap-5 text-[16px] text-center  md:px-20 text-white px-10 mb-10'>
           <p>
-    Kyve Platform started with a simple frustration our founder saw over and over while working with small online businesses and crypto users: good people losing time, money, and sleep because trust was hard to prove. From “what I ordered vs. what I got” disappointments to deals where one side had to go first and hope the other would follow through, he spent years helping indie sellers, freelancers, marketplace operators, and on-chain traders navigate delays, disputes, and the risk of someone getting burned.
+    Kyve started with a simple frustration our founder saw over and over while working with small online businesses and crypto users: good people losing time, money, and sleep because trust was hard to prove. From “what I ordered vs. what I got” disappointments to deals where one side had to go first and hope the other would follow through, he spent years helping indie sellers, freelancers, marketplace operators, and on-chain traders navigate delays, disputes, and the risk of someone getting burned.
   </p>
 
   <p>

@@ -106,7 +106,7 @@ export const Work = () => {
       <div className="heading-wrap relative">  
         <h2 className="heading-display">How Kyve Works</h2>
         <p className="subheading mt-4 md:mt-6 text-foreground/80">
-          KYVE platform secures funds in a neutral smart escrow, verifies delivery
+          KYVE  secures funds in a neutral smart escrow, verifies delivery
           or milestones, and releases payment only when terms are met, bringing
           clarity, fairness, and confidence to every transaction.
         </p>
