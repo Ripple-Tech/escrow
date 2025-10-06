@@ -106,7 +106,7 @@ const page = () => {
       <h3 className="m-0 text-base font-semibold text-slate-900">Global Protection</h3>
       <p className="m-0 mt-1 text-sm leading-relaxed text-slate-600">
         Kyve can protect you anywhere on the globe. We provide services in most countries and regions
-        and support multiple currencies (NGN, ), so you can safely buy and/or sell
+        and support multiple currencies (NGN, KES, ZAR), so you can safely buy and/or sell
         wherever and whenever you need to.
       </p>
     </div>

@@ -21,7 +21,7 @@ export const featuresData: FeatureItem[] = [
   { 
     id: "feature-1", 
     title: "Multi Currency", 
-    subtitle: "Support local fiat (e.g NGN, KES, ZAR), mobile money, and stablecoins (e.g. USDT, cUSD). This feature will be later.",
+    subtitle: "At Kyve, we ensure that every payment is securely held and released with transparency and trust, giving both buyers and sellers confidence in every transaction. Multi-currency support will be introduced soon.",
     icon: MultiCurrencyIcon
   },
   { 
