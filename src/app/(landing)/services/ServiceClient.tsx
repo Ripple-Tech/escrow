@@ -25,7 +25,7 @@ export const ServiceClient = () => {
           >
             Back to Kyve
           </a>
-          <h2 className='heading-display py-5'>Our Services</h2>
+         
         </div>
 
         {/* Intro paragraphs */}
