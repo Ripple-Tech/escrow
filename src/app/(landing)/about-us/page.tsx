@@ -4,15 +4,16 @@ const page = () => {
   return (
     <>
      <div className='flex flex-col '>
+            <div className="bg-[#FAB824]">
             <div
-             className="backgroundimage"
-             style={{ backgroundImage: "url('/kyve.jpg')", }} >
-            </div>
+             className="w-full h-[250px] md:h-[350px]  lg:h-[450px]  bg-no-repeat bg-cover lg:mt-5 bg-center relative"
+             style={{ backgroundImage: "url('/about-us.png')", }} >
+            </div> </div>
 
    
     <div className='heading-wrap '>
-        <a href='/' className='link-with-lines hover:underline text-brand-secondary text-[18px] font-semibold'>Back to kyve</a>
-      <h2 className='heading-display mb-5'>About Us</h2>
+        <a href='/' className='link-with-lines hover:underline mb-5 text-brand-secondary text-[18px] font-semibold'>Back to kyve</a>
+  
     </div>
 
 <div className="flex flex-col lg:flex-row">

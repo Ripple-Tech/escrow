@@ -85,16 +85,17 @@ const Contact = () => {
 
       <>
          <div className='flex flex-col '>
-                <div
-                 className="backgroundimage"
-                 style={{ backgroundImage: "url('/kyve.jpg')", }} >
-                </div>
+                 <div className="bg-[#FAB824]">
+            <div
+             className="w-full h-[250px] md:h-[350px]  lg:h-[450px]  bg-no-repeat bg-cover lg:mt-5 bg-center relative"
+             style={{ backgroundImage: "url('/contact-us.png')", }} >
+            </div> </div>
                 </div>
     <div className='flex flex-col mb-11 gap-10 '>
       
       <div className='heading-wrap '>
             <a href='/' className='link-with-lines hover:underline text-brand-secondary text-[18px] font-semibold'>Back to kyve</a>
-          <h2 className='heading-display mb-3'>Contact Us</h2>
+        
         </div>
 
 

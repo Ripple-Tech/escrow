@@ -8,14 +8,15 @@ import React from 'react'
 export const ServiceClient = () => {
   return (
     <>
-      <div className='flex flex-col items-center'>
+      <div className='flex flex-col '>
         
-        {/* Hero background */}
+      <div className='bg-[#FAB824]'>
         <div
-          className="backgroundimage"
-          style={{ backgroundImage: "url('/kyve.jpg')" }}
-        />
-
+          className="backgroundimage lg:mt-5"
+          style={{ backgroundImage: "url('/services.png')" }}>
+       </div>
+       </div>
+      
         {/* Heading */}
         <div className='heading-wrap'>
           <a 
