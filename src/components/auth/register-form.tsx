@@ -1,5 +1,6 @@
 'use client';
-
+import 'react-international-phone/style.css';
+import { PhoneInput } from 'react-international-phone';
 import { CardWrapper } from "@/components/auth/card-wrapper";
 import * as z from "zod";
 import { RegisterSchema } from "@/schemas";
@@ -28,6 +29,7 @@ surname: "",
 username: "",
 email: "",
 password: "",
+phonenumber: "",
 },
 });
 
@@ -52,8 +54,8 @@ startTransition(() => {
 return (
 <CardWrapper headerLabel="Create an account" backButtonLabel="Already have an account?" backButtonHref="/auth/login" showSocial >
 <Form {...form}>
-<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-<div className="space-y-4">
+<form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+<div className="space-y-2">
 <FormField
 control={form.control}
 name="name"
@@ -103,9 +105,7 @@ placeholder="John"
                   placeholder="john.doe"
                 />
               </FormControl>
-              <p className="text-xs text-muted-foreground">
-                3–20 chars; letters, numbers, dot, underscore
-              </p>
+             
               <FormMessage />
             </FormItem>
           )}
@@ -129,6 +129,26 @@ placeholder="John"
             </FormItem>
           )}
         />
+
+        <FormField
+  control={form.control}
+  name="phonenumber"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Phone Number</FormLabel>
+      <FormControl>
+        <PhoneInput
+          defaultCountry="ng"
+          value={field.value}
+          onChange={(phone) => field.onChange(phone)}
+          disabled={isPending}
+          style={{ width: '100%' }}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
         <FormField
           control={form.control}

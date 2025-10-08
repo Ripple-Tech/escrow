@@ -14,7 +14,7 @@ export const Register = async (values: z.infer<typeof RegisterSchema>) => {
         return { error: "Invalid fields!"};
     }
 
-    const { email, surname, username, password, name } = validatedFields.data;
+    const { email, surname, username, phonenumber, password, name } = validatedFields.data;
     const hashedPassword = await bcrypt.hash(password, 10)
     const normalizedUsername = username.trim().toLowerCase();
     const existingUser = await getUserByEmail(email)
@@ -32,7 +32,7 @@ return { error: "Username already taken!" };
      try {
     await db.user.create({
         data: {
-            name, email, surname, username: normalizedUsername, password: hashedPassword,
+            name, email, surname, phonenumber, username: normalizedUsername, password: hashedPassword,
         },
     });
 } catch (e: any) {

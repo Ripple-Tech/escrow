@@ -16,7 +16,7 @@ export const Header = ({
     label,
 }: HeaderProps) =>{
     return (
-        <div className="w-full flex flex-col gap-y-4 items-center justify-center">
+        <div className="w-full flex flex-col gap-y-3 items-center justify-center">
          <Image
                   src="/logo.png"
                   alt="Logo"

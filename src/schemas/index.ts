@@ -36,6 +36,15 @@ export const RegisterSchema = z.object({
     surname: z.string().min(1, "Surname is required"),
      username: z.string().min(3, "Username must be at least 3 characters").max(12, "Username must be at most 12 characters")
     .regex(/^[a-zA-Z0-9._]+$/, "Only letters, numbers, dot and underscore"),
+     country: z.string().default("NG"),
+      phonenumber: z.preprocess(
+    (val) => (typeof val === "string" ? val.replace(/\s+/g, "") : val),
+    z
+      .string()
+      .regex(/^[0-9+]+$/, "Invalid phone number format")
+      .min(10, "Phone number must be at least 10 digits")
+      .max(15, "Phone number must be at most 15 digits")
+  ),
     });
 
 export const SettingsSchema = z.object({
