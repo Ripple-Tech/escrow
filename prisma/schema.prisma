@@ -46,7 +46,7 @@ model User {
   id                 String               @id @default(uuid())
   email              String?              @unique
   emailVerified      DateTime?
-  verifiedUser       DateTime?
+  phonenumber        String?
   name               String?
   surname            String?
   username           String?              @unique
@@ -57,6 +57,10 @@ model User {
   isGuest            Boolean              @default(false)
   isTwoFactorEnabled Boolean              @default(false)
   balance            Int                  @default(0)
+
+   // Relations
+  paystackCustomer PaystackCustomer?  @relation(fields: [paystackCustomerId], references: [id])
+  paystackCustomerId String?          @unique
 
   buyerLockedFunds  Lockedfund[] 
   createdAt          DateTime             @default(now())
@@ -87,14 +91,64 @@ model User {
 
   // Opposite relation for EscrowActivity.user
   escrowActivities   EscrowActivity[]
-
-  // Many-to-many relations
   conversations Conversation[]  @relation("ConversationUsers")
   seenMessages  Message[]       @relation("SeenMessages")
 
   messages      Message[]
-  // New index for improved query performance
   @@index([email, apiKey])
+}
+
+model PaystackCustomer {
+  id            String                  @id @default(uuid())
+  customerCode  String                  @unique // e.g. CUS_xnxdt6s1zg1f4nx
+  email         String
+  firstName     String?
+  lastName      String?
+  phone         String?
+  identified    Boolean                 @default(false)
+  // raw payload snapshots (optional but handy for debugging)
+  meta          Json?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  // Relations
+  user          User?                   @relation
+  dedicatedAccount PaystackDedicatedAccount?
+
+  @@index([email])
+  @@index([customerCode])
+}
+
+model PaystackDedicatedAccount {
+  id               String     @id @default(uuid())
+
+  // Core DVA info from Paystack "Create Dedicated Virtual Account"
+  // Fields vary by bank; keep flexible but strongly typed
+  accountNumber    String     @unique
+  bankName         String
+  bankCode         String?
+  // Some responses include assigned account_name or brand "Managed Account"
+  accountName      String?
+  // Paystack sometimes labels channel "dedicated_nuban"
+  channel          String?    // "dedicated_nuban"
+  // Receiver bank account number in webhook samples (store for reference)
+  receiverAccount  String?
+  receiverBank     String?
+
+  // Lifecycle
+  status           String     @default("active") // active | pending | disabled
+  assignedAt       DateTime?
+  // Raw payload snapshot for auditing
+  raw              Json?
+
+  // Relation back to PaystackCustomer (1–1)
+  paystackCustomer   PaystackCustomer @relation(fields: [paystackCustomerId], references: [id])
+  paystackCustomerId String           @unique
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([accountNumber])
 }
 
 model Follow {
