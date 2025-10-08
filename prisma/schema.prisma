@@ -47,6 +47,7 @@ model User {
   email              String?              @unique
   emailVerified      DateTime?
   phonenumber        String?
+  verifiedUser       DateTime?
   name               String?
   surname            String?
   username           String?              @unique
