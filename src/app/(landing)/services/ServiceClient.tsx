@@ -12,7 +12,7 @@ export const ServiceClient = () => {
       <div className='flex flex-col '>
         
       
-         <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] lg:mt-5">
+         <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] ">
                      <Image
                        src="/our-services1.png"
                        alt="Protection"
@@ -78,7 +78,7 @@ export const ServiceClient = () => {
 
          
         </div>
-
+{/* 
         <div className='flex flex-1 flex-col lg:flex-row-reverse'>
    <div className='flex flex-col lg:w-1/2'>
     <div className='px-6 md:px-20 lg:px-10'>
@@ -89,13 +89,15 @@ export const ServiceClient = () => {
          </div>
   </div>
 
+
+ 
   <div className='flex flex-col items-center lg:w-1/2'>
          <div className=" mx-auto px-6 text-center">
                  <h2 className="heading-display">
                    Our Process  </h2> </div>
 
          <div className='flex flex-col items-center justify-center leading-relaxed gap-5 text-base text-center md:text-xl md:px-20 text-brand-secondary px-10 mb-10'>
-          {/*  <p>When you think about life at home, you may picture raising children, sharing meals with family, enjoying time with a pet, or simply resting after years of work. What many people don’t often think about is the support they might one day need to continue living safely and comfortably at home. That is completely normal, most of us don’t.</p>  */}
+          <p>When you think about life at home, you may picture raising children, sharing meals with family, enjoying time with a pet, or simply resting after years of work. What many people don’t often think about is the support they might one day need to continue living safely and comfortably at home. That is completely normal, most of us don’t.</p>  
            <p>At Omega Caring Hands, we have been honored to walk beside families through different stages of life, offering care in many forms. From daily assistance and health reminders to guidance on making the home safer and even showing how to use new technology, we provide what truly matters. Our simple, thoughtful process helps connect you with the right kind of support and the right caregiver, so home continues to feel like home.</p>
          </div>
        
@@ -107,17 +109,12 @@ export const ServiceClient = () => {
                  </ShinyButton>
           </div>
          </div>
-
+    
         
 
-      </div>
-      {/* Final section */}
-        <div className='flex flex-col border px'>
-          <h3 className='text-2xl sm:text-3xl md:text-4xl px-5
-            text-center font-semibold mb-4 leading-snug text-brand-secondary'>
-            Already know which escrow service you need?
-          </h3>
-        </div>
+      </div>    
+      </div> */}
+         </div>
     </>
   )
 }

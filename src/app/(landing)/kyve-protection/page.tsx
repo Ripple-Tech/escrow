@@ -5,7 +5,7 @@ const page = () => {
      return (
         <>
          <div className='flex flex-col '>
-          <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] lg:mt-5">
+          <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] ">
   <Image
     src="/protection1.png"
     alt="Protection"

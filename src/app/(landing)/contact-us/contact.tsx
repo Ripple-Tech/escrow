@@ -87,7 +87,7 @@ const Contact = () => {
       <>
          <div className='flex flex-col '>
                  
-            <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] lg:mt-5">
+            <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] ">
              <Image
                src="/contact-us1.png"
                alt="Protection"
