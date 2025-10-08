@@ -25,7 +25,6 @@ interface NavbarItemProps {
 
 const NavbarItems = [
   { children: "Home", href: "/" },
-  { children: "Dashboard", href: "/dashboard" },
   { children: "Services", href: "/services" },
   { children: "Protection", href: "/kyve-protection" },
   { children: "About Us", href: "/about-us" },
@@ -40,7 +39,7 @@ const NavbarItem = ({ href, children, isActive }: NavbarItemProps) => {
       asChild
       variant="outline"
       className={cn(
-        "text-lg px-3.5 bg-black hover:bg-primary hover:text-white rounded-full hover:border-primary border-transparent font-semibold text-white",
+        "text-lg px-3.5 hover:bg-primary hover:text-white rounded-full hover:border-primary border-transparent font-semibold text-golden-dark",
         isActive &&
           "text-white bg-primary hover:bg-white hover:text-black"
       )}
