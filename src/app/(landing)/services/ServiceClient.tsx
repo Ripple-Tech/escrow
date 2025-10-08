@@ -10,11 +10,10 @@ export const ServiceClient = () => {
     <>
       <div className='flex flex-col '>
         
-      <div className='bg-[#FAB824]'>
+      
         <div
           className="backgroundimage lg:mt-5"
-          style={{ backgroundImage: "url('/services.png')" }}>
-       </div>
+          style={{ backgroundImage: "url('/our-services1.png')" }}>
        </div>
       
         {/* Heading */}

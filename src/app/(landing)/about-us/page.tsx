@@ -4,11 +4,10 @@ const page = () => {
   return (
     <>
      <div className='flex flex-col '>
-            <div className="bg-[#FAB824]">
             <div
              className="w-full h-[250px] md:h-[350px]  lg:h-[450px]  bg-no-repeat bg-cover lg:mt-5 bg-center relative"
-             style={{ backgroundImage: "url('/about-us.png')", }} >
-            </div> </div>
+             style={{ backgroundImage: "url('/about-us1.png')", }} >
+            </div> 
 
    
     <div className='heading-wrap '>
