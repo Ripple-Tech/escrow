@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import { Variants } from "framer-motion";
 import FAQSection from './FAQquestion';
+import Image from 'next/image';
 
 export const slideIn = (
   direction: "left" | "right" | "up" | "down",
@@ -86,10 +87,15 @@ const Contact = () => {
       <>
          <div className='flex flex-col '>
                  
-            <div
-             className="w-full h-[250px] md:h-[350px]  lg:h-[450px]  bg-no-repeat bg-cover lg:mt-5 bg-center relative"
-             style={{ backgroundImage: "url('/contact-us1.png')", }} >
-            </div> 
+            <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] lg:mt-5">
+             <Image
+               src="/contact-us1.png"
+               alt="Protection"
+               fill
+               className="object-cover object-center"
+               priority
+             />
+           </div>
                 </div>
     <div className='flex flex-col mb-11 gap-10 '>
       

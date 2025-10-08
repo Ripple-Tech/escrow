@@ -1,13 +1,19 @@
 import { ShinyButton } from "@/components/shiny-button"
+import Image from "next/image"
 
 const page = () => {
      return (
         <>
          <div className='flex flex-col '>
-            <div
-             className="w-full h-[250px] md:h-[350px]  lg:h-[450px]  bg-no-repeat bg-cover lg:mt-5 bg-center relative"
-             style={{ backgroundImage: "url('/protection1.png')", }} >
-            </div> 
+          <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] lg:mt-5">
+  <Image
+    src="/protection1.png"
+    alt="Protection"
+    fill
+    className="object-cover object-center"
+    priority
+  />
+</div>
     
        
         <div className='heading-wrap '>

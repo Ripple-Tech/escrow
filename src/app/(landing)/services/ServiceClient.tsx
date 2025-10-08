@@ -3,6 +3,7 @@
 import { BenefitCard } from '@/components/card/BenefitCard'
 import { ShinyButton } from '@/components/shiny-button'
 import { homeBenefitsData } from "@/data"
+import Image from 'next/image'
 import React from 'react'
 
 export const ServiceClient = () => {
@@ -11,10 +12,15 @@ export const ServiceClient = () => {
       <div className='flex flex-col '>
         
       
-        <div
-          className="backgroundimage lg:mt-5"
-          style={{ backgroundImage: "url('/our-services1.png')" }}>
-       </div>
+         <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] lg:mt-5">
+                     <Image
+                       src="/our-services1.png"
+                       alt="Protection"
+                       fill
+                       className="object-cover object-center"
+                       priority
+                     />
+                   </div>
       
         {/* Heading */}
         <div className='heading-wrap'>
