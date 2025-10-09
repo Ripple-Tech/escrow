@@ -53,15 +53,6 @@ export const Register = async (values: RegisterPayload) => {
         },
       });
 
-      // 2️⃣ If inviter exists, credit their ledger balance
-      if (inviter?.id) {
-        await tx.user.update({
-          where: { id: inviter.id },
-          data: {
-            ledgerbalance: { increment: 500 }, // 🎁 inviter gets ₦500 in ledger
-          },
-        });
-      }
 
       return createdUser;
     });

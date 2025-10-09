@@ -20,14 +20,23 @@ export const newVerification = async (token: string) => {
         return {error: "Email does not exist!"};
     }
 
-    await db.user.update({
+   const verifiedUser =  await db.user.update({
         where: {id: existingUser.id },
         data: {
             emailVerified: new Date(),
             email: existingToken.email
         }
-    })
-    
+    });
+
+     // ✅ Check if user was invited by someone
+  if (verifiedUser.invitedById) {
+    await db.user.update({
+      where: { id: verifiedUser.invitedById },
+      data: {
+        ledgerbalance: { increment: 500 }, // 🎁 inviter gets ₦500 only now
+      },
+    });
+}
   await db.verificationToken.delete({
      where: {id: existingToken.id}
   });
