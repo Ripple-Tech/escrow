@@ -50,7 +50,7 @@ export const DashboardPage = ({
               </Heading>
             )}
 
-            {isDashboard && (
+            {/* {isDashboard && (
               <div>
                 <h1 className="text-3xl font-heading font-semibold tracking-tight text-foreground mb-2">
                   Welcome{" "}
@@ -63,7 +63,7 @@ export const DashboardPage = ({
                   <span className="text-golden-dark">{(user?.balance ?? 0) / 100}</span>
                 </p>
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

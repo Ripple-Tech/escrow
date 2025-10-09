@@ -10,6 +10,7 @@ interface Props {
   name: string | null;
   username: string | null;
   imgUrl: string | null;
+   variant?: "default" | "avatar-only";
 }
 
 // Icon wrapper tokens to mirror your tab style
@@ -24,9 +25,32 @@ async function ProfileHeader({
   name,
   username,
   imgUrl,
+   variant = "default",
 }: Props) {
   const isFollowing = await isFollowingUser(accountId);
 
+  if (variant === "avatar-only") {
+    return (
+      <div className="relative h-10 w-10 rounded-full border border-border/60 bg-muted/40 shadow-primary-glow overflow-hidden">
+        {imgUrl ? (
+          <Image
+            src={imgUrl}
+            alt="user avatar"
+            fill
+            className="object-cover"
+            sizes="40px"
+            priority={false}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-background">
+            <UserCircle className="h-6 w-6 text-muted-foreground" />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  
   return (
     <div className="flex w-full flex-col">
       <div className="flex items-center justify-between">

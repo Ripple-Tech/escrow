@@ -7,6 +7,7 @@ import { PlusIcon } from "lucide-react"
 import { PaymentSuccessModal } from "@/components/payment-success-modal"
 import Transaction from "@/components/dashboard/Transactions"
 import getCurrentUser from "@/actions/getCurrentUser"
+import AccountHeader from "@/components/dashboard/Account-header"
 
 interface PageProps {
   searchParams: {
@@ -32,13 +33,9 @@ const Page = async ({ searchParams }: PageProps) => {
 
   return (
     <>
-      
-
-      <DashboardPage isDashboard={true} showCreate={true}
-        title="Dashboard"
-      >
+      <AccountHeader/>
         <Transaction />
-      </DashboardPage>
+      
     </>
   )
 }
