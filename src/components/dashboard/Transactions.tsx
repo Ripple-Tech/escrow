@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/utils";
 import { Modal } from "@/components/ui/modal";
@@ -36,6 +36,8 @@ function formatMoney(amount: number, currency = "NGN") {
   }
 }
 
+
+
 type CoreAction = {
   key: "deposit" | "withdraw" | "transfer";
   label: string;
@@ -50,6 +52,23 @@ export default function Transaction() {
   const [invited, setInvited] = useState<InvitedUser[]>([]);
   const [loadingInvites, setLoadingInvites] = useState(false);
 
+  
+useEffect(() => {
+  const load = async () => {
+    if (!user?.id) return;
+    setLoadingInvites(true);
+    try {
+      const data = await getInvitedUsers(user.id);
+      setInvited(data ?? []); // direct array now
+    } catch {
+      setInvited([]);
+    } finally {
+      setLoadingInvites(false);
+    }
+  };
+  load();
+}, [user?.id]);
+  
   const coreActions: CoreAction[] = useMemo(
     () => [
       { key: "deposit", label: "Deposit", icon: ArrowDownToLine, onClick: () => setShowDepositModal(true) },
@@ -61,7 +80,7 @@ export default function Transaction() {
 
   
   const topInvited = invited.slice(0, 4);
-
+    console.log("top invited:", topInvited)
   return (
     <div className="mx-auto w-full px-3 py-3 sm:px-4 md:px-6 md:py-5">
       {/* Balance Card */}

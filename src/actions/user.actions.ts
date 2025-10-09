@@ -1,3 +1,4 @@
+"use server"
 import { db } from "@/db";
 
 export async function fetchUser(userId: string) {
@@ -20,30 +21,31 @@ export async function fetchUser(userId: string) {
   }
 }
 
+
+
 export async function getInvitedUsers(userId: string) {
-  if (!userId) return null;
-try {
-  return db.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      username: true,
-      invitedUsers: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          image: true,
-          createdAt: true,
-        },
-        orderBy: { createdAt: "desc" },
-        take: 20,
+  if (!userId) return [];
+
+  try {
+    const invited = await db.user.findMany({
+      where: {
+        invitedById: userId,
+        emailVerified: { not: null }, // ✅ only include verified users
       },
-    },
-  });
-} catch (error: any) {
-    throw new Error(`Failed to fetch user: ${error.message}`);
-}
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        image: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
 
+    console.log("invitedUsers", invited);
+    return invited;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch invited users: ${error.message}`);
+  }
 }
-
