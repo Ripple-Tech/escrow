@@ -7,6 +7,8 @@ import { fetchUser } from "@/actions/user.actions";
 import { Block } from "./_components/actions";
 import { isBlockedByUser } from "@/lib/block-service";
 import { SettingsMenu } from "./_components/settingMenu";
+import InviteSharableLink from "./_components/invitation-link";
+import { buildInviteLink } from "@/lib/invitation-link";
 
 // Styled icon wrappers (matches your style snippet)
 const iconWrapperBase =
@@ -33,6 +35,8 @@ async function Page({ params }: { params: { id: string } }) {
   const userInfo = await fetchUser(params.id);
   const isBlocked = await isBlockedByUser(userInfo.id);
 
+// Build share URL for invitation (server-side)
+  const shareUrl = buildInviteLink(userInfo.username) ?? null;
   return (
     <section>
       <ProfileHeader
@@ -75,6 +79,13 @@ async function Page({ params }: { params: { id: string } }) {
           <Block userId={userInfo.id} isBlocked={isBlocked} />
         )}
       </div>
+
+      {/* Invitation link block (client component) - just before the tabs */}
+      <InviteSharableLink
+        shareUrl={shareUrl ?? undefined}
+        labelTextClassName="block text-xs uppercase tracking-wide text-muted-foreground mb-1"
+        iconWrapperClassName={iconWrapper7}
+      />
 
       <div className="mt-6 h-0.5 w-full bg-dark-3" />
 

@@ -10,6 +10,15 @@ import {
   Plus, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Users,
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { getInvitedUsers } from "@/actions/user.actions"
+
+type InvitedUser = {
+  id: string;
+  name: string | null;
+  username: string | null;
+  image: string | null;
+  createdAt: string | Date;
+};
 
 function useWallet() {
   return { balance: 152340.55, currency: "NGN" };
@@ -38,6 +47,8 @@ export default function Transaction() {
   const user = useCurrentUser();
   const { balance, currency } = useWallet();
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [invited, setInvited] = useState<InvitedUser[]>([]);
+  const [loadingInvites, setLoadingInvites] = useState(false);
 
   const coreActions: CoreAction[] = useMemo(
     () => [
@@ -48,17 +59,7 @@ export default function Transaction() {
     []
   );
 
-  const invited = useMemo(
-    () => [
-      { id: "1", name: "Ayo", image: user?.image || undefined },
-      { id: "2", name: "Zara", image: undefined },
-      { id: "3", name: "Ken", image: undefined },
-      { id: "4", name: "Mina", image: undefined },
-      { id: "5", name: "Dee", image: undefined },
-    ],
-    [user]
-  );
-
+  
   const topInvited = invited.slice(0, 4);
 
   return (

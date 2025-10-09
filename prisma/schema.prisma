@@ -59,6 +59,11 @@ model User {
   isTwoFactorEnabled Boolean              @default(false)
   balance            Int                  @default(0)
 
+   // New: referral self-relation (optional)
+  invitedById    String?
+  invitedBy      User?     @relation("UserInvites", fields: [invitedById], references: [id])
+  invitedUsers   User[]    @relation("UserInvites")
+
    // Relations
   paystackCustomer PaystackCustomer?  @relation(fields: [paystackCustomerId], references: [id])
   paystackCustomerId String?          @unique
