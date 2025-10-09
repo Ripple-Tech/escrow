@@ -69,7 +69,7 @@ export default function Transaction() {
           className={cn(
             "relative overflow-hidden rounded-xl",
             "bg-primary-glass dark:bg-brand.glassmorphism",
-            "backdrop-blur-xl border border-amber-500/20 shadow-primary-glow"
+            "backdrop-blur-xl border border-amber-500/20 "
           )}
         >
           <div
@@ -96,7 +96,7 @@ export default function Transaction() {
       <section className="mx-auto mt-3 md:mt-4 max-w-md md:max-w-2xl">
         <div
           className={cn(
-            "relative rounded-xl border border-amber-500/20 shadow-primary-glow",
+            "relative rounded-xl border border-amber-500/20 ",
             "bg-background/60 dark:bg-brand.glassmorphism backdrop-blur-xl"
           )}
         >
@@ -129,7 +129,7 @@ export default function Transaction() {
       <section className="mx-auto mt-3 md:mt-4 max-w-md md:max-w-2xl">
         <div
           className={cn(
-            "relative overflow-hidden rounded-xl border border-amber-500/20 shadow-primary-glow",
+            "relative overflow-hidden rounded-xl border border-amber-500/20 ",
             "bg-primary-glass dark:bg-brand.glassmorphismlight backdrop-blur-xl"
           )}
         >
