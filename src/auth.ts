@@ -57,6 +57,7 @@ export const {
             session.user.username = token.username as string
             session.user.email = token.email as string
             session.user.balance = token.balance as string
+            session.user.ledgerbalance = token.ledgerbalance as string
             session.user.isOAuth = token.isOAuth as boolean;
           }
           
@@ -79,6 +80,7 @@ export const {
           token.email = existingUser.email;
           token.balance = existingUser.balance;
           token.role = existingUser.role;
+          token.ledgerbalance = existingUser.ledgerbalance;
           token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
           //token.isChatEnabled = existingUser.isChatEnabled;
           return token;

@@ -10,6 +10,7 @@ export type ExtendedUser = DefaultSession["user"] & {
   isChatEnabled: boolean;
   isOAuth: boolean;
   balance: Float;
+  ledgerbalance: Float;
 };
 
 declare module "next-auth" {

@@ -58,6 +58,7 @@ model User {
   isGuest            Boolean              @default(false)
   isTwoFactorEnabled Boolean              @default(false)
   balance            Int                  @default(0)
+  ledgerbalance      Int                  @default(0)
 
    // New: referral self-relation (optional)
   invitedById    String?

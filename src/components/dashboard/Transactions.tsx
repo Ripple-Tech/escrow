@@ -20,10 +20,6 @@ type InvitedUser = {
   createdAt: string | Date;
 };
 
-function useWallet() {
-  return { balance: 152340.55, currency: "NGN" };
-}
-
 function formatMoney(amount: number, currency = "NGN") {
   try {
     return new Intl.NumberFormat("en-NG", {
@@ -36,8 +32,6 @@ function formatMoney(amount: number, currency = "NGN") {
   }
 }
 
-
-
 type CoreAction = {
   key: "deposit" | "withdraw" | "transfer";
   label: string;
@@ -47,28 +41,30 @@ type CoreAction = {
 
 export default function Transaction() {
   const user = useCurrentUser();
-  const { balance, currency } = useWallet();
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [invited, setInvited] = useState<InvitedUser[]>([]);
   const [loadingInvites, setLoadingInvites] = useState(false);
 
-  
-useEffect(() => {
-  const load = async () => {
-    if (!user?.id) return;
-    setLoadingInvites(true);
-    try {
-      const data = await getInvitedUsers(user.id);
-      setInvited(data ?? []); // direct array now
-    } catch {
-      setInvited([]);
-    } finally {
-      setLoadingInvites(false);
-    }
-  };
-  load();
-}, [user?.id]);
-  
+  const balance = user?.balance ?? 0;
+  const ledgerbalance = user?.ledgerbalance ?? 0;
+  const currency = "NGN";
+
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.id) return;
+      setLoadingInvites(true);
+      try {
+        const data = await getInvitedUsers(user.id);
+        setInvited(data ?? []);
+      } catch {
+        setInvited([]);
+      } finally {
+        setLoadingInvites(false);
+      }
+    };
+    load();
+  }, [user?.id]);
+
   const coreActions: CoreAction[] = useMemo(
     () => [
       { key: "deposit", label: "Deposit", icon: ArrowDownToLine, onClick: () => setShowDepositModal(true) },
@@ -78,9 +74,8 @@ useEffect(() => {
     []
   );
 
-  
   const topInvited = invited.slice(0, 4);
-    console.log("top invited:", topInvited)
+
   return (
     <div className="mx-auto w-full px-3 py-3 sm:px-4 md:px-6 md:py-5">
       {/* Balance Card */}
@@ -89,21 +84,20 @@ useEffect(() => {
           className={cn(
             "relative overflow-hidden rounded-xl",
             "bg-primary-glass dark:bg-brand.glassmorphism",
-            "backdrop-blur-xl border border-amber-500/20 "
+            "backdrop-blur-xl border border-amber-500/20"
           )}
         >
-          
           <div className="relative flex flex-col items-center text-center px-4 py-4 md:px-6 md:py-6">
             <span className="text-[10px] md:text-xs uppercase tracking-[0.16em] text-muted-foreground/80">
-              Current Balance
+              Available Balance
             </span>
             <div className="mt-1.5 md:mt-2 flex items-baseline gap-1.5 md:gap-2">
               <h2 className="text-[22px] md:text-3xl font-extrabold text-golden-dark">
                 {formatMoney(balance, currency)}
               </h2>
             </div>
-            <div className="mt-1 md:mt-1.5 text-[10px] md:text-xs text-muted-foreground">
-              Available • Escrow-ready
+            <div className="mt-2 text-[11px] md:text-sm font-medium text-muted-foreground">
+              Ledger Balance: {formatMoney(ledgerbalance, currency)}
             </div>
           </div>
         </div>
@@ -113,7 +107,7 @@ useEffect(() => {
       <section className="mx-auto mt-3 md:mt-4 max-w-md md:max-w-2xl">
         <div
           className={cn(
-            "relative rounded-xl border border-amber-500/20 ",
+            "relative rounded-xl border border-amber-500/20",
             "bg-background/60 dark:bg-brand.glassmorphism backdrop-blur-xl"
           )}
         >
@@ -146,11 +140,10 @@ useEffect(() => {
       <section className="mx-auto mt-3 md:mt-4 max-w-md md:max-w-2xl">
         <div
           className={cn(
-            "relative overflow-hidden rounded-xl border border-amber-500/20 ",
+            "relative overflow-hidden rounded-xl border border-amber-500/20",
             "bg-primary-glass dark:bg-brand.glassmorphismlight backdrop-blur-xl"
           )}
         >
-          
           <div className="relative flex flex-col gap-3 md:gap-4 px-4 py-4 md:px-6 md:py-5">
             <div className="flex items-center gap-2.5 md:gap-3">
               <span className="inline-flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-400/20 text-amber-600">
@@ -172,7 +165,7 @@ useEffect(() => {
                 {topInvited.map((f) => (
                   <div
                     key={f.id}
-                    className="relative h-8 w-8 md:h-9 md:w-9 rounded-full border border-border/70 bg-muted/40 shadow-primary-glow overflow-hidden"
+                    className="relative h-8 w-8 md:h-9 md:w-9 rounded-full border border-border/70 bg-muted/40 overflow-hidden"
                     title={f.name ?? "Invited friend"}
                   >
                     {f.image ? (
@@ -205,7 +198,7 @@ useEffect(() => {
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5",
                   "border border-amber-500/30 bg-background/60 hover:bg-amber-500/10",
-                  "text-[11px] md:text-xs font-semibold text-foreground shadow-primary-glow transition"
+                  "text-[11px] md:text-xs font-semibold text-foreground transition"
                 )}
                 onClick={() => {
                   // Implement your modal or route push to full friends list
@@ -224,10 +217,10 @@ useEffect(() => {
       {/* Mobile Create Escrow FAB (smaller) */}
       <CreateEscrowModal>
         <button
-          className="flex md:hidden fixed bottom-20 right-4 z-20 items-center justify-center h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-primary-glow hover:bg-amber-600/90 transition-colors duration-200"
+          className="flex md:hidden fixed bottom-20 right-4 z-20 items-center justify-center h-12 w-12 rounded-full bg-primary text-primary-foreground hover:bg-amber-600/90 transition-colors duration-200"
           aria-label="Create Escrow"
         >
-          <Plus className="h-7 w-7 drop-shadow-sm" />
+          <Plus className="h-7 w-7" />
         </button>
       </CreateEscrowModal>
 
