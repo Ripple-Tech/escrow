@@ -72,10 +72,7 @@ export default function Transaction() {
             "backdrop-blur-xl border border-amber-500/20 "
           )}
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(360px_120px_at_20%_-10%,rgba(245,158,11,0.10),transparent),radial-gradient(320px_120px_at_100%_130%,rgba(245,158,11,0.06),transparent)]"
-          />
+          
           <div className="relative flex flex-col items-center text-center px-4 py-4 md:px-6 md:py-6">
             <span className="text-[10px] md:text-xs uppercase tracking-[0.16em] text-muted-foreground/80">
               Current Balance
@@ -133,10 +130,7 @@ export default function Transaction() {
             "bg-primary-glass dark:bg-brand.glassmorphismlight backdrop-blur-xl"
           )}
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(320px_120px_at_20%_-20%,rgba(245,158,11,0.10),transparent),radial-gradient(300px_120px_at_100%_120%,rgba(245,158,11,0.06),transparent)]"
-          />
+          
           <div className="relative flex flex-col gap-3 md:gap-4 px-4 py-4 md:px-6 md:py-5">
             <div className="flex items-center gap-2.5 md:gap-3">
               <span className="inline-flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-400/20 text-amber-600">
