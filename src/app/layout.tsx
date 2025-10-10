@@ -15,9 +15,9 @@ const eb_garamond = EB_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Kyve Escrow",
+  title: "Kyve ",
   description:
-    "Kyve Escrow ensures fair, transparent, and secure digital transactions by holding funds safely until both parties’ conditions are met.",
+    "Kyve  ensures fair, transparent, and secure digital transactions by holding funds safely until both parties’ conditions are met.",
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    title: "Kyve App",
+    title: "Kyve ",
     description:
       "A secure platform built for trust. Kyve Escrow protects buyers and sellers by holding funds until terms are fulfilled.",
     url: "https://escrow-rosy.vercel.app/", // Replace with your actual domain
