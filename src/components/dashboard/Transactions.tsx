@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getInvitedUsers } from "@/actions/user.actions"
+import { TransactionPreview } from "./previewTransaction";
 
 type InvitedUser = {
   id: string;
@@ -211,8 +212,9 @@ export default function Transaction() {
         </div>
       </section>
 
-      {/* Keep a little breathing room for history preview */}
-      <div className="h-3 md:h-4" />
+     {/* Transaction Preview Section */}
+<div className="h-3 md:h-4" />
+<TransactionPreview />
 
       {/* Mobile Create Escrow FAB (smaller) */}
       <CreateEscrowModal>
