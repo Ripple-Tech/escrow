@@ -77,26 +77,26 @@ export default function Transaction() {
   const topInvited = invited.slice(0, 4);
 
   return (
-    <div className="mx-auto w-full px-3 py-3 sm:px-4 md:px-6 md:py-5">
+    <div className="mx-auto w-full px-3 py-3 sm:px-4 md:px-6 md:py-5 ">
       {/* Balance Card */}
-      <section className="mx-auto max-w-md md:max-w-2xl">
+      <section className="mx-auto max-w-md md:max-w-2xl ">
         <div
           className={cn(
             "relative overflow-hidden rounded-xl",
-            "bg-primary-glass dark:bg-brand.glassmorphism",
+            " bg-amber-600 dark:bg-brand.glassmorphism",
             "backdrop-blur-xl border border-amber-500/20"
           )}
         >
-          <div className="relative flex flex-col items-center text-center px-4 py-4 md:px-6 md:py-6">
-            <span className="text-[10px] md:text-xs uppercase tracking-[0.16em] text-muted-foreground/80">
+          <div className="relative flex flex-col items-center text-center px-4 py-2 md:px-6 md:py-6">
+            <span className="text-[14px] font-semibold md:text-xs uppercase tracking-[0.16em] text-white">
               Available Balance
             </span>
-            <div className="mt-1.5 md:mt-2 flex items-baseline gap-1.5 md:gap-2">
-              <h2 className="text-[22px] md:text-3xl font-extrabold text-golden-dark">
+            <div className="mt-1 md:mt-2 flex items-baseline gap-1.5 md:gap-2">
+              <h2 className="text-[22px] md:text-3xl font-extrabold text-gray-200">
                 {formatMoney(balance, currency)}
               </h2>
             </div>
-            <div className="mt-2 text-[11px] md:text-sm font-medium text-muted-foreground">
+            <div className="mt-1 text-[11px] md:text-sm font-medium text-gray-200">
               Ledger Balance: {formatMoney(ledgerbalance, currency)}
             </div>
           </div>
