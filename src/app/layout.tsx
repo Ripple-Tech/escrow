@@ -26,11 +26,12 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
+  //whatsapp 
   manifest: "/site.webmanifest",
   openGraph: {
     title: "Kyve ",
     description:
-      "A secure platform built for trust. Kyve Escrow protects buyers and sellers by holding funds until terms are fulfilled.",
+      "A secure platform built for trust. Kyve  protects buyers and sellers by holding funds until terms are fulfilled.",
     url: "https://escrow-rosy.vercel.app/", // Replace with your actual domain
     siteName: "Kyve ",
     images: [
