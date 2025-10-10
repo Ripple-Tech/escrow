@@ -219,7 +219,7 @@ export default function Transaction() {
       {/* Mobile Create Escrow FAB (smaller) */}
       <CreateEscrowModal>
         <button
-          className="flex md:hidden fixed bottom-20 right-4 z-20 items-center justify-center h-12 w-12 rounded-full bg-primary text-primary-foreground hover:bg-amber-600/90 transition-colors duration-200"
+          className="flex md:hidden fixed bottom-20 right-4 z-20 items-center justify-center h-12 w-12 rounded-full bg-amber-600 text-primary-foreground hover:bg-amber-600/90 transition-colors duration-200"
           aria-label="Create Escrow"
         >
           <Plus className="h-7 w-7" />

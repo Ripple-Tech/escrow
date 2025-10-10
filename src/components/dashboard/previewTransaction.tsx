@@ -6,6 +6,8 @@ import { formatDistanceToNow } from "date-fns";
 import { ArrowDownRight, ArrowUpRight, Repeat, Upload, Download } from "lucide-react";
 import { cn } from "@/utils";
 import { FaNairaSign } from "react-icons/fa6";
+import { Separator } from "../ui/separator";
+import Link from "next/link";
 
 type Tx = {
   id: string;
@@ -72,6 +74,18 @@ export const TransactionPreview = ({ initialTransactions = [] }: TransactionPrev
   return (
     <section className="mx-auto mt-3 md:mt-4 max-w-md md:max-w-2xl">
       <div className="overflow-hidden rounded-xl border border-amber-500/20 bg-background/60 dark:bg-brand.glassmorphism backdrop-blur-xl">
+        
+        <div className="p-3 flex justify-between">
+         <h3 className="text-sm md:text-base font-semibold text-foreground">
+             Transactions
+            </h3>
+            <Link href="/dashboard/transactions" className="font-semibold hover:underline text-sm md:text-base text-foreground">
+            View All</Link>
+        </div>
+         <Separator
+                decorative
+                className="h-[1.5px] w-full border-0 bg-[linear-gradient(to_right,transparent,rgba(245,158,11,0.2),rgba(245,158,11,0.55),rgba(245,158,11,0.2),transparent)]"
+              />
         <ul className="divide-y divide-amber-500/10">
           {transactions.map((tx) => {
             const isCredit = tx.direction === "CREDIT";

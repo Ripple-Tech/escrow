@@ -78,7 +78,7 @@ export const DashboardPage = ({
               <CreateEscrowModal>
                 <Button
                   size="sm"
-                  className="hidden md:block bg-primary text-primary-foreground hover:bg-amber-600/90 shadow-primary-glow"
+                  className="hidden md:block bg-amber-600 text-primary-foreground hover:bg-amber-600/90 shadow-primary-glow"
                 >
                   + Create Escrow
                 </Button>
