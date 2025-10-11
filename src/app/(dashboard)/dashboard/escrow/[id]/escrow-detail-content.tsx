@@ -26,6 +26,7 @@ import { Modal } from "@/components/ui/modal"
 import { toast } from "sonner"
 import { ChatClient } from "./ChatClient"
 import { useCurrentUser } from "@/hooks/use-current-user"
+import { EscrowFAQSection } from "./_component/FAQSection"
 
 interface EscrowDetailContentProps {
   escrow: Escrow
@@ -576,6 +577,8 @@ activities.map((act) => (
           </Card>
         </TabsContent>
       </Tabs>
+
+      < EscrowFAQSection />
   {/* 
      <div className="flex justify-end">
         <Button variant="destructive" onClick={() => router.push("/dashboard/escrow")}>
