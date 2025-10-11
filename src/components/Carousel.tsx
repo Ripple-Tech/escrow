@@ -22,7 +22,7 @@ const DEFAULT_ITEMS: CarouselItem[] = [
   {
     description: 'Learn more about our company and mission.',
     id: 1,
-    image: '/images/about-us1.png',
+    image: '/about-us1.png',
     link: '/about-us'
   },
   {
@@ -34,13 +34,13 @@ const DEFAULT_ITEMS: CarouselItem[] = [
   {
     description: 'Discover our wide range of professional services.',
     id: 3,
-    image: '/images/services.png',
+    image: '/our-services1.png',
     link: '/services'
   },
   {
     description: 'Our comprehensive protection and security solutions.',
     id: 4,
-    image: '/images/protection1.png',
+    image: '/protection1.png',
     link: '/protection'
   }
 ];
@@ -254,7 +254,7 @@ export default function Carousel({
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden p-2 flex flex-1 mx-auto w-full ${
+      className={`relative overflow-hidden  flex flex-1 mx-auto w-full ${
         round ? 'rounded-full border border-amber-200' : 'rounded-xl border border-amber-200 bg-white'
       }`}
     >

@@ -217,7 +217,7 @@ export default function Transaction() {
 <div className="h-3 md:h-4" />
 <TransactionPreview />
 
-   <div className="max-w-7xl">
+   <div className="max-w-7xl mt-10">
     <div style={{ height: '300px', position: 'relative' }}>
       <Carousel
         autoplay={true}
