@@ -12,6 +12,7 @@ import {
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getInvitedUsers } from "@/actions/user.actions"
 import { TransactionPreview } from "./previewTransaction";
+import Carousel from "../Carousel";
 
 type InvitedUser = {
   id: string;
@@ -215,6 +216,18 @@ export default function Transaction() {
      {/* Transaction Preview Section */}
 <div className="h-3 md:h-4" />
 <TransactionPreview />
+
+   <div className="max-w-7xl">
+    <div style={{ height: '300px', position: 'relative' }}>
+      <Carousel
+        autoplay={true}
+        autoplayDelay={4000}
+        pauseOnHover={true}
+        loop={true}
+        round={false}
+      />
+    </div>
+   </div>
 
       {/* Mobile Create Escrow FAB (smaller) */}
       <CreateEscrowModal>
