@@ -63,11 +63,8 @@ export const TransactionPreview = ({ initialTransactions = [] }: TransactionPrev
 
   if (!transactions || transactions.length === 0) {
     return (
-      <section className="mx-auto mt-3 md:mt-4 max-w-md md:max-w-2xl">
-        <div className="rounded-xl border border-amber-500/20 bg-background/60 dark:bg-brand.glassmorphism backdrop-blur-xl p-4 text-sm text-muted-foreground text-center">
-          No transactions found
-        </div>
-      </section>
+      <>
+      </>
     );
   }
 
