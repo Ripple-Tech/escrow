@@ -41,7 +41,7 @@ const DEFAULT_ITEMS: CarouselItem[] = [
     description: 'Our comprehensive protection and security solutions.',
     id: 4,
     image: '/protection1.png',
-    link: '/protection'
+    link: '/kyve-protection'
   }
 ];
 
@@ -287,7 +287,7 @@ export default function Carousel({
           />
         ))}
       </motion.div>
-      <div className={`flex w-full justify-center ${round ? 'absolute z-20 bottom-6 left-1/2 -translate-x-1/2' : ''}`}> {/* Adjusted position */}
+      <div className={`flex w-full justify-center ${round ? 'absolute z-20 bottom-1 left-1/2 -translate-x-1/2' : ''}`}> {/* Adjusted position */}
         <div className="mt-3 flex w-[70px] justify-between px-2"> {/* Smaller container */}
           {items.map((_, index) => (
             <motion.div

@@ -79,7 +79,7 @@ export default function Transaction() {
   const topInvited = invited.slice(0, 4);
 
   return (
-    <div className="mx-auto w-full px-3 py-3 sm:px-4 md:px-6 md:py-5 ">
+    <div className="mx-auto w-ful mb-12 px-3 py-3 sm:px-4 md:px-6 md:py-5">
       {/* Balance Card */}
       <section className="mx-auto max-w-md md:max-w-2xl ">
         <div
@@ -213,21 +213,20 @@ export default function Transaction() {
         </div>
       </section>
 
-     {/* Transaction Preview Section */}
-<div className="h-3 md:h-4" />
-<TransactionPreview />
+      {/* Transaction Preview Section */}
+      <div className="h-3 md:h-4" />
+      <TransactionPreview />
 
-   <div className="max-w-7xl mt-10">
-    <div style={{ height: '300px', position: 'relative' }}>
-      <Carousel
-        autoplay={true}
-        autoplayDelay={4000}
-        pauseOnHover={true}
-        loop={true}
-        round={false}
-      />
-    </div>
-   </div>
+      {/* Carousel - Removed all margins and fixed positioning */}
+      <div className="max-w-4xl sm:max-w-2xl mx-auto mt-4"> {/* Reduced mt-10 to mt-4 */}
+        <Carousel
+          autoplay={true}
+          autoplayDelay={4000}
+          pauseOnHover={true}
+          loop={true}
+          round={false}
+        />
+      </div>
 
       {/* Mobile Create Escrow FAB (smaller) */}
       <CreateEscrowModal>
