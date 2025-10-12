@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { PropsWithChildren, useMemo, useState } from "react"
+import { PropsWithChildren, useMemo, useState, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -13,6 +13,8 @@ import { client } from "@/lib/client"
 import { ESCROW_VALIDATOR } from "@/lib/validators/escrow-validator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { cn } from "@/utils"
+import handleImageSaveToFireBase from "@/lib/upload" // if you exported default
+// If you exported as named, use: import { handleImageSaveToFireBase } from "@/components/upload"
 
 type EscrowForm = z.infer<typeof ESCROW_VALIDATOR>
 
@@ -26,6 +28,11 @@ export const CreateEscrowModal = ({
 }: CreateEscrowModalProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
+
+  // Upload state
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
 
   const { mutate: createEscrow, isPending } = useMutation({
     mutationFn: async (data: EscrowForm) => {
@@ -54,6 +61,8 @@ export const CreateEscrowModal = ({
       status: "PENDING",
       logistics: "NO",
       currency: "NGN",
+      category: "others",
+      photoUrl: "", // will be filled after upload
     } as Partial<EscrowForm>,
   })
 
@@ -62,10 +71,32 @@ export const CreateEscrowModal = ({
   const invitedRole = useMemo(() => (role === "SELLER" ? "BUYER" : "SELLER"), [role])
 
   const onSubmit = (data: EscrowForm) => {
+    // photoUrl is already set via setValue after upload
     createEscrow(data)
   }
 
-  // small input style
+  const handleLocalFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      setUploadError(null)
+      setIsUploading(true)
+      setUploadProgress(0)
+      try {
+        const url = await handleImageSaveToFireBase(file, setUploadProgress)
+        setValue("photoUrl", url, { shouldValidate: true }) // register the firebase URL into the form
+      } catch (err) {
+        console.error(err)
+        setUploadError("Failed to upload image.")
+        // Clear photoUrl on failure
+        setValue("photoUrl", "", { shouldValidate: true })
+      } finally {
+        setIsUploading(false)
+      }
+    },
+    [setValue]
+  )
+
   const inputClass =
     "h-9 px-2 text-sm rounded-md border border-input bg-background focus:ring-1 focus:ring-blue-500 focus:outline-none"
 
@@ -101,18 +132,18 @@ export const CreateEscrowModal = ({
               {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
             </div>
 
-            {/* Amount */}
-            <div className="space-y-0.5">
-              <Label htmlFor="amount" className="text-xs">Amount</Label>
-              <Input type="number" step="0.01" id="amount" {...register("amount")} placeholder="100" className={inputClass} />
-              {errors.amount && <p className="text-xs text-red-500">{errors.amount.message}</p>}
-            </div>
-
             {/* Quantity */}
             <div className="space-y-0.5">
               <Label htmlFor="quantity" className="text-xs">Quantity</Label>
-              <Input type="number" id="quantity" {...register("quantity")} placeholder="1" className={inputClass} />
+              <Input type="number" id="quantity" {...register("quantity")} placeholder="enter quantity" className={inputClass} />
               {errors.quantity && <p className="text-xs text-red-500">{errors.quantity.message}</p>}
+            </div>
+
+            {/* Amount */}
+            <div className="space-y-0.5">
+              <Label htmlFor="amount" className="text-xs">Amount</Label>
+              <Input type="number" step="0.01" id="amount" {...register("amount")} placeholder="total amount" className={inputClass} />
+              {errors.amount && <p className="text-xs text-red-500">{errors.amount.message}</p>}
             </div>
 
             {/* Role */}
@@ -164,47 +195,61 @@ export const CreateEscrowModal = ({
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
-                   <SelectItem value="NGN">NGN</SelectItem>
+                  <SelectItem value="NGN">NGN</SelectItem>
                   <SelectItem value="USD">USD</SelectItem>
                   <SelectItem value="GHS">GHS</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-          {/* Category */}
-<div className="space-y-0.5">
-  <Label htmlFor="category" className="text-xs">Category</Label>
-  <Select
-    defaultValue="others"
-    onValueChange={(v) =>
-      setValue("category", v as EscrowForm["category"], { shouldValidate: true })
-    }
-  >
-    <SelectTrigger id="category" className="h-9 text-sm">
-      <SelectValue placeholder="Select Category" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="electronics">Electronics</SelectItem>
-      <SelectItem value="fashion">Fashion</SelectItem>
-      <SelectItem value="services">Services</SelectItem>
-      <SelectItem value="automobile">Automobile</SelectItem>
-      <SelectItem value="others">Others</SelectItem>
-    </SelectContent>
-  </Select>
-  {errors.category && (
-    <p className="text-xs text-red-500">{errors.category.message}</p>
-  )}
-</div>
-
-            {/* Photo URL */}
+            {/* Category */}
             <div className="space-y-0.5">
-              <Label htmlFor="photoUrl" className="text-xs">Photo URL</Label>
-              <Input id="photoUrl" {...register("photoUrl")} placeholder="https://..." className={inputClass} />
-              {errors.photoUrl && <p className="text-xs text-red-500">{errors.photoUrl.message}</p>}
+              <Label htmlFor="category" className="text-xs">Category</Label>
+              <Select
+                defaultValue="others"
+                onValueChange={(v) =>
+                  setValue("category", v as EscrowForm["category"], { shouldValidate: true })
+                }
+              >
+                <SelectTrigger id="category" className="h-9 text-sm">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="electronics">Electronics</SelectItem>
+                  <SelectItem value="fashion">Fashion</SelectItem>
+                  <SelectItem value="services">Services</SelectItem>
+                  <SelectItem value="automobile">Automobile</SelectItem>
+                  <SelectItem value="others">Others</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.category && (
+                <p className="text-xs text-red-500">{errors.category.message}</p>
+              )}
+            </div>
+
+            {/* Photo Upload (no URL input displayed) */}
+            <div className="space-y-0.5 col-span-2">
+              <Label htmlFor="photoFile" className="text-xs">Photo</Label>
+              <input
+                id="photoFile"
+                type="file"
+                accept="image/*"
+                className="block w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-input file:bg-background file:text-sm file:cursor-pointer"
+                onChange={handleLocalFileChange}
+              />
+              {isUploading && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Uploading image: {uploadProgress}%
+                </p>
+              )}
+              {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
+              {/* The URL is registered in the form as photoUrl but not shown */}
+              <input type="hidden" {...register("photoUrl")} />
+              {errors.photoUrl && <p className="text-xs text-red-500 mt-1">{errors.photoUrl.message}</p>}
             </div>
           </div>
 
-          {/* Compact Color (full row) */}
+          {/* Color (full row) */}
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-0.5 col-span-2">
               <Label htmlFor="color" className="text-xs">Color</Label>
@@ -232,7 +277,11 @@ export const CreateEscrowModal = ({
             <Button type="button" variant="outline" className="h-8 text-sm" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button disabled={isPending} type="submit" className="h-8 text-sm">
+            <Button
+              disabled={isPending || isUploading}
+              type="submit"
+              className="h-8 text-sm"
+            >
               {isPending ? "Creating..." : "Create Escrow"}
             </Button>
           </div>
