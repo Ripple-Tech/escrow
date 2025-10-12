@@ -53,6 +53,7 @@ export const CreateEscrowModal = ({
       role: "SELLER",
       status: "PENDING",
       logistics: "NO",
+      currency: "NGN",
     } as Partial<EscrowForm>,
   })
 
@@ -156,25 +157,44 @@ export const CreateEscrowModal = ({
             <div className="space-y-0.5">
               <Label htmlFor="currency" className="text-xs">Currency</Label>
               <Select
+                defaultValue="NGN"
                 onValueChange={(v) => setValue("currency", v as EscrowForm["currency"], { shouldValidate: true })}
               >
                 <SelectTrigger id="currency" className="h-9 text-sm">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
+                   <SelectItem value="NGN">NGN</SelectItem>
                   <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="NGN">NGN</SelectItem>
                   <SelectItem value="GHS">GHS</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Category */}
-            <div className="space-y-0.5">
-              <Label htmlFor="category" className="text-xs">Category</Label>
-              <Input id="category" {...register("category")} placeholder="e.g. Electronics" className={inputClass} />
-              {errors.category && <p className="text-xs text-red-500">{errors.category.message}</p>}
-            </div>
+          {/* Category */}
+<div className="space-y-0.5">
+  <Label htmlFor="category" className="text-xs">Category</Label>
+  <Select
+    defaultValue="others"
+    onValueChange={(v) =>
+      setValue("category", v as EscrowForm["category"], { shouldValidate: true })
+    }
+  >
+    <SelectTrigger id="category" className="h-9 text-sm">
+      <SelectValue placeholder="Select Category" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="electronics">Electronics</SelectItem>
+      <SelectItem value="fashion">Fashion</SelectItem>
+      <SelectItem value="services">Services</SelectItem>
+      <SelectItem value="automobile">Automobile</SelectItem>
+      <SelectItem value="others">Others</SelectItem>
+    </SelectContent>
+  </Select>
+  {errors.category && (
+    <p className="text-xs text-red-500">{errors.category.message}</p>
+  )}
+</div>
 
             {/* Photo URL */}
             <div className="space-y-0.5">
