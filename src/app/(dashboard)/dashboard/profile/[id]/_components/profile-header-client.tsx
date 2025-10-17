@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
-import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera } from "lucide-react";
+import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera, User2 } from "lucide-react";
 import { cn } from "@/utils";
 import handleImageSaveToFireBase from "@/lib/upload"; // your existing uploader
 import { updateUserImage } from "@/actions/user.actions";
@@ -137,7 +137,7 @@ export default function ProfileHeaderClient({
       {/* Avatar and identity */}
       <div className="flex flex-col items-center pt-3">
         <div className="relative">
-          <div className="relative h-16 w-16 rounded-full overflow-hidden border border-amber-600/30 bg-amber-600/10">
+          <div className="relative h-20 w-20 rounded-full overflow-hidden border border-amber-600/30 bg-amber-600/10">
             {img ? (
               <Image src={img} alt="user avatar" fill sizes="64px" className="object-cover" />
             ) : (
@@ -177,8 +177,23 @@ export default function ProfileHeaderClient({
 
         <div className="mt-1 text-center">
           <h2 className="text-base font-semibold text-foreground">{name ?? "User"}</h2>
-          {username && <p className="text-[12px] text-foreground/70">@{username}</p>}
-          {joinedText && <p className="text-[11px] text-foreground/60 mt-0.5">{joinedText}</p>}
+           {username && (
+        <div className="flex items-center justify-center gap-1 mt-0.5">
+          <User2 className="h-4 w-4 text-gray-500" />
+          <p className="text-[14px] text-foreground/70">@{username}</p>
+        </div>
+      )}
+          {joinedText && <span className="text-[12px] text-foreground/60 mt-0.5">
+          <span className="inline-flex items-center gap-1 text-gray-600">
+                <Image
+                  src="/favicon.ico"
+                  alt=""
+                  width={14}
+                  height={14}
+                  className="opacity-60"
+                />
+                {joinedText} </span> 
+          </span> }
         </div>
       </div>
 
