@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
-import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera, User2 } from "lucide-react";
+import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera, UserRoundCheckIcon } from "lucide-react";
 import { cn } from "@/utils";
 import handleImageSaveToFireBase from "@/lib/upload"; // your existing uploader
 import { updateUserImage } from "@/actions/user.actions";
@@ -178,8 +178,8 @@ export default function ProfileHeaderClient({
         <div className="mt-1 text-center">
           <h2 className="text-base font-semibold text-foreground">{name ?? "User"}</h2>
            {username && (
-        <div className="flex items-center justify-center gap-1 mt-0.5">
-          <User2 className="h-4 w-4 text-gray-500" />
+        <div className="flex items-center justify-center gap-2 mt-0.5">
+          <UserRoundCheckIcon className="h-4 w-4 text-gray-500" />
           <p className="text-[14px] text-foreground/70">@{username}</p>
         </div>
       )}
