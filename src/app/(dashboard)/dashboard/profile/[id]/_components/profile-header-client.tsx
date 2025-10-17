@@ -3,13 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
-import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera, UserRoundCheckIcon } from "lucide-react";
+import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera, UserRoundCheckIcon, ClipboardList, IdCard } from "lucide-react";
 import { cn } from "@/utils";
 import handleImageSaveToFireBase from "@/lib/upload"; // your existing uploader
 import { updateUserImage } from "@/actions/user.actions";
 import InviteSharableLink from "./invitation-link";
 import { buildInviteLink } from "@/lib/invitation-link";
-
+import { Shield, User, Edit3 } from "lucide-react";
 // Tabs from your UI lib
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DetailsPanel } from "./DetailsPanel";
@@ -265,6 +265,7 @@ export default function ProfileHeaderClient({
                 "hover:bg-amber-600/20"
               )}
             >
+               <Shield className="h-4 w-4 mr-2" />
               Security
             </TabsTrigger>
             <TabsTrigger
@@ -276,6 +277,7 @@ export default function ProfileHeaderClient({
                 "hover:bg-amber-600/20"
               )}
             >
+              <IdCard  className="h-4 w-4 mr-2" />
               Details
             </TabsTrigger>
             <TabsTrigger
@@ -287,7 +289,8 @@ export default function ProfileHeaderClient({
                 "hover:bg-amber-600/20"
               )}
             >
-              Edit Profile
+               <Edit3  className="h-4 w-4 mr-2" />
+              Edit 
             </TabsTrigger>
           </TabsList>
 

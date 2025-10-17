@@ -5,6 +5,7 @@ import Link from "next/link";
 import ProfileHeaderClient from "@/app/(dashboard)/dashboard/profile/[id]/_components/profile-header-client"; 
 import { fetchUser } from "@/actions/user.actions";
 import { buildInviteLink } from "@/lib/invitation-link";
+
 const profileTabs = [
   { value: "threads", label: "Posts", icon: "/reply.svg" },
   { value: "replies", label: "Replies", icon: "/members.svg" },
