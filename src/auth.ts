@@ -57,8 +57,18 @@ export const {
             session.user.username = token.username as string
             session.user.email = token.email as string
             session.user.balance = token.balance as string
+            session.user.phonenumber = token.phonenumber as string
             session.user.ledgerbalance = token.ledgerbalance as string
             session.user.isOAuth = token.isOAuth as boolean;
+             const createdAt = new Date(token.createdAt as string);
+             const updatedAt = new Date(token.updatedAt as string);
+             const emailVerified = new Date(token.emailVerified as string);
+              if (isNaN(createdAt.getTime()) || isNaN(updatedAt.getTime())) {
+      throw new Error('Invalid date format in token');
+    }
+         session.user.createdAt = createdAt;
+         session.user.updatedAt = updatedAt;
+         session.user.emailVerified = emailVerified as any;
           }
           
           return session;
@@ -80,8 +90,12 @@ export const {
           token.email = existingUser.email;
           token.balance = existingUser.balance;
           token.role = existingUser.role;
+          token.phonenumber = existingUser.phonenumber;
           token.ledgerbalance = existingUser.ledgerbalance;
           token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+           token.createdAt = existingUser.createdAt.toISOString();
+          token.updatedAt = existingUser.updatedAt.toISOString();
+          token.emailVerified = existingUser.emailVerified?.toISOString() || null;
           //token.isChatEnabled = existingUser.isChatEnabled;
           return token;
         }

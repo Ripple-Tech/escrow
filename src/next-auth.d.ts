@@ -5,12 +5,16 @@ import "next-auth/jwt";
 export type ExtendedUser = DefaultSession["user"] & {
   id: string;
   username: string | null;
+   phonenumber: string | null;
   role: UserRole;
   isTwoFactorEnabled: boolean;
   isChatEnabled: boolean;
   isOAuth: boolean;
   balance: Float;
   ledgerbalance: Float;
+  createdAt: Date;
+  updatedAt: Date;
+  emailVerified?: string | null;
 };
 
 declare module "next-auth" {

@@ -1,121 +1,169 @@
-import Link from "next/link";
+"use client";
+
+import { useState, useRef } from "react";
 import Image from "next/image";
-import { Actions } from "@/app/(dashboard)/dashboard/profile/[id]/_components/actions";
-import { isFollowingUser } from "@/lib/follow-service";
-import {  SquarePenIcon, UserCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Camera,
+  ShieldAlert,
+  BadgeCheck,
+  Clock3,
+  User2,
+} from "lucide-react";
+import { cn } from "@/utils";
 
-interface Props {
-  accountId: string;
-  authUserId: string;
-  name: string | null;
-  username: string | null;
-  imgUrl: string | null;
-   variant?: "default" | "avatar-only";
-}
+type Props = {
+  name?: string | null;
+  image?: string | null;
+  email?: string | null;
+  createdAt?: Date | string | null;
+  status?: "verified" | "pending" | "unverified";
+  handleImageChange?: (file: File) => Promise<void> | void;
+};
 
-// Icon wrapper tokens to mirror your tab style
-const iconWrapperBase =
-  "inline-flex shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary shadow-primary-glow";
-const iconWrapper7 = `${iconWrapperBase} w-7 h-7`;
-const iconWrapper9 = `${iconWrapperBase} w-9 h-9`;
+const primary = "#324F3B";
 
-async function ProfileHeader({
-  accountId,
-  authUserId,
+export function ProfileHeader({
   name,
-  username,
-  imgUrl,
-   variant = "default",
+  image,
+  email,
+  createdAt,
+  status = "pending",
+  handleImageChange,
 }: Props) {
-  const isFollowing = await isFollowingUser(accountId);
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  if (variant === "avatar-only") {
-    return (
-      <div className="relative h-10 w-10 rounded-full border border-border/60 bg-muted/40 shadow-primary-glow overflow-hidden">
-        {imgUrl ? (
-          <Image
-            src={imgUrl}
-            alt="user avatar"
-            fill
-            className="object-cover"
-            sizes="40px"
-            priority={false}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-background">
-            <UserCircle className="h-6 w-6 text-muted-foreground" />
-          </div>
-        )}
-      </div>
-    );
-  }
+  const initials =
+    name?.trim()
+      ?.split(" ")
+      .map((n) => n[0]?.toUpperCase())
+      .slice(0, 2)
+      .join("") || "U";
 
-  
+  const joinText =
+    createdAt &&
+    `Joined ${new Date(createdAt).toLocaleString(undefined, {
+      month: "long",
+      year: "numeric",
+    })}`;
+
+  const onPick = () => inputRef.current?.click();
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !handleImageChange) return;
+    setUploading(true);
+    try {
+      await handleImageChange(file);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <div className="flex w-full flex-col">
-      <div className="flex items-center justify-between">
-        {/* Left: Avatar + Name */}
-        <div className="flex items-center p-3 gap-4">
-          {/* Avatar with rounded ring + subtle glow */}
-          <div className="relative h-20 w-20 rounded-full border border-border/60 bg-muted/40 shadow-primary-glow overflow-hidden">
-            {imgUrl ? (
-              <Image
-                src={imgUrl}
-                alt="user avatar"
-                fill
-                className="object-cover"
-                sizes="80px"
-                priority={false}
+    <div
+      className={cn(
+        "w-full rounded-2xl border border-border/60",
+        "bg-gradient-to-br from-[#324F3B] via-emerald-900/40 to-background",
+        "p-4 sm:p-6 text-foreground"
+      )}
+      style={{
+        boxShadow:
+          "0 10px 30px -12px rgba(50,79,59,0.45), inset 0 1px 0 rgba(255,255,255,0.04)",
+      }}
+    >
+      <div className="flex items-center gap-4">
+        {/* Avatar + upload */}
+        <div className="relative">
+          <Avatar className="h-16 w-16 sm:h-20 sm:w-20 ring-2 ring-white/10">
+            <AvatarImage src={image || ""} alt={name || "User"} />
+            <AvatarFallback className="bg-muted text-lg text-gray-700 font-semibold">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+
+          {handleImageChange && (
+            <>
+              <button
+                type="button"
+                onClick={onPick}
+                className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/90 text-[--primary] shadow-md hover:bg-white"
+                aria-label="Change profile photo"
+                style={{ color: primary, ["--primary" as any]: primary }}
+              >
+                <Camera className="h-4 w-4" />
+              </button>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onFile}
               />
+            </>
+          )}
+        </div>
+
+        {/* User info */}
+        <div className="flex-1 min-w-0">
+          {/* Name and Status */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-100 truncate">
+              {name || "User"}
+            </h2>
+            {status === "verified" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2.5 py-0.5 text-xs">
+                <BadgeCheck className="h-3.5 w-3.5" />
+                Verified
+              </span>
+            ) : status === "pending" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-400 px-2.5 py-0.5 text-xs">
+                <Clock3 className="h-3.5 w-3.5" />
+                Pending
+              </span>
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-background">
-                <UserCircle className="h-12 w-12 text-muted-foreground" />
-              </div>
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 text-rose-400 px-2.5 py-0.5 text-xs">
+                <ShieldAlert className="h-3.5 w-3.5" />
+                Unverified
+              </span>
             )}
           </div>
 
-          <div className="min-w-0">
-            <h2 className="text-left text-2xl font-semibold text-foreground">
-              {name}
-            </h2>
-            <p className="text-sm uppercase tracking-wide text-muted-foreground/80">
-              @{username}
-            </p>
+          {/* Email + join date */}
+          <div className="mt-1 flex items-center gap-3 text-xs sm:text-sm text-muted-foreground flex-wrap">
+            {email && (
+              <span className="inline-flex items-center font-medium gap-1 rounded-full bg-[#EBE3D0] text-gray-600 px-2.5 py-0.5 text-xs">
+                <User2 className="h-3 w-3" />
+                <span className="truncate">@{email.split("@")[0]}</span>
+              </span>
+            )}
+            {joinText && (
+              <span className="inline-flex items-center gap-1 text-gray-200">
+                <Image
+                  src="/favicon.ico"
+                  alt=""
+                  width={12}
+                  height={12}
+                  className="opacity-60"
+                />
+                {joinText}
+              </span>
+            )}
+          </div>
+
+          {/* Extra actions */}
+          <div className="mt-3 flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" className="rounded-full border-white/20">
+              Two-Factor Auth
+            </Button>
           </div>
         </div>
 
-        {/* Right: Actions */}
-        {accountId === authUserId ? (
-          <Link href="/profile/edit" className="shrink-0">
-            <div
-              className={[
-                "group inline-flex items-center gap-2",
-                "rounded-full border border-border/60 bg-muted/40 px-4 py-2",
-                "text-xs uppercase tracking-wide",
-                "text-muted-foreground/80",
-                "transition-all duration-200",
-                "hover:text-foreground hover:bg-background/60",
-                "data-[state=active]:text-foreground",
-                "data-[state=active]:bg-background",
-                "shadow-none hover:shadow-primary-glow",
-                "focus-visible:outline-none focus-visible:ring-0",
-              ].join(" ")}
-            >
-              <span className={iconWrapper7}>
-               <SquarePenIcon className="w-4 h-4" />
-              </span>
-              <span className="font-medium">Edit</span>
-            </div>
-          </Link>
-        ) : (
-          <div className="flex items-center gap-3">
-            {/* You can wrap Actions or its internal buttons with the same pills style if needed */}
-            <Actions userId={accountId} isFollowing={isFollowing} />
-          </div>
+        {uploading && (
+          <span className="text-xs text-muted-foreground">Uploading...</span>
         )}
       </div>
     </div>
   );
 }
-
-export default ProfileHeader;
