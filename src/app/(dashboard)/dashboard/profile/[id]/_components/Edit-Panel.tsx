@@ -34,6 +34,7 @@ import { UserRole } from "@prisma/client";
 const SettingsSchema = z.object({
   name: z.string().optional(),
   email: z.string().email().optional(),
+  username: z.string().min(2).max(100).optional(),
   password: z.string().optional(),
   newPassword: z.string().optional(),
   role: z.nativeEnum(UserRole),
@@ -106,6 +107,22 @@ export function EditPanel() {
                     </FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="John Doe" disabled={isPending} className={inputClass} />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+               <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase tracking-wide text-muted-foreground/80">
+                      Username
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="JohnDoe" disabled={isPending} className={inputClass} />
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </FormItem>

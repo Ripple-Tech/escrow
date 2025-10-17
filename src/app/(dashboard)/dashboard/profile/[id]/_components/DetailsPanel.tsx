@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 type Details = {
   name?: string | null;
   email?: string | null;
+  username?: string | null;
   phonenumber?: string | null;
   role?: string | null;
   isTwoFactorEnabled?: boolean | null;
@@ -56,6 +57,26 @@ export function DetailsPanel({ data }: { data: Details }) {
                 </FormItem>
               )}
             />
+
+             <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={labelCls}>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      className={inputCls}
+                      disabled
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            
             <FormField
               control={form.control}
               name="email"

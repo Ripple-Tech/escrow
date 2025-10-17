@@ -137,7 +137,7 @@ export const TransactionContent = () => {
                     )}
                   />
                   {amountPrefix}
-                  {tx.amount} {tx.currency}
+                  {tx.amount / 100} {tx.currency}
                 </span>
               </div>
 
