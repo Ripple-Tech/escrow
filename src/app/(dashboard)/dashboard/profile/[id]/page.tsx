@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         shareUrl={shareUrl}
         status={"verified"}
         paystackDemo
-        bankName="VFD Microfinance Bank"
+        bankName="Wema Bank"
         verifiedUser={user.emailVerified || null}
       />
 

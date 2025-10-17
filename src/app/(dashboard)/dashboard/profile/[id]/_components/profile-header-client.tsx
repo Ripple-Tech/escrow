@@ -113,14 +113,32 @@ export default function ProfileHeaderClient({
 
   if (variant === "avatar-only") {
     return (
-      <div className="relative h-9 w-9 rounded-full border border-amber-600/30 bg-amber-600/10 overflow-hidden">
-        {imgUrl ? (
-          <Image src={imgUrl} alt="user avatar" fill className="object-cover" sizes="36px" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <UserCircle className="h-5 w-5 text-amber-700/70" />
-          </div>
-        )}
+      <div className="relative">
+        <div className="relative h-9 w-9 rounded-full overflow-hidden border border-amber-600/30 bg-amber-600/10">
+          {imgUrl ? (
+            <Image src={imgUrl} alt="user avatar" fill className="object-cover" sizes="36px" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <UserCircle className="h-5 w-5 text-amber-700/70" />
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={onPick}
+          className="absolute -bottom-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-600/20 bg-white text-amber-700 shadow-md hover:bg-amber-50"
+          aria-label="Change profile photo"
+        >
+          <Camera className="h-3 w-3" />
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={onFile}
+        />
       </div>
     );
   }
@@ -129,9 +147,7 @@ export default function ProfileHeaderClient({
     <div className="w-full">
       {/* Avatar and identity */}
       <div className="flex flex-col items-center pt-3">
-        {/* Avatar container with camera icon positioned at top edge */}
         <div className="relative">
-          {/* Avatar */}
           <div className="relative h-16 w-16 rounded-full overflow-hidden border border-amber-600/30 bg-amber-600/10">
             {imgUrl ? (
               <Image src={imgUrl} alt="user avatar" fill sizes="64px" className="object-cover" />
@@ -140,50 +156,23 @@ export default function ProfileHeaderClient({
                 <UserCircle className="h-8 w-8 text-amber-700/70" />
               </div>
             )}
-            
-            {/* Uploading overlay */}
-            {uploading && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              </div>
-            )}
           </div>
 
-          {/* Camera icon positioned at top-right edge */}
-          {handleImageChange && (
-            <>
-              <button
-                type="button"
-                onClick={onPick}
-                className={cn(
-                  "absolute -top-1 -right-1 inline-flex h-7 w-7 items-center justify-center rounded-full",
-                  "border border-amber-600/20 bg-white text-amber-700 shadow-lg",
-                  "transition-all duration-200 ease-in-out",
-                  "hover:bg-amber-50 hover:scale-110",
-                  "focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2",
-                  "active:scale-95",
-                  uploading && "opacity-50 cursor-not-allowed"
-                )}
-                aria-label={uploading ? "Uploading profile photo..." : "Change profile photo"}
-                disabled={uploading}
-                title={uploading ? "Uploading..." : "Change profile photo"}
-              >
-                {uploading ? (
-                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
-                ) : (
-                  <Camera className="h-4 w-4" />
-                )}
-              </button>
-              <input
-                ref={inputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={onFile}
-                aria-hidden="true"
-              />
-            </>
-          )}
+          <button
+            type="button"
+            onClick={onPick}
+            className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-600/20 bg-white text-amber-700 shadow-md hover:bg-amber-50"
+            aria-label="Change profile photo"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onFile}
+          />
         </div>
 
         {/* Status */}
@@ -200,15 +189,13 @@ export default function ProfileHeaderClient({
           <h2 className="text-sm font-semibold text-foreground">{name ?? "User"}</h2>
           {username && <p className="text-[11px] text-foreground/70">@{username}</p>}
           {joinedText && <p className="text-[10px] text-foreground/60 mt-0.5">{joinedText}</p>}
-          {uploading && <p className="mt-1 text-[10px] text-foreground/60">Uploading...</p>}
         </div>
       </div>
 
-      {/* Invitation Link + Account Number (paired, compact) */}
+      {/* Rest of your existing code remains exactly the same */}
       <section className="mt-4 px-3">
         <div className={cn(surfaceCard, "p-2")}>
           <div className="grid grid-cols-2 gap-2">
-            {/* Invitation Link */}
             <div className="rounded-lg border border-amber-600/20 bg-amber-600/5 px-2.5 py-1.5">
               <span className="block text-[9px] uppercase tracking-wide text-foreground/60 leading-none">
                 Invitation Link
@@ -220,17 +207,17 @@ export default function ProfileHeaderClient({
                 {shareUrl && (
                   <button
                     type="button"
-                    className="inline-flex shrink-0 items-center gap-1 text-[10px] px-2 py-1 rounded-md bg-amber-600 text-white hover:bg-amber-700"
+                    className="inline-flex shrink-0 items-center gap-1 text-[10px] px-0.5 py-0.5 rounded-md bg-amber-600 text-white hover:bg-amber-700"
                     onClick={() => handleCopy(shareUrl, "inv")}
                     aria-label="Copy invitation link"
                   >
                     <Copy className="h-3 w-3" />
+                    {copied === "inv" ? "Copied" : "Copy"}
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Account Number */}
             <div className="rounded-lg border border-amber-600/20 bg-amber-600/5 px-2.5 py-1.5">
               <span className="block text-[9px] uppercase tracking-wide text-foreground/60 leading-none">
                 {bankName}
@@ -242,11 +229,12 @@ export default function ProfileHeaderClient({
                 {paystackDemo && (
                   <button
                     type="button"
-                    className="inline-flex shrink-0 items-center gap-1 text-[10px] px-2 py-1 rounded-md bg-amber-600 text-white hover:bg-amber-700"
+                    className="inline-flex shrink-0 items-center gap-1 text-[10px] px-0.5 py-0.5 rounded-md bg-amber-600 text-white hover:bg-amber-700"
                     onClick={() => handleCopy(demoAccountNumber, "acct")}
                     aria-label="Copy account number"
                   >
                     <Copy className="h-3 w-3" />
+                    {copied === "acct" ? "Copied" : "Copy"}
                   </button>
                 )}
               </div>    
@@ -255,13 +243,11 @@ export default function ProfileHeaderClient({
         </div>
       </section>
 
-      {/* Tabs with amber brand colors */}
       <section className="mt-4 px-3">
         <Tabs defaultValue="security" className="w-full">
           <TabsList
             className={cn(
               "grid w-full grid-cols-3 rounded-xl p-1",
-              // Subtle background that works on light/dark
               "bg-amber-600/10 dark:bg-amber-600/10"
             )}
           >
@@ -309,8 +295,6 @@ export default function ProfileHeaderClient({
                 <p className="text-sm text-center text-foreground/70 mb-4">
                   Track all progress in Almazin activities that you have joined or already participated in.
                 </p>
-                {/* Replace with your component if available */}
-                {/* <ProgressCards activities={userProgress.activities} /> */}
               </div>
             </TabsContent>
 
