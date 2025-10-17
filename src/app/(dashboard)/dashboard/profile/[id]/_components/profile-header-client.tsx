@@ -73,7 +73,7 @@ export default function ProfileHeaderClient({
   status = "verified",
   bankName = "Wema Bank",
   paystackDemo = true,
-  variant = "default",
+  
   createdAt,
   handleImageChange,
 }: ProfileHeaderClientProps) {
@@ -111,37 +111,7 @@ export default function ProfileHeaderClient({
     }
   };
 
-  if (variant === "avatar-only") {
-    return (
-      <div className="relative">
-        <div className="relative h-9 w-9 rounded-full overflow-hidden border border-amber-600/30 bg-amber-600/10">
-          {imgUrl ? (
-            <Image src={imgUrl} alt="user avatar" fill className="object-cover" sizes="36px" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <UserCircle className="h-5 w-5 text-amber-700/70" />
-            </div>
-          )}
-        </div>
-
-        <button
-          type="button"
-          onClick={onPick}
-          className="absolute -bottom-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-600/20 bg-white text-amber-700 shadow-md hover:bg-amber-50"
-          aria-label="Change profile photo"
-        >
-          <Camera className="h-3 w-3" />
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={onFile}
-        />
-      </div>
-    );
-  }
+ 
 
   return (
     <div className="w-full">
