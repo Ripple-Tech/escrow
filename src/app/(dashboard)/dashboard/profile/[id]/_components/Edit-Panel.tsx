@@ -61,6 +61,7 @@ export function EditPanel() {
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
       name: user?.name || undefined,
+      username: user?.username || undefined,
       email: user?.email || undefined,
       role: user?.role,
       isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,

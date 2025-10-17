@@ -94,6 +94,24 @@ export function DetailsPanel({ data }: { data: Details }) {
                 </FormItem>
               )}
             />
+
+              <FormField
+              control={form.control}
+              name="phonenumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={labelCls}>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      className={inputCls}
+                      disabled
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}

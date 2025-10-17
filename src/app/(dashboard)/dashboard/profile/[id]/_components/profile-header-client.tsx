@@ -156,9 +156,9 @@ export default function ProfileHeaderClient({
         </div>
 
         <div className="mt-1 text-center">
-          <h2 className="text-sm font-semibold text-foreground">{name ?? "User"}</h2>
-          {username && <p className="text-[11px] text-foreground/70">@{username}</p>}
-          {joinedText && <p className="text-[10px] text-foreground/60 mt-0.5">{joinedText}</p>}
+          <h2 className="text-base font-semibold text-foreground">{name ?? "User"}</h2>
+          {username && <p className="text-[12px] text-foreground/70">@{username}</p>}
+          {joinedText && <p className="text-[11px] text-foreground/60 mt-0.5">{joinedText}</p>}
         </div>
       </div>
 
@@ -274,6 +274,7 @@ export default function ProfileHeaderClient({
                   data={{
                     name: name,
                     email: email,
+                    username: username,
                     phonenumber: phonenumber,
                     role: role,
                     isTwoFactorEnabled: isTwoFactorEnabled,

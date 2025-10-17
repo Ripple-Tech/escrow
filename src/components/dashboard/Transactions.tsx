@@ -47,7 +47,7 @@ export default function Transaction() {
   const [invited, setInvited] = useState<InvitedUser[]>([]);
   const [loadingInvites, setLoadingInvites] = useState(false);
 
-  const balance = user?.balance ?? 0;
+  const balance = user?.balance / 100 || 0;
   const ledgerbalance = user?.ledgerbalance ?? 0;
   const currency = "NGN";
 
