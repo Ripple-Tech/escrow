@@ -49,3 +49,43 @@ export async function getInvitedUsers(userId: string) {
     throw new Error(`Failed to fetch invited users: ${error.message}`);
   }
 }
+
+// Update user's image URL
+export async function updateUserImage(userId: string, imageUrl: string | null) {
+  if (!userId) throw new Error("Missing userId");
+
+  try {
+    const updated = await db.user.update({
+      where: { id: userId },
+      data: { image: imageUrl }, // null to clear
+      select: {
+        id: true,
+        image: true,
+        name: true,
+        username: true,
+        email: true,
+      },
+    });
+
+    return updated;
+  } catch (error: any) {
+    throw new Error(`Failed to update user image: ${error.message}`);
+  }
+}
+
+// Hard-delete a user
+export async function deleteUser(userId: string) {
+  if (!userId) throw new Error("Missing userId");
+
+  try {
+    // If you have relations with onDelete: Cascade in Prisma, this is enough.
+    // Otherwise, delete dependent records first to avoid FK violations.
+    await db.user.delete({
+      where: { id: userId },
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    throw new Error(`Failed to delete user: ${error.message}`);
+  }
+}

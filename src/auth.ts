@@ -6,6 +6,7 @@ import { getUserById } from "@/data/user"
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation"
 import { UserRole } from "@prisma/client"
 import { getAccountByUserId } from "@/data/account"
+import { SquareScissorsIcon } from "lucide-react"
 
 export const {
     handlers: { GET, POST },
@@ -59,6 +60,7 @@ export const {
             session.user.balance = token.balance as string
             session.user.phonenumber = token.phonenumber as string
             session.user.ledgerbalance = token.ledgerbalance as string
+            session.user.imgUrl = token.imgUrl as string
             session.user.isOAuth = token.isOAuth as boolean;
              const createdAt = new Date(token.createdAt as string);
              const updatedAt = new Date(token.updatedAt as string);
@@ -90,6 +92,7 @@ export const {
           token.email = existingUser.email;
           token.balance = existingUser.balance;
           token.role = existingUser.role;
+          token.imgUrl = existingUser.image;
           token.phonenumber = existingUser.phonenumber;
           token.ledgerbalance = existingUser.ledgerbalance;
           token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;

@@ -2,22 +2,19 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera } from "lucide-react";
 import { cn } from "@/utils";
-
+import handleImageSaveToFireBase from "@/lib/upload"; // your existing uploader
+import { updateUserImage } from "@/actions/user.actions";
 import InviteSharableLink from "./invitation-link";
 import { buildInviteLink } from "@/lib/invitation-link";
 
 // Tabs from your UI lib
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DetailsPanel } from "./DetailsPanel";
 import { EditPanel } from "./Edit-Panel";
+import { useRouter } from "next/navigation";
 
 export interface ProfileHeaderClientProps {
   accountId: string;
@@ -30,13 +27,13 @@ export interface ProfileHeaderClientProps {
   role?: string | null;
   isTwoFactorEnabled?: boolean | null;
   verifiedUser?: Date | string | null;
-  status: "verified" ;
+  status: "verified";
   bankName?: string | null;
   paystackDemo?: boolean;
   variant?: "default" | "avatar-only";
   createdAt?: string | Date | null;
   inviteCode?: string | null;
-  handleImageChange?: (file: File) => Promise<void> | void;
+  handleImageChange?: (file: File) => Promise<void> | void; // remains optional for external override
 }
 
 const surfaceCard =
@@ -73,13 +70,31 @@ export default function ProfileHeaderClient({
   status = "verified",
   bankName = "Wema Bank",
   paystackDemo = true,
-  
   createdAt,
-  handleImageChange,
+  handleImageChange, // optional external override
 }: ProfileHeaderClientProps) {
   const [copied, setCopied] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const router = useRouter();
+  const [img, setImg] = useState<string | null>(imgUrl ?? null);
+  const [isPending, startTransition] = useTransition();
+
+  // Local default implementation (upload -> update DB -> refresh)
+  const handleImageChangeLocal = async (file: File) => {
+    if (!file.type.startsWith("image/")) throw new Error("Please select an image file.");
+    if (file.size > 5 * 1024 * 1024) throw new Error("Image must be under 5 MB.");
+
+    // 1) Upload to Firebase -> get public URL
+    const url = await handleImageSaveToFireBase(file);
+
+    // 2) Update DB
+    await updateUserImage(accountId, url);
+
+    // 3) Optimistic UI + refresh
+    setImg(url);
+    startTransition(() => router.refresh());
+  };
 
   // Prefer computed shareUrl from username
   const shareUrl = buildInviteLink(username) ?? null;
@@ -100,18 +115,22 @@ export default function ProfileHeaderClient({
   const joinedText = formatJoined(createdAt);
 
   const onPick = () => inputRef.current?.click();
+
+  // Use external handleImageChange if provided; otherwise fall back to local
+  const effectiveHandleImageChange = handleImageChange ?? handleImageChangeLocal;
+
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !handleImageChange) return;
+    if (!file) return;
     setUploading(true);
     try {
-      await handleImageChange(file);
+      await effectiveHandleImageChange(file);
     } finally {
       setUploading(false);
+      // reset input so same file can be selected again if needed
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
-
- 
 
   return (
     <div className="w-full">
@@ -119,8 +138,8 @@ export default function ProfileHeaderClient({
       <div className="flex flex-col items-center pt-3">
         <div className="relative">
           <div className="relative h-16 w-16 rounded-full overflow-hidden border border-amber-600/30 bg-amber-600/10">
-            {imgUrl ? (
-              <Image src={imgUrl} alt="user avatar" fill sizes="64px" className="object-cover" />
+            {img ? (
+              <Image src={img} alt="user avatar" fill sizes="64px" className="object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
                 <UserCircle className="h-8 w-8 text-amber-700/70" />
@@ -131,8 +150,9 @@ export default function ProfileHeaderClient({
           <button
             type="button"
             onClick={onPick}
-            className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-600/20 bg-white text-amber-700 shadow-md hover:bg-amber-50"
+            className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-600/20 bg-white text-amber-700 shadow-md hover:bg-amber-50 disabled:opacity-50"
             aria-label="Change profile photo"
+            disabled={uploading || isPending}
           >
             <Camera className="h-4 w-4" />
           </button>
@@ -162,7 +182,7 @@ export default function ProfileHeaderClient({
         </div>
       </div>
 
-      {/* Rest of your existing code remains exactly the same */}
+      {/* Rest of your existing code stays the same */}
       <section className="mt-4 px-3">
         <div className={cn(surfaceCard, "p-2")}>
           <div className="grid grid-cols-2 gap-2">
@@ -207,7 +227,7 @@ export default function ProfileHeaderClient({
                     {copied === "acct" ? "Copied" : "Copy"}
                   </button>
                 )}
-              </div>    
+              </div>
             </div>
           </div>
         </div>
@@ -286,7 +306,7 @@ export default function ProfileHeaderClient({
             </TabsContent>
 
             <TabsContent value="edit">
-              <EditPanel /> 
+              <EditPanel />
               <div className="rounded-2xl border border-amber-600/20 p-4">
                 <p className="text-sm text-foreground/80">Edit content goes here.</p>
               </div>

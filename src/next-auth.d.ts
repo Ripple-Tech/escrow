@@ -6,6 +6,7 @@ export type ExtendedUser = DefaultSession["user"] & {
   id: string;
   username: string | null;
    phonenumber: string | null;
+  imgUrl: string | null;
   role: UserRole;
   isTwoFactorEnabled: boolean;
   isChatEnabled: boolean;
