@@ -28,9 +28,9 @@ export default function AccountHeader() {
         <div className="flex items-center  gap-3">
           {/* Reduced avatar size */}
           <div className="relative h-12 w-12 rounded-full border border-border/60 bg-muted/40 shadow-primary-glow overflow-hidden">
-            {user?.image ? (
+            {user?.imgUrl ? (
               <Image
-                src={user.image}
+                src={user.imgUrl}
                 alt="user avatar"
                 fill
                 className="object-cover"
