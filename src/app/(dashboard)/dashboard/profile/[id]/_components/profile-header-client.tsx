@@ -297,7 +297,7 @@ export default function ProfileHeaderClient({
 
           <div className="mt-4 space-y-4">
             <TabsContent value="security" className="space-y-4 mb-20">
-              <div className="rounded-2xl border border-amber-600/20 p-4">
+              <div className="rounded-2xl border border-amber-600/20 p-2">
                <SecurityPanel />
               </div>
             </TabsContent>

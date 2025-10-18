@@ -33,8 +33,8 @@ const ActionButton = ({
 
 const SecurityPanel = () => {
   return (
-    <Card className="rounded-2xl border border-border/60 bg-white ">
-      <CardContent className="p-6">
+    <Card className="rounded-2xl border border-border/60 bg-white">
+      <CardContent className="p-4">
         {/* Header */}
         <div className="pb-3 mb-4 border-b border-border/60 flex items-center gap-2 text-amber-700">
           <Shield className="h-6 w-6" />
@@ -64,8 +64,8 @@ const SecurityPanel = () => {
           </div>
 
           {/* Two-Factor Authentication */}
-          <div className={cn(itemBase, "p-3")}>
-            <div className="flex items-start gap-2">
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3">
               <div className={iconWrap}>
                 <Lock className="h-5 w-5" />
               </div>
