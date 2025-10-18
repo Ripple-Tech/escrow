@@ -9,6 +9,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { IdCard } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 type Details = {
@@ -31,11 +32,12 @@ export function DetailsPanel({ data }: { data: Details }) {
   return (
     <Card className="rounded-2xl border border-border/60 bg-muted/40 backdrop-blur-sm">
       <CardContent className="p-6">
-        <div className="pb-3 mb-4 border-b">
-          <h2 className="text-base font-semibold">Details</h2>
-          <p className="text-sm text-muted-foreground">
-            Read-only user information.
-          </p>
+        <div className="pb-3 mb-4 border-b text-amber-600 inline-flex gap-3 justify-center items-center">
+          <div className="  items-center ">
+          <IdCard  className="h- w-8" /> 
+           </div>
+           <h2 className="text-2xl font-semibold">Details</h2>
+        
         </div>
 
         <Form {...form}>

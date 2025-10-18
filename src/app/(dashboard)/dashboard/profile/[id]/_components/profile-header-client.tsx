@@ -15,6 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DetailsPanel } from "./DetailsPanel";
 import { EditPanel } from "./Edit-Panel";
 import { useRouter } from "next/navigation";
+import SecurityPanel from "./Security-Panel";
 
 export interface ProfileHeaderClientProps {
   accountId: string;
@@ -295,19 +296,14 @@ export default function ProfileHeaderClient({
           </TabsList>
 
           <div className="mt-4 space-y-4">
-            <TabsContent value="activity" className="space-y-4">
+            <TabsContent value="security" className="space-y-4 mb-20">
               <div className="rounded-2xl border border-amber-600/20 p-4">
-                <h3 className="text-xl md:text-2xl text-center font-semibold mb-2">
-                  Your Wellness & Activities
-                </h3>
-                <p className="text-sm text-center text-foreground/70 mb-4">
-                  Track all progress in Almazin activities that you have joined or already participated in.
-                </p>
+               <SecurityPanel />
               </div>
             </TabsContent>
 
             <TabsContent value="details">
-              <div className="rounded-2xl border border-amber-600/20 p-4">
+              <div className="rounded-2xl border border-amber-600/20 p-4 mb-20">
                 <DetailsPanel
                   data={{
                     name: name,
@@ -324,9 +320,9 @@ export default function ProfileHeaderClient({
             </TabsContent>
 
             <TabsContent value="edit">
-              <EditPanel />
-              <div className="rounded-2xl border border-amber-600/20 p-4">
-                <p className="text-sm text-foreground/80">Edit content goes here.</p>
+              
+              <div className="rounded-2xl border border-amber-600/20 p-4 mb-20">
+                <EditPanel />
               </div>
             </TabsContent>
           </div>
