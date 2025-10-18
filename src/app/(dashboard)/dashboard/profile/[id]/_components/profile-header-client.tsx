@@ -80,7 +80,7 @@ export default function ProfileHeaderClient({
   const router = useRouter();
   const [img, setImg] = useState<string | null>(imgUrl ?? null);
   const [isPending, startTransition] = useTransition();
-
+ const [tab, setTab] = useState<"security" | "details" | "edit">("security");
   // Local default implementation (upload -> update DB -> refresh)
   const handleImageChangeLocal = async (file: File) => {
     if (!file.type.startsWith("image/")) throw new Error("Please select an image file.");
@@ -134,7 +134,7 @@ export default function ProfileHeaderClient({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-5xl mx-auto md:px-20 lg:px-30">
       {/* Avatar and identity */}
       <div className="flex flex-col items-center pt-3">
         <div className="relative">
@@ -250,7 +250,7 @@ export default function ProfileHeaderClient({
       </section>
 
       <section className="mt-4 px-3">
-        <Tabs defaultValue="security" className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
           <TabsList
             className={cn(
               "grid w-full grid-cols-3 rounded-xl p-1",
@@ -298,7 +298,7 @@ export default function ProfileHeaderClient({
           <div className="mt-4 space-y-4">
             <TabsContent value="security" className="space-y-4 mb-20">
               <div className="rounded-2xl border border-amber-600/20 p-2">
-               <SecurityPanel />
+               <SecurityPanel onNavigate={(to) => setTab(to as any)} />
               </div>
             </TabsContent>
 
