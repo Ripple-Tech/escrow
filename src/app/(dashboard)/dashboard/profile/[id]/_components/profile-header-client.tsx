@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
-import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera, UserRoundCheckIcon, ClipboardList, IdCard } from "lucide-react";
+import { BadgeCheck, Copy, UserCircle, SquarePenIcon, Camera, UserRoundCheckIcon, ClipboardList, IdCard, LayoutDashboard } from "lucide-react";
 import { cn } from "@/utils";
 import handleImageSaveToFireBase from "@/lib/upload"; // your existing uploader
 import { updateUserImage } from "@/actions/user.actions";
@@ -266,8 +266,8 @@ export default function ProfileHeaderClient({
                 "hover:bg-amber-600/20"
               )}
             >
-               <Shield className="h-4 w-4 mr-2" />
-              Security
+               <LayoutDashboard className="h-4 w-4 mr-2" />
+              Overview
             </TabsTrigger>
             <TabsTrigger
               value="details"

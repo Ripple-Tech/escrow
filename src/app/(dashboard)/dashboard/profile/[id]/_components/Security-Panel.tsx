@@ -1,6 +1,6 @@
 "ude client"
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, KeyRound, Lock, ChevronRight } from "lucide-react";
+import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones } from "lucide-react";
 import { cn } from "@/utils";
 import { useParams, useRouter } from "next/navigation";
 
@@ -38,6 +38,7 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
   const router = useRouter();
    const { id } = useParams<{ id: string }>();
   return (
+    <section className="space-y-6">
     <Card className="rounded-2xl border border-border/60 bg-white">
       <CardContent className="p-6">
         <div className="pb-3 mb-4 border-b border-border/60 flex items-center gap-2 text-amber-700">
@@ -85,6 +86,39 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
         </div>
       </CardContent>
     </Card>
+
+
+   <Card className="rounded-2xl border border-border/60 bg-white">
+      <CardContent className="p-6">
+        <div className="pb-3 mb-4 border-b border-border/60 flex items-center gap-2 text-amber-700">
+          <HelpCircle className="h-6 w-6" />
+          <h2 className="text-xl font-semibold">Help and Support</h2>
+        </div>
+        <div className="space-y-3">
+            {/* Contact us */}
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3">
+              <div className={iconWrap}>
+                <Headphones className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={titleClass}>Contact Us</h3>
+                    <p className={labelMuted}>Get in touch with our support team</p>
+                  </div>
+                  <ActionButton onClick={() => router.push("/contact-us")}>Contact</ActionButton>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </CardContent>
+    </Card>
+
+
+    </section>
   );
 };
 
