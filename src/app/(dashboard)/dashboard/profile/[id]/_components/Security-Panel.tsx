@@ -1,6 +1,6 @@
 "ude client"
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones } from "lucide-react";
+import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones, Users, Info, BookOpen, FileText, ShieldCheck, UserCheck2 } from "lucide-react";
 import { cn } from "@/utils";
 import { useParams, useRouter } from "next/navigation";
 
@@ -117,6 +117,73 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
       </CardContent>
     </Card>
 
+ <Card className="rounded-2xl border border-border/60 bg-white">
+      <CardContent className="p-6">
+        <div className="pb-3 mb-4 border-b border-border/60 flex items-center gap-2 text-amber-700">
+          <Info className="h-6 w-6" />
+          <h2 className="text-xl font-semibold">About</h2>
+        </div>
+
+        <div className="space-y-3">
+          {/* Terms and condition */}
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3">
+              <div className={iconWrap}>
+                <UserCheck2 className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={titleClass}>About Us</h3>
+                    <p className={labelMuted}>Learn more about kyve</p>
+                  </div>
+                  <ActionButton onClick={() => router.push("/about-us")}>About</ActionButton>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Terms and Conditions */}
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3">
+              <div className={iconWrap}>
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={titleClass}>Terms and Conditions</h3>
+                    <p className={labelMuted}>Read our terms and conditions</p>
+                  </div>
+                  {/* Navigate to edit tab too, or change to a modal/setup route if you prefer */}
+                  <ActionButton onClick={() => router.push("/terms-and-conditions")}>Terms</ActionButton>
+                </div>
+              </div>
+            </div>
+          </div>
+
+           {/* Privacy Policy */}
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3">
+              <div className={iconWrap}>
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={titleClass}>Privacy Policy</h3>
+                    <p className={labelMuted}>Read our privacy policy</p>
+                  </div>
+                  {/* Navigate to edit tab too, or change to a modal/setup route if you prefer */}
+                  <ActionButton onClick={() => router.push("/privacy-policy")}>Policy</ActionButton>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </CardContent>
+    </Card>
 
     </section>
   );
