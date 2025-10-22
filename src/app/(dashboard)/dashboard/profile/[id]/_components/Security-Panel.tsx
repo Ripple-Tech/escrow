@@ -1,12 +1,14 @@
 "use client"
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones, Users, Info, BookOpen, FileText, ShieldCheck, UserCheck2, LucidePanelLeftClose, Trash2 } from "lucide-react";
+import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones,  Info, BookOpen, FileText, ShieldCheck, UserCheck2, LucidePanelLeftClose, Trash2 } from "lucide-react";
 import { cn } from "@/utils";
 import { useParams, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { useState } from "react";
+import { startTransition, useState } from "react";
+import { deleteAccount } from "@/actions/profile/delete-account";
+import { toast } from "sonner";
 
 type SecurityPanelProps = {
   onNavigate?: (value: "security" | "details" | "edit") => void;
@@ -42,8 +44,10 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-   const { id } = useParams<{ id: string }>();
-    
+  const [confirmText, setConfirmText] = useState("");
+
+  const { id } = useParams<{ id: string }>();
+  const userId = id;
  const handleLogout = () => {
     setShowLogoutModal(true);
   };
@@ -58,8 +62,15 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
   };
 
   const confirmDelete = () => {
-    // perform delete logic here
-    console.log("Account deleted");
+    startTransition(async () => {
+      const res = await deleteAccount(userId)
+
+      if (!res.success) {
+        toast.error(res.message)
+      } else {
+        toast.success("Account deleted successfully ✅")
+      }
+    })
     setShowDeleteModal(false);
   };
 
@@ -299,31 +310,59 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
       </Modal>
 
       {/* Delete Account Modal */}
-      <Modal
-        showModal={showDeleteModal}
-        setShowModal={() => setShowDeleteModal(false)}
-        className="max-w-md p-8"
+<Modal
+  showModal={showDeleteModal}
+  setShowModal={() => setShowDeleteModal(false)}
+  className="max-w-md p-8"
+>
+  <div className="space-y-6">
+    <div>
+      <h2 className="text-lg font-medium text-gray-900">Delete Account</h2>
+      <p className="text-sm text-gray-600">
+        This will permanently delete your account and all associated data.{" "}
+        <strong>This action cannot be undone.</strong>
+      </p>
+
+      <div className="mt-4 rounded-md bg-yellow-50 border border-yellow-200 p-3">
+        <p className="text-sm text-yellow-700">
+          ⚠️ Before proceeding, make sure you have no <strong>locked funds</strong> or
+          active escrow transactions. Deleting your account will permanently
+          remove all balances, transaction history, and linked data.
+        </p>
+      </div>
+
+      <div className="mt-5">
+        <label
+          htmlFor="deleteConfirm"
+          className="block text-sm text-gray-700 mb-2"
+        >
+          Type <span className="font-bold">delete my account</span> to confirm:
+        </label>
+        <input
+          id="deleteConfirm"
+          type="text"
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+          placeholder="delete my account"
+        />
+      </div>
+    </div>
+
+    <div className="flex justify-end space-x-3 pt-4 border-t">
+      <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+        Cancel
+      </Button>
+      <Button
+        variant="destructive"
+        onClick={confirmDelete}
+        disabled={confirmText.trim().toLowerCase() !== "delete my account"}
       >
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-lg font-medium text-gray-900">
-              Delete Account
-            </h2>
-            <p className="text-sm text-gray-600">
-              This will permanently delete your account and all associated data.{" "}
-              <strong>This action cannot be undone.</strong>
-            </p>
-          </div>
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
-              Delete Account
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        Delete Account
+      </Button>
+    </div>
+  </div>
+</Modal>
   
 
     </section>
