@@ -1,8 +1,12 @@
-"ude client"
+"use client"
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones, Users, Info, BookOpen, FileText, ShieldCheck, UserCheck2 } from "lucide-react";
+import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones, Users, Info, BookOpen, FileText, ShieldCheck, UserCheck2, LucidePanelLeftClose, Trash2 } from "lucide-react";
 import { cn } from "@/utils";
 import { useParams, useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
+import { useState } from "react";
 
 type SecurityPanelProps = {
   onNavigate?: (value: "security" | "details" | "edit") => void;
@@ -36,7 +40,29 @@ const ActionButton = ({
 
 const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
   const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
    const { id } = useParams<{ id: string }>();
+    
+ const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+   await signOut({ callbackUrl: "/" });
+    setShowLogoutModal(false);
+  };
+
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    // perform delete logic here
+    console.log("Account deleted");
+    setShowDeleteModal(false);
+  };
+
   return (
     <section className="space-y-6">
     <Card className="rounded-2xl border border-border/60 bg-white">
@@ -184,6 +210,121 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
         </div>
       </CardContent>
     </Card>
+
+     <Card className="rounded-2xl border border-border/60 bg-white">
+      <CardContent className="p-6">
+      
+        <div className="space-y-3">
+            {/* logout */}
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3"> 
+             
+             <div className={iconWrap}>
+                <LucidePanelLeftClose className="h-5 w-5 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={titleClass}>Logout</h3>
+                    <p className={labelMuted}>Sign out of your account</p>
+                  </div>
+                  <ActionButton className="bg-red-600 hover:bg-red-700" onClick={handleLogout}>Logout</ActionButton>
+                </div>
+            </div>
+          </div>
+
+        </div>
+        </div>
+
+      </CardContent>
+    </Card>
+
+ {/* Delete Account Card */}
+<Card className="rounded-2xl border border-border/60 bg-white">
+  <CardContent className="p-6">
+    <div className="space-y-3">
+      <div className={cn(itemBase, "p-4")}>
+        <div className="flex items-start gap-3">
+          <div className={iconWrap}>
+            <Trash2 className="h-5 w-5 text-red-600" />
+          </div>
+
+          <div className="flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className={titleClass}>Delete Account</h3>
+                <p className={labelMuted}>
+                  Permanently remove your account and data
+                </p>
+              </div>
+
+              <ActionButton
+                className="bg-red-600 hover:bg-red-700"
+                onClick={handleDeleteAccount}
+              >
+                Delete
+              </ActionButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
+
+ {/* Logout Modal */}
+      <Modal
+        showModal={showLogoutModal}
+        setShowModal={() => setShowLogoutModal(false)}
+        className="max-w-md p-8"
+      >
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg font-medium text-gray-900">Confirm Logout</h2>
+            <p className="text-sm text-gray-600">
+              Are you sure you want to sign out? You’ll need to log in again to
+              access your account.
+            </p>
+          </div>
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setShowLogoutModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmLogout}>
+              Logout
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Account Modal */}
+      <Modal
+        showModal={showDeleteModal}
+        setShowModal={() => setShowDeleteModal(false)}
+        className="max-w-md p-8"
+      >
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg font-medium text-gray-900">
+              Delete Account
+            </h2>
+            <p className="text-sm text-gray-600">
+              This will permanently delete your account and all associated data.{" "}
+              <strong>This action cannot be undone.</strong>
+            </p>
+          </div>
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete Account
+            </Button>
+          </div>
+        </div>
+      </Modal>
+  
 
     </section>
   );
