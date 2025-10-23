@@ -115,7 +115,7 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
                     <p className={labelMuted}>Account verification status</p>
                   </div>
                   {/* Navigate to edit tab too, or change to a modal/setup route if you prefer */}
-                  <ActionButton onClick={() => router.push(`/dashboard/profile/${id}/two-factor-authentication`)}>Verify</ActionButton>
+                  <ActionButton onClick={() => router.push(`/dashboard/profile/${id}/verification`)}>Verify</ActionButton>
                 </div>
               </div>
             </div>
