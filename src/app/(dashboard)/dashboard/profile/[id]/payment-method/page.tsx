@@ -8,18 +8,18 @@ const Page = async () => {
   const session = await auth();
   const userId = session?.user?.id || null;
 
-  let userHasBvn = false;
-  if (userId) {
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: { bvnhash: true },
-    });
-    userHasBvn = Boolean(user?.bvnhash);
-  }
+  // let userHasBvn = false;
+  // if (userId) {
+  //   const user = await db.user.findUnique({
+  //     where: { id: userId },
+  //     select: { bvnhash: true },
+  //   });
+  //   userHasBvn = Boolean(user?.bvnhash);
+  // }
 
   return (
     
-      <PaymentClientPage userHasBvn={userHasBvn} />
+      <PaymentClientPage />
   
   );
 };

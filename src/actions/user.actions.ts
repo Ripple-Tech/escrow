@@ -145,23 +145,9 @@ export async function verifyAndCreatePaymentMethod(input: {
   // Now handle BVN verification with the resolved account details
   const user = await db.user.findUnique({ 
     where: { id: userId }, 
-    select: { bvnhash: true, name: true, surname: true } 
+    select: {  name: true, surname: true } 
   });
 
-  // BVN verification logic
-  if (!user?.bvnhash && !input.bvn) {
-    throw new Error("BVN required for account verification");
-  }
-
-  if (user?.bvnhash && input.bvn) {
-    const ok = await bcrypt.compare(input.bvn, user.bvnhash);
-    if (!ok) throw new Error("BVN mismatch - please provide correct BVN");
-  }
-
-  if (!user?.bvnhash && input.bvn) {
-    const hash = await bcrypt.hash(input.bvn, 12);
-    await db.user.update({ where: { id: userId }, data: { bvnhash: hash } });
-  }
 
   // Name verification: Check if resolved account name matches user's registered name
   if (resolved.accountName && user) {
