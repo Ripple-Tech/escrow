@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { startTransition, useState } from "react";
-import { deleteAccount } from "@/actions/profile/delete-account";
+import { deactivateAccount } from "@/actions/profile/deactivate-account";
 import { toast } from "sonner";
 
 type SecurityPanelProps = {
@@ -57,18 +57,18 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
     setShowLogoutModal(false);
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeactivateAccount = () => {
     setShowDeleteModal(true);
   };
 
   const confirmDelete = () => {
     startTransition(async () => {
-      const res = await deleteAccount(userId)
+      const res = await deactivateAccount(userId)
 
       if (!res.success) {
         toast.error(res.message)
       } else {
-        toast.success("Account deleted successfully ✅")
+        toast.success("Account deactivated successfully ✅")
       }
     })
     setShowDeleteModal(false);
@@ -263,17 +263,17 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
           <div className="flex-1">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className={titleClass}>Delete Account</h3>
+                <h3 className={titleClass}>Deactivate Account</h3>
                 <p className={labelMuted}>
-                  Permanently remove your account and data
+                  Temporarily disable your account and data
                 </p>
               </div>
 
               <ActionButton
                 className="bg-red-600 hover:bg-red-700"
-                onClick={handleDeleteAccount}
+                onClick={handleDeactivateAccount}
               >
-                Delete
+                Deactivate 
               </ActionButton>
             </div>
           </div>
@@ -317,17 +317,17 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
 >
   <div className="space-y-6">
     <div>
-      <h2 className="text-lg font-medium text-gray-900">Delete Account</h2>
+      <h2 className="text-lg font-medium text-gray-900">Deactivate Account</h2>
       <p className="text-sm text-gray-600">
-        This will permanently delete your account and all associated data.{" "}
-        <strong>This action cannot be undone.</strong>
+        This will temporarily disable your account and all associated data.
       </p>
 
       <div className="mt-4 rounded-md bg-yellow-50 border border-yellow-200 p-3">
         <p className="text-sm text-yellow-700">
           ⚠️ Before proceeding, make sure you have no <strong>locked funds</strong> or
-          active escrow transactions. Deleting your account will permanently
-          remove all balances, transaction history, and linked data.
+          active escrow transactions. Deactivating your account will 
+          prevent you from accessing these funds or completing any ongoing
+          transactions.
         </p>
       </div>
 
@@ -336,7 +336,7 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
           htmlFor="deleteConfirm"
           className="block text-sm text-gray-700 mb-2"
         >
-          Type <span className="font-bold">delete my account</span> to confirm:
+          Type <span className="font-bold">deactivate my account</span> to confirm:
         </label>
         <input
           id="deleteConfirm"
@@ -344,7 +344,7 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-          placeholder="delete my account"
+          placeholder="deactivate my account"
         />
       </div>
     </div>
@@ -356,9 +356,9 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
       <Button
         variant="destructive"
         onClick={confirmDelete}
-        disabled={confirmText.trim().toLowerCase() !== "delete my account"}
+        disabled={confirmText.trim().toLowerCase() !== "deactivate my account"}
       >
-        Delete Account
+        Deactivate Account
       </Button>
     </div>
   </div>

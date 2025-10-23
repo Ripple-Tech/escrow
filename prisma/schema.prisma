@@ -41,6 +41,10 @@ enum UserRole {
   ADMIN
   USER
 }
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+}
 
 model User {
   id                 String               @id @default(uuid())
@@ -53,6 +57,7 @@ model User {
   username           String?              @unique
   image              String?
   password           String?
+  status            UserStatus            @default(ACTIVE)
   role               UserRole             @default(USER)
   apiKey             String               @unique @default(cuid())
   isGuest            Boolean              @default(false)
