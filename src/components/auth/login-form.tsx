@@ -7,6 +7,7 @@ import { LoginSchema } from "@/schemas";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
+import { Login } from "@/actions/login"
 import {
   Form,
   FormControl,
@@ -21,6 +22,7 @@ import { FormError } from "@/components/forms/form-error";
 import { FormSuccess } from "@/components/forms/form-success";
 import { useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
+import { toast } from "sonner"
 
 export const LoginForm = () => {
   const [showTwoFactor, setShowTwoFactor] = useState(false);
@@ -44,25 +46,47 @@ export const LoginForm = () => {
     },
   });
 
+  // const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+    // setError("");
+   // setSuccess("");
+
+    // If you need 2FA verification step, you should first verify code on your own API/route,
+    // then proceed to signIn. For a basic credentials flow:
+   // startTransition(async () => {
+     // const res = await signIn("credentials", {
+       // email: values.email,
+      // password: values.password,
+        // If you need to handle 2FA code, include it in your credentials provider authorize.
+      //  redirect: true, // always redirect after sign in
+      //  callbackUrl, // will navigate and refresh the app tree
+     // });
+
+      // If redirect: true, NextAuth navigates automatically and your SessionProvider updates.
+      // If you set redirect: false, handle the response and optionally navigate yourself.
+  //  });
+ // };
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("");
     setSuccess("");
 
-    // If you need 2FA verification step, you should first verify code on your own API/route,
-    // then proceed to signIn. For a basic credentials flow:
-    startTransition(async () => {
-      const res = await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        // If you need to handle 2FA code, include it in your credentials provider authorize.
-        code: values.code,
-        redirect: true, // always redirect after sign in
-        callbackUrl, // will navigate and refresh the app tree
-      });
+ startTransition(async () => {
+  const res = await Login(values, callbackUrl)
 
-      // If redirect: true, NextAuth navigates automatically and your SessionProvider updates.
-      // If you set redirect: false, handle the response and optionally navigate yourself.
-    });
+  if (res?.error) {
+    toast.error(res.error)
+    return
+  }
+
+  if (res?.twoFactor) {
+    setShowTwoFactor(true)
+    toast.message("Enter the 2FA code sent to your email.")
+    return
+  }
+
+  if (res?.success) {
+    toast.success(res.success)
+  }
+})
   };
 
   return (
