@@ -45,12 +45,25 @@ enum UserStatus {
   ACTIVE
   DEACTIVATED
 }
+enum Currency {
+  NGN
+  USD
+  GHS
+}
+
+enum PaymentMethodStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  DISABLED
+}
 
 model User {
   id                 String               @id @default(uuid())
   email              String?              @unique
   emailVerified      DateTime?
   phonenumber        String?
+  bvnhash                String?              @unique
   verifiedUser       DateTime?
   name               String?
   surname            String?
@@ -65,6 +78,7 @@ model User {
   balance            Int                  @default(0)
   ledgerbalance      Int                  @default(0)
 
+paymentMethods     PaymentMethod[]
    // New: referral self-relation (optional)
   invitedById    String?
   invitedBy      User?     @relation("UserInvites", fields: [invitedById], references: [id])
@@ -108,6 +122,54 @@ model User {
 
   messages      Message[]
   @@index([email, apiKey])
+}
+
+model Bank {
+  id          String    @id @default(cuid())
+  name        String
+  code        String     // Paystack bank code (string)
+  country     String     // "NG"
+  currency    Currency
+  active      Boolean    @default(true)
+
+  // Back-relation for PaymentMethod.bank
+  paymentMethods PaymentMethod[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([code, currency])
+  @@index([country, currency, name])
+}
+
+model PaymentMethod {
+  id                String                 @id @default(cuid())
+  user              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+
+  currency          Currency               // NGN
+  country           String                 // "NG"
+
+  bankId            String?
+  bank              Bank?                  @relation(fields: [bankId], references: [id])
+  bankName          String?
+  bankCode          String?                // Paystack bank code
+  accountNumber     String?                // 10 digits
+  accountName       String?
+
+  status            PaymentMethodStatus    @default(PENDING)
+  verifiedAt        DateTime?
+  verificationRef   String?
+  verificationMeta  Json?
+
+  isDefault         Boolean                @default(false)
+
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  @@index([userId, status])
+  @@index([currency, country])
+  @@index([bankCode])
 }
 
 model PaystackCustomer {
@@ -261,11 +323,7 @@ enum DeliveryStatus {
 PENDING
 DELIVERED
 }
-enum Currency {
-  NGN
-  USD
-  GHS
-}
+
 
 model Escrow {
   id            String       @id @default(cuid())

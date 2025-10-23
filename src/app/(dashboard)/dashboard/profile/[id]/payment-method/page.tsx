@@ -1,10 +1,27 @@
-import { DashboardPage } from "@/components/dashboard/dashboard-page"
-import PaymentClientPage from "./paymentClient"
+"use server";
 
-const page = () => {
+import { auth } from "@/auth";
+import { db } from "@/db";
+import PaymentClientPage from "./paymentClient";
+
+const Page = async () => {
+  const session = await auth();
+  const userId = session?.user?.id || null;
+
+  let userHasBvn = false;
+  if (userId) {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { bvnhash: true },
+    });
+    userHasBvn = Boolean(user?.bvnhash);
+  }
+
   return (
-    <PaymentClientPage />
-  )
-}
+    
+      <PaymentClientPage userHasBvn={userHasBvn} />
+  
+  );
+};
 
-export default page
+export default Page;
