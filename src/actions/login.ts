@@ -71,6 +71,11 @@ if (existingUser.isTwoFactorEnabled && existingUser.email) {
 }
 } }
 
+// 🚫 Block login for deactivated accounts
+if (existingUser.status === "DEACTIVATED") {
+  return { error: "Your account has been deactivated. Please contact customer support to reactivate." }
+}
+
     try {
   await signIn("credentials", {
     email,

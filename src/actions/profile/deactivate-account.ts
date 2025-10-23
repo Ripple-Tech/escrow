@@ -41,7 +41,7 @@ export const deactivateAccount = async (userId: string) => {
 
     // 4. Logout and refresh session
     await logout()
-    revalidatePath("/")
+    revalidatePath("/dashboard/profile")
 
     return { success: true, message: "Your account has been deactivated successfully." }
   } catch (error: any) {
