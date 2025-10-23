@@ -1,10 +1,9 @@
 // app/(dashboard)/dashboard/profile/[id]/page.tsx
-import Image from "next/image";
 import currentUser from "@/actions/getCurrentUser";
-import Link from "next/link";
 import ProfileHeaderClient from "@/app/(dashboard)/dashboard/profile/[id]/_components/profile-header-client"; 
 import { fetchUser } from "@/actions/user.actions";
 import { buildInviteLink } from "@/lib/invitation-link";
+import AppBrandFooter from "./_components/AppBrandFooter";
 
 const profileTabs = [
   { value: "threads", label: "Posts", icon: "/reply.svg" },
@@ -39,6 +38,13 @@ export default async function Page({ params }: { params: { id: string } }) {
         verifiedUser={user.emailVerified || null}
       />
 
+
+   {/* Simple brand footer block (space above via mt-8 in component) */}
+      <AppBrandFooter
+        logoSrc="/logo.png"
+        appName="kyve"
+        version="1.00"  
+      />
     
     </section>
   );

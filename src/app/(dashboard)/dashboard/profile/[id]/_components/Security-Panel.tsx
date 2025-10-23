@@ -1,6 +1,6 @@
 "use client"
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones,  Info, BookOpen, FileText, ShieldCheck, UserCheck2, LucidePanelLeftClose, Trash2 } from "lucide-react";
+import { Shield, KeyRound, Lock, ChevronRight, HelpCircle, Headphones,  Info, BookOpen, FileText, ShieldCheck, UserCheck2, LucidePanelLeftClose, Trash2, UserCog, CreditCard, Wallet } from "lucide-react";
 import { cn } from "@/utils";
 import { useParams, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -76,6 +76,54 @@ const SecurityPanel = ({ onNavigate }: SecurityPanelProps) => {
 
   return (
     <section className="space-y-6">
+      <Card className="rounded-2xl border border-border/60 bg-white">
+      <CardContent className="p-6">
+        <div className="pb-3 mb-4 border-b border-border/60 flex items-center gap-2 text-amber-700">
+          <UserCog className="h-6 w-6" />
+          <h2 className="text-xl font-semibold">Account Settings</h2>
+        </div>
+
+        <div className="space-y-3">
+          {/* Account payment */}
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3">
+              <div className={iconWrap}>
+                <Wallet className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={titleClass}>Payment Method</h3>
+                    <p className={labelMuted}>Account payment method</p>
+                  </div>
+                  <ActionButton onClick={() => router.push(`/dashboard/profile/${id}/payment-method`)}>Configure</ActionButton>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Verification and limit */}
+          <div className={cn(itemBase, "p-4")}>
+            <div className="flex items-start gap-3">
+              <div className={iconWrap}>
+                <Lock className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={titleClass}>Verifications</h3>
+                    <p className={labelMuted}>Account verification status</p>
+                  </div>
+                  {/* Navigate to edit tab too, or change to a modal/setup route if you prefer */}
+                  <ActionButton onClick={() => router.push(`/dashboard/profile/${id}/two-factor-authentication`)}>Verify</ActionButton>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
     <Card className="rounded-2xl border border-border/60 bg-white">
       <CardContent className="p-6">
         <div className="pb-3 mb-4 border-b border-border/60 flex items-center gap-2 text-amber-700">
