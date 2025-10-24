@@ -144,31 +144,33 @@ export default function PaymentClientPage() {
     return hasBank && hasAccount;
   }, [bankForm]);
 
-  // Auto-verify and create when account number hits 10 digits (and bank is chosen)
-  useEffect(() => {
-    const sub = bankForm.watch(async (v, { name }) => {
-      if (!showAddForm) return;
-      
-      // Trigger only when relevant fields change and meet conditions
-      if (
-        (name === "accountNumber" || name === "bankCode" || name === "setDefault") &&
-        v.bankCode &&
-        v.accountNumber?.length === 10 &&
-        !inFlightRef.current
-      ) {
-        inFlightRef.current = true;
-        setAutoVerifying(true);
-        setBankFormMessage(null); // Clear previous messages
-        
-        try {
-          const created = await verifyAndCreatePaymentMethod({
-            bankCode: v.bankCode,
-            bankName: v.bankName || (banks.find((b) => b.code === v.bankCode)?.name ?? ""),
-            accountNumber: v.accountNumber,
-            setDefault: v.setDefault,
-          });
 
-          const successMessage = `Payment method verified and added: ${created.accountName || "Account"}`;
+// Auto-verify and create when account number hits 10 digits (and bank is chosen)
+useEffect(() => {
+  const sub = bankForm.watch(async (v, { name }) => {
+    if (!showAddForm) return;
+    
+    // Trigger only when relevant fields change and meet conditions
+    if (
+      (name === "accountNumber" || name === "bankCode" || name === "setDefault") &&
+      v.bankCode &&
+      v.accountNumber?.length === 10 &&
+      !inFlightRef.current
+    ) {
+      inFlightRef.current = true;
+      setAutoVerifying(true);
+      setBankFormMessage(null); // Clear previous messages
+      
+      try {
+        const result = await verifyAndCreatePaymentMethod({
+          bankCode: v.bankCode,
+          bankName: v.bankName || (banks.find((b) => b.code === v.bankCode)?.name ?? ""),
+          accountNumber: v.accountNumber,
+          setDefault: v.setDefault,
+        });
+
+        if (result.success) {
+          const successMessage = `Payment method verified and added: ${result.data?.accountName || "Account"}`;
           setBankFormMessage({ 
             type: 'success', 
             message: successMessage
@@ -184,30 +186,30 @@ export default function PaymentClientPage() {
             accountNumber: "",
             setDefault: false,
           });
-        } catch (e: any) {
-          const msg = e?.message || "Failed to create payment method";
-          
-          if (/Account name verification failed/i.test(msg)) {
-            setBankFormMessage({ type: 'error', message: msg });
-            toast.error(msg);
-          } else if (/unique|already exists|duplicate/i.test(msg)) {
-            const errorMsg = "This bank account already exists on your profile.";
-            setBankFormMessage({ type: 'error', message: errorMsg });
-            toast.error(errorMsg);
-          } else {
-            setBankFormMessage({ type: 'error', message: `Verification failed: ${msg}` });
-            toast.error(`Verification failed: ${msg}`);
-          }
-        } finally {
-          setAutoVerifying(false);
-          inFlightRef.current = false;
+        } else {
+          // Handle error from server action
+          setBankFormMessage({ type: 'error', message: result.error ?? 'An error occurred' });
+          toast.error(result.error);
         }
+      } catch (e: any) {
+        // Fallback error handling for unexpected errors
+        const msg = e?.message || "Failed to create payment method";
+        setBankFormMessage({ type: 'error', message: `Verification failed: ${msg}` });
+        toast.error(`Verification failed: ${msg}`);
+      } finally {
+        setAutoVerifying(false);
+        inFlightRef.current = false;
       }
-    });
+    }
+  });
 
-    return () => sub.unsubscribe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [banks, showAddForm]);
+  return () => sub.unsubscribe();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [banks, showAddForm]);
+
+
+
+
 
   const handleAddPaymentMethod = () => {
     setShowAddForm(true);

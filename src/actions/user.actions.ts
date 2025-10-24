@@ -114,88 +114,110 @@ export async function listBanks() {
   return banks;
 }
 
+
+
+
+
 export async function verifyAndCreatePaymentMethod(input: {
   bankCode: string;
   bankName: string;
   accountNumber: string;
   setDefault?: boolean;
-  bvn?: string;
 }) {
-  const session = await auth();
-  const userId = session?.user?.id;
-  if (!userId) throw new Error("Unauthorized");
-
-  // First, check if the user already has this account number in their payment methods
-  const existingPaymentMethod = await db.paymentMethod.findFirst({
-    where: {
-      userId: userId,
-      accountNumber: input.accountNumber,
-    },
-  });
-
-  if (existingPaymentMethod) {
-    throw new Error(
-      `This account number (${input.accountNumber}) has already been added to your payment methods.`
-    );
-  }
-
-  // Resolve account first to get account details
-  const resolved = await resolveAccount(input.bankCode, input.accountNumber);
-
-  // Now handle BVN verification with the resolved account details
-  const user = await db.user.findUnique({ 
-    where: { id: userId }, 
-    select: {  name: true, surname: true } 
-  });
-
-
-  // Name verification: Check if resolved account name matches user's registered name
-  if (resolved.accountName && user) {
-    const nameMatch = compareNames(
-      { firstName: user.name, lastName: user.surname },
-      resolved.accountName
-    );
-    
-    if (!nameMatch.matches) {
-      const displayName =
-    [user.name, user.surname].filter(Boolean).join(" ").trim() || "Not provided";
-
-      throw new Error(
-        `Account name verification failed. ` +
-        `Bank account is registered to: "${resolved.accountName}". ` +
-        `Your profile name is: "${displayName}". ` +
-        `Please use an account registered in your name or update your profile information.`
-      );
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) {
+      return { success: false, error: "Unauthorized" };
     }
-  }
 
-  // Create the payment method
-  const pm = await db.paymentMethod.create({
-    data: {
-      userId,
-      currency: "NGN",
-      country: "NG",
-      bankName: input.bankName,
-      bankCode: input.bankCode,
-      accountNumber: input.accountNumber,
-      accountName: resolved.accountName,
-      status: "VERIFIED",
-      verifiedAt: new Date(),
-      verificationRef: `ps_resolve_${Date.now()}`,
-      verificationMeta: { source: "paystack", resolved },
-      isDefault: Boolean(input.setDefault),
-    },
-  });
-
-  if (input.setDefault) {
-    await db.paymentMethod.updateMany({
-      where: { userId, id: { not: pm.id } },
-      data: { isDefault: false },
+    // First, check if the user already has this account number in their payment methods
+    const existingPaymentMethod = await db.paymentMethod.findFirst({
+      where: {
+        userId: userId,
+        accountNumber: input.accountNumber,
+      },
     });
-  }
 
-  return pm;
+    if (existingPaymentMethod) {
+      return { 
+        success: false, 
+        error: `This account number (${input.accountNumber}) has already been added to your payment methods.` 
+      };
+    }
+
+    // Resolve account first to get account details
+    const resolved = await resolveAccount(input.bankCode, input.accountNumber);
+
+    // Get user details for name verification
+    const user = await db.user.findUnique({ 
+      where: { id: userId }, 
+      select: { name: true, surname: true } 
+    });
+
+    // Name verification: Check if resolved account name matches user's registered name
+    if (resolved.accountName && user) {
+      const nameMatch = compareNames(
+        { firstName: user.name, lastName: user.surname },
+        resolved.accountName
+      );
+      
+      if (!nameMatch.matches) {
+        const displayName = [user.name, user.surname].filter(Boolean).join(" ").trim() || "Not provided";
+        return { 
+          success: false, 
+          error: `Account name verification failed. Bank account is registered to: "${resolved.accountName}". Your profile name is: "${displayName}". Please use an account registered in your name or update your profile information.`
+        };
+      }
+    }
+
+    // Create the payment method
+    const pm = await db.paymentMethod.create({
+      data: {
+        userId,
+        currency: "NGN",
+        country: "NG",
+        bankName: input.bankName,
+        bankCode: input.bankCode,
+        accountNumber: input.accountNumber,
+        accountName: resolved.accountName,
+        status: "VERIFIED",
+        verifiedAt: new Date(),
+        verificationRef: `ps_resolve_${Date.now()}`,
+        verificationMeta: { source: "paystack", resolved },
+        isDefault: Boolean(input.setDefault),
+      },
+    });
+
+    if (input.setDefault) {
+      await db.paymentMethod.updateMany({
+        where: { userId, id: { not: pm.id } },
+        data: { isDefault: false },
+      });
+    }
+
+    return { success: true, data: pm };
+  } catch (error: any) {
+    console.error("Error in verifyAndCreatePaymentMethod:", error);
+    
+    // Handle specific Paystack API errors
+    if (error.message?.includes("Paystack") || error.message?.includes("resolveAccount")) {
+      return { 
+        success: false, 
+        error: "Unable to verify bank account. Please check the bank details and try again." 
+      };
+    }
+    
+    // Generic error for production
+    return { 
+      success: false, 
+      error: "Failed to add payment method. Please try again." 
+    };
+  }
 }
+
+
+
 
 // Improved name comparison function
 function compareNames(
