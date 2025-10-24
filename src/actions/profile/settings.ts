@@ -2,7 +2,7 @@
 import * as z from "zod";
 import { SettingsSchema } from "@/schemas";
 import { db } from "@/db";
-import { getUserByEmail, getUserById } from "@/data/user";
+import { getUserByEmail, getUserById, getUserByUsername } from "@/data/user";
 import  currentUser  from "@/actions/getCurrentUser";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
@@ -39,6 +39,15 @@ export const settings = async ( values: z.infer<typeof SettingsSchema>) => {
       return { success: "Verification email sent!"};
     }
 
+     // Check if username is being changed and if it's already taken
+        if (values.username && values.username !== user.username) {
+          const normalizedUsername = values.username.trim().toLowerCase();
+            const existingUser = await getUserByUsername(normalizedUsername);
+            if (existingUser && existingUser.id !== user.id) {
+                return { error: "Username has already been taken!" }
+            }
+        }
+        
     if (values.password && values.newPassword && dbUser.password) {
         const passwordsMatch = await bcrypt.compare( values.password, dbUser.password, );
       if (!passwordsMatch) {

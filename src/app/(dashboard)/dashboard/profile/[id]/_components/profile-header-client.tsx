@@ -22,6 +22,7 @@ export interface ProfileHeaderClientProps {
   name: string | null;
   email: string | null;
   username: string | null;
+  surname: string | null;
   imgUrl: string | null;
   shareUrl?: string | null;
   phonenumber?: string | null;
@@ -65,6 +66,7 @@ export default function ProfileHeaderClient({
   role,
   isTwoFactorEnabled,
   name,
+  surname,
   username,
   verifiedUser,
   imgUrl,
@@ -307,6 +309,7 @@ export default function ProfileHeaderClient({
                 <DetailsPanel
                   data={{
                     name: name,
+                    surname: surname,
                     email: email,
                     username: username,
                     phonenumber: phonenumber,

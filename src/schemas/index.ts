@@ -50,6 +50,7 @@ export const RegisterSchema = z.object({
 export const SettingsSchema = z.object({
     name: z.optional(z.string()),
     isTwoFactorEnabled: z.optional(z.boolean()),
+     username: z.string().min(3, "Username must be at least 3 characters").max(12, "Username must be at most 12 characters").optional(),
     role: z.enum([UserRole.ADMIN, UserRole.USER,]),
     email: z.optional(z.string().email()),
     password: z.optional(z.string().min(6)),

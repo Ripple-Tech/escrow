@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 
 type Details = {
   name?: string | null;
+  surname?: string | null;
   email?: string | null;
   username?: string | null;
   phonenumber?: string | null;
@@ -48,6 +49,24 @@ export function DetailsPanel({ data }: { data: Details }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className={labelCls}>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      className={inputCls}
+                      disabled
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+             <FormField
+              control={form.control}
+              name="surname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={labelCls}>Surname</FormLabel>
                   <FormControl>
                     <Input
                       {...field}

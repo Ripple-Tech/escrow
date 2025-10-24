@@ -5,6 +5,7 @@ import "next-auth/jwt";
 export type ExtendedUser = DefaultSession["user"] & {
   id: string;
   username: string | null;
+  surname: string | null;
    phonenumber: string | null;
   imgUrl: string | null;
   role: UserRole;

@@ -29,6 +29,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         isTwoFactorEnabled={user.isTwoFactorEnabled || null}
         createdAt={user.createdAt || null}
         name={user.name || null}
+        surname={user.surname || null}
         username={user.username}
         imgUrl={user.imgUrl|| null}
         shareUrl={shareUrl}

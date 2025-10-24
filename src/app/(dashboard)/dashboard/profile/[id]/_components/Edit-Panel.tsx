@@ -39,7 +39,7 @@ const SettingsSchema = z.object({
   newPassword: z.string().optional(),
   role: z.nativeEnum(UserRole),
   isTwoFactorEnabled: z.boolean().optional(),
-
+  surname: z.string().optional(),
   phonenumber: z.string().optional(),
   gender: z.string().optional(),
   howdidyouhearus: z.string().optional(),
@@ -67,7 +67,7 @@ export function EditPanel() {
       isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
 
       phonenumber: user?.phonenumber || undefined,
-     
+      surname: user?.surname || undefined,
     },
   });
 
@@ -113,6 +113,23 @@ export function EditPanel() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="surname"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase tracking-wide text-muted-foreground/80">
+                      Surname
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Doe" disabled={isPending} className={inputClass} />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
 
                <FormField
                 control={form.control}
@@ -253,7 +270,7 @@ export function EditPanel() {
                 type="submit"
                 disabled={isPending}
                 className="h-9 text-sm px-4 rounded-full border border-border/60 bg-[--primary] hover:bg-[--primary]/90 text-foreground shadow-none"
-                style={{ ["--primary" as any]: "#324F3B" }}
+                style={{ ["--primary" as any]: "#d97706" }}
               >
                 {isPending ? "Saving..." : "Save"}
               </Button>
