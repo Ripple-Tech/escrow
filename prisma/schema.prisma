@@ -369,13 +369,14 @@ model Escrow {
 // Transaction Models
 enum TransactionType {
   DEPOSIT
-  WITHDRAW
+  WITHDRAWAL
   TRANSFER
   FEE
 }
 
 enum TransactionStatus {
   PENDING
+  
   SUCCESS
   FAILED
 }

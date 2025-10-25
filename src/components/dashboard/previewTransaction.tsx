@@ -11,7 +11,7 @@ import Link from "next/link";
 
 type Tx = {
   id: string;
-  type: "DEPOSIT" | "FEE" | "WITHDRAW" | "TRANSFER";
+  type: "DEPOSIT" | "FEE" | "WITHDRAWAL" | "TRANSFER";
   status: "PENDING" | "SUCCESS" | "FAILED";
   amount: number;
   currency: "NGN" | "USD" | "GHS";
@@ -29,7 +29,7 @@ const typeMeta: Record<
   { label: string; Icon: any; color: string }
 > = {
   DEPOSIT: { label: "Deposit", Icon: Download, color: "text-emerald-600" },
-  WITHDRAW: { label: "Withdraw", Icon: Upload, color: "text-red-600" },
+  WITHDRAWAL: { label: "Withdraw", Icon: Upload, color: "text-red-600" },
   TRANSFER: { label: "Transfer", Icon: Repeat, color: "text-indigo-600" },
   FEE: { label: "Fee", Icon: Repeat, color: "text-amber-600" },
 };

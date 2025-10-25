@@ -20,7 +20,7 @@ import { cn } from "@/utils"
 type Tx = {
   id: string
   userId: string
-  type: "DEPOSIT" | "FEE" | "WITHDRAW" | "TRANSFER"
+  type: "DEPOSIT" | "FEE" | "WITHDRAWAL" | "TRANSFER"
   status: "PENDING" | "SUCCESS" | "FAILED"
   reference: string
   amount: number
@@ -40,8 +40,8 @@ const typeMeta: Record<
     color: "text-emerald-600",
     dot: "bg-emerald-100",
   },
-  WITHDRAW: {
-    label: "Withdraw",
+  WITHDRAWAL: {
+    label: "Withdrawal",
     Icon: Upload, // upward arrow out of tray
     color: "text-red-600",
     dot: "bg-red-100",

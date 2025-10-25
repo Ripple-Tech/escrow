@@ -13,6 +13,8 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { getInvitedUsers } from "@/actions/user.actions"
 import { TransactionPreview } from "./previewTransaction";
 import Carousel from "../Carousel";
+import { WithdrawalForm } from "../forms/withdrawal-form";
+import { useRouter } from "next/navigation";
 
 type InvitedUser = {
   id: string;
@@ -50,7 +52,7 @@ export default function Transaction() {
   const balance = user?.balance / 100 || 0;
   const ledgerbalance = user?.ledgerbalance ?? 0;
   const currency = "NGN";
-
+  const router = useRouter();
   useEffect(() => {
     const load = async () => {
       if (!user?.id) return;
@@ -70,7 +72,7 @@ export default function Transaction() {
   const coreActions: CoreAction[] = useMemo(
     () => [
       { key: "deposit", label: "Deposit", icon: ArrowDownToLine, onClick: () => setShowDepositModal(true) },
-      { key: "withdraw", label: "Withdraw", icon: ArrowUpFromLine },
+      { key: "withdraw", label: "Withdraw", icon: ArrowUpFromLine, onClick: () => router.push('/dashboard/payment/withdrawal') },
       { key: "transfer", label: "Transfer", icon: ArrowLeftRight },
     ],
     []
@@ -250,6 +252,9 @@ export default function Transaction() {
           </div>
         </div>
       </Modal>
+
+      
+
     </div>
   );
 }

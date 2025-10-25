@@ -8,7 +8,7 @@ import { HTTPException } from "hono/http-exception"
 const TRANSACTION_VALIDATOR = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
-  type: z.enum(["DEPOSIT", "WITHDRAW", "TRANSFER"]),
+  type: z.enum(["DEPOSIT", "WITHDRAWAL", "TRANSFER"]),
   status: z.enum(["PENDING", "SUCCESS", "FAILED"]),
   reference: z.string(),
   amount: z.number(),
@@ -43,7 +43,7 @@ export const transactionRouter = router({
   createTransaction: privateProcedure
     .input(
       z.object({
-        type: z.enum(["DEPOSIT", "WITHDRAW", "TRANSFER"]),
+        type: z.enum(["DEPOSIT", "WITHDRAWAL", "TRANSFER"]),
         amount: z.number().positive(),
         currency: z.enum(["NGN", "USD", "GHS"]),
         reference: z.string(),
