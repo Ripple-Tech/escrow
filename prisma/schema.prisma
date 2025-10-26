@@ -167,6 +167,9 @@ model PaymentMethod {
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
 
+  // Opposite relation for Transaction.paymentMethod
+  transactions      Transaction[]
+
   @@index([userId, status])
   @@index([currency, country])
   @@index([bankCode])
@@ -376,7 +379,9 @@ enum TransactionType {
 
 enum TransactionStatus {
   PENDING
-  
+  PENDING_APPROVAL
+  REQUIRES_OTP
+  PROCESSING
   SUCCESS
   FAILED
 }
@@ -396,6 +401,14 @@ model Transaction {
   amount    Float
   currency  Currency
   direction TransactionDirection  
+   // Paystack specific fields
+  paystackReference String?           // Paystack's transaction reference
+  verificationMeta  Json?             // Store additional verification data like OTP, transfer data, etc.
+  
+  // Optional: Link to payment method for withdrawals
+  paymentMethodId  String?
+  paymentMethod    PaymentMethod?    @relation(fields: [paymentMethodId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

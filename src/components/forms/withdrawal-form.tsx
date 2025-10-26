@@ -25,8 +25,13 @@ const schema = z.object({
     .max(1_000_000, "Maximum withdrawal is ₦1,000,000"),
   paymentMethodId: z.string().min(1, "Please select a bank account"),
 })
+const otpSchema = z.object({
+  otp: z.string().min(1, "OTP is required").length(6, "OTP must be 6 digits"),
+})
+
 
 type Values = z.infer<typeof schema>
+type OTPValues = z.infer<typeof otpSchema>
 
 type PaymentMethod = {
   id: string;
@@ -44,6 +49,8 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
   const [error, setError] = useState<string | null>(null)
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [loadingMethods, setLoadingMethods] = useState(true)
+  const [requiresOTP, setRequiresOTP] = useState(false)
+  const [transferReference, setTransferReference] = useState<string | null>(null)
 
   const form = useForm<Values>({
     resolver: zodResolver(schema),
@@ -52,6 +59,14 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
       paymentMethodId: ""
     },
   })
+
+   const otpForm = useForm<OTPValues>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: { 
+      otp: ""
+    },
+  })
+
 
   // Load payment methods using your existing function
   useEffect(() => {
@@ -86,6 +101,39 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
           setError(data.error ?? data.message ?? "Withdrawal failed")
           return
         }
+         if (data.requiresOtp) {
+          setRequiresOTP(true)
+          setTransferReference(data.transferReference)
+          toast.info("Please enter the OTP sent to your registered Paystack email")
+        } else {
+        onSuccess()
+        }
+      } catch {
+        setError("Unexpected error, please try again")
+      }
+    })
+  }
+
+   const onSubmitOTP = (values: OTPValues) => {
+    setError(null)
+    startTransition(async () => {
+      try {
+        const endpoint = "/api/paystack/approve-transfer"
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transferReference,
+            otp: values.otp
+          }),
+        })
+        const data = await res.json()
+        
+        if (!res.ok) {
+          setError(data.error ?? data.message ?? "OTP verification failed")
+          return
+        }
+
         onSuccess()
       } catch {
         setError("Unexpected error, please try again")
@@ -93,9 +141,76 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
     })
   }
 
+
+
   const selectedPaymentMethod = paymentMethods.find(
     method => method.id === form.watch("paymentMethodId")
   )
+
+
+   if (requiresOTP) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold mb-2">OTP Verification Required</h3>
+          <p className="text-muted-foreground">
+            Please check your registered Paystack email for the OTP to approve this transfer.
+          </p>
+        </div>
+
+        <Form {...otpForm}>
+          <form onSubmit={otpForm.handleSubmit(onSubmitOTP)} className="space-y-4">
+            <FormField
+              control={otpForm.control}
+              name="otp"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Enter OTP</FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="123456"
+                    maxLength={6}
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "").slice(0, 6)
+                      field.onChange(value)
+                    }}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+            
+            <div className="flex gap-3">
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => setRequiresOTP(false)}
+                disabled={isPending}
+              >
+                Back
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isPending}
+                className="flex-1"
+              >
+                {isPending ? "Verifying OTP…" : "Approve Transfer"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    )
+  }
+
+
 
   if (loadingMethods) {
     return (

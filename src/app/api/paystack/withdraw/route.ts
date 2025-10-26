@@ -61,11 +61,12 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user.id,
         type: "WITHDRAWAL",
-        status: "PENDING",
+        status: "PENDING_APPROVAL", // Changed to pending approval
         reference,
         amount,
         direction: "DEBIT",
         currency: "NGN",
+        paymentMethodId: paymentMethod.id,
       },
     })
 
@@ -78,7 +79,48 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Initialize Paystack transfer
+    // Step 1: First create a transfer recipient
+    const recipientResponse = await fetch("https://api.paystack.co/transferrecipient", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "nuban",
+        name: paymentMethod.accountName,
+        account_number: paymentMethod.accountNumber,
+        bank_code: paymentMethod.bankCode,
+        currency: "NGN",
+      }),
+    })
+
+    const recipientData = await recipientResponse.json()
+
+    if (!recipientData.status) {
+      // If recipient creation fails, refund the user
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          balance: { increment: amount },
+          ledgerbalance: { increment: amount }
+        }
+      })
+
+      await db.transaction.update({
+        where: { id: transaction.id },
+        data: { status: "FAILED" }
+      })
+
+      return NextResponse.json(
+        { error: recipientData.message || "Failed to create transfer recipient" },
+        { status: 400 }
+      )
+    }
+
+    const recipientCode = recipientData.data.recipient_code
+
+    // Step 2: Initiate transfer with OTP requirement
     const transferResponse = await fetch("https://api.paystack.co/transfer", {
       method: "POST",
       headers: {
@@ -87,17 +129,39 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         source: "balance",
-        amount: amount * 100, // Paystack expects kobo
+        amount: amount * 100,
         reference,
-        recipient: paymentMethod.accountNumber,
-        reason: "Withdrawal",
-        bank_code: paymentMethod.bankCode,
-        account_number: paymentMethod.accountNumber,
-        currency: "NGN",
+        recipient: recipientCode,
+        reason: "Withdrawal from wallet",
       }),
     })
 
     const transferData = await transferResponse.json()
+
+    // If transfer requires OTP approval
+    if (transferData.status === false && transferData.message?.includes("OTP")) {
+      // Store transfer data for OTP verification
+      await db.transaction.update({
+        where: { id: transaction.id },
+        data: {
+          status: "REQUIRES_OTP",
+          paystackReference: transferData.data?.reference,
+          verificationMeta: { 
+            transferData: transferData.data,
+            recipientCode,
+            requiresOtp: true
+          }
+        }
+      })
+
+      return NextResponse.json({
+        success: true,
+        requiresOtp: true,
+        message: "Transfer requires OTP approval",
+        reference: transferData.data?.reference,
+        transferReference: transferData.data?.reference
+      })
+    }
 
     if (!transferData.status) {
       // If Paystack transfer fails, refund the user
@@ -124,9 +188,12 @@ export async function POST(req: NextRequest) {
     await db.transaction.update({
       where: { id: transaction.id },
       data: {
-        status: "PENDING",
-        reference: transferData.data.reference,
-        direction: "DEBIT",
+        status: "PROCESSING",
+        paystackReference: transferData.data.reference,
+        verificationMeta: { 
+          transferData: transferData.data,
+          recipientCode
+        }
       }
     })
 
